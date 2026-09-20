@@ -366,7 +366,7 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Dev Login
   const devLogin = (pass: string) => {
-    if (pass === 'admin123' || pass === 'admin' || pass === 'dev') {
+    if (pass === 'adminpassword' || pass === 'admin' || pass === 'dev') {
       setIsDevAuthenticated(true);
       return true;
     }

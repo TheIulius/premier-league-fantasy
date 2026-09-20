@@ -24,7 +24,7 @@ Built for friends to play together in shared leagues with live scores and rankin
   - Multiple friends can join, create their own manager profile, and manage their own team.
   - All managers compete in a shared Global League and private mini-leagues.
 - **Developer Portal (`/dev`)**:
-  - Login password: `admin123` (or 1-click bypass).
+  - Login password: `adminpassword` (or 1-click bypass).
   - Live entry for Minutes, Goals, Assists, Clean Sheets, Cards, Saves, and Bonus Points.
   - Auto-Simulate Gameweek match results with 1 click.
   - Finalize Gameweek & advance schedule.

@@ -168,7 +168,7 @@ export const AdminPortal: React.FC = () => {
             <div className="relative">
               <input
                 type="password"
-                placeholder="Enter password (default: admin123)"
+                placeholder="Enter password (default: adminpassword)"
                 value={pinInput}
                 onChange={(e) => {
                   setPinInput(e.target.value);
@@ -181,7 +181,7 @@ export const AdminPortal: React.FC = () => {
 
             {loginError && (
               <div className="text-[11px] font-bold text-[#e90052] flex items-center justify-center gap-1">
-                <AlertCircle className="w-3.5 h-3.5" /> Incorrect password. Use admin123
+                <AlertCircle className="w-3.5 h-3.5" /> Incorrect password. Use adminpassword
               </div>
             )}
 
@@ -196,7 +196,7 @@ export const AdminPortal: React.FC = () => {
           {/* Quick bypass button for user */}
           <div className="mt-4 pt-3 border-t border-white/10">
             <button
-              onClick={() => devLogin('admin123')}
+              onClick={() => devLogin('adminpassword')}
               className="text-xs font-bold text-gray-400 hover:text-[#00ff87] flex items-center justify-center gap-1 mx-auto"
             >
               <Unlock className="w-3.5 h-3.5" />
