@@ -1,6 +1,14 @@
 import { Club } from '../types/fpl';
 
 export const CLUBS: Record<string, Club> = {
+  SCH: {
+    id: 'SCH',
+    name: 'Team 11/5',
+    shortName: '11/5',
+    primaryColor: '#37003c',
+    secondaryColor: '#00ff87',
+    textColor: '#ffffff',
+  },
   ARS: {
     id: 'ARS',
     name: 'Arsenal',

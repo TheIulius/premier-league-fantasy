@@ -97,13 +97,16 @@ export interface GameweekCalculationResult {
  * At least 1 GKP, 3 DEF, 2 MID, 1 FWD.
  */
 export function isValidStartingXI(positions: Position[]): boolean {
-  if (positions.length !== 11) return false;
+  if (positions.length < 5 || positions.length > 11) return false;
   const gkCount = positions.filter((p) => p === 'GKP').length;
   const defCount = positions.filter((p) => p === 'DEF').length;
   const midCount = positions.filter((p) => p === 'MID').length;
   const fwdCount = positions.filter((p) => p === 'FWD').length;
 
-  return gkCount === 1 && defCount >= 3 && defCount <= 5 && midCount >= 2 && midCount <= 5 && fwdCount >= 1 && fwdCount <= 3;
+  if (positions.length === 11) {
+    return gkCount === 1 && defCount >= 3 && defCount <= 5 && midCount >= 2 && midCount <= 5 && fwdCount >= 1 && fwdCount <= 3;
+  }
+  return gkCount <= 1 && defCount >= 1 && midCount >= 1;
 }
 
 /**

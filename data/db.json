@@ -1,737 +1,166 @@
 {
   "currentGW": 1,
   "players": {
-    "p_raya": {
-      "id": "p_raya",
-      "name": "David Raya",
-      "webName": "Raya",
-      "clubId": "ARS",
+    "p_ika": {
+      "id": "p_ika",
+      "name": "Irakli Kakabadze",
+      "webName": "Ika",
+      "clubId": "SCH",
       "position": "GKP",
-      "cost": 5.5,
-      "totalPoints": 18,
-      "gwPoints": 6,
-      "form": 6,
-      "selectedByPercent": 28.4,
-      "isAvailable": true,
-      "gwStats": {
-        "1": {
-          "minutes": 90,
-          "goals": 0,
-          "assists": 0,
-          "cleanSheet": true,
-          "goalsConceded": 0,
-          "yellowCards": 0,
-          "redCards": 0,
-          "saves": 4,
-          "penaltiesSaved": 0,
-          "penaltiesMissed": 0,
-          "ownGoals": 0,
-          "bonus": 1
-        }
-      }
-    },
-    "p_flekken": {
-      "id": "p_flekken",
-      "name": "Mark Flekken",
-      "webName": "Flekken",
-      "clubId": "BRE",
-      "position": "GKP",
-      "cost": 4.5,
-      "totalPoints": 12,
-      "gwPoints": 3,
-      "form": 4,
-      "selectedByPercent": 12.1,
-      "isAvailable": true,
-      "gwStats": {
-        "1": {
-          "minutes": 90,
-          "goals": 0,
-          "assists": 0,
-          "cleanSheet": false,
-          "goalsConceded": 1,
-          "yellowCards": 0,
-          "redCards": 0,
-          "saves": 5,
-          "penaltiesSaved": 0,
-          "penaltiesMissed": 0,
-          "ownGoals": 0,
-          "bonus": 0
-        }
-      }
-    },
-    "p_ederson": {
-      "id": "p_ederson",
-      "name": "Ederson Moraes",
-      "webName": "Ederson",
-      "clubId": "MCI",
-      "position": "GKP",
-      "cost": 5.5,
-      "totalPoints": 15,
-      "gwPoints": 6,
+      "cost": 7.9,
+      "totalPoints": 0,
+      "gwPoints": 0,
       "form": 5,
-      "selectedByPercent": 14.8,
+      "selectedByPercent": 50,
       "isAvailable": true,
-      "gwStats": {
-        "1": {
-          "minutes": 90,
-          "goals": 0,
-          "assists": 0,
-          "cleanSheet": true,
-          "goalsConceded": 0,
-          "yellowCards": 0,
-          "redCards": 0,
-          "saves": 2,
-          "penaltiesSaved": 0,
-          "penaltiesMissed": 0,
-          "ownGoals": 0,
-          "bonus": 0
-        }
-      }
+      "gwStats": {}
     },
-    "p_pickford": {
-      "id": "p_pickford",
-      "name": "Jordan Pickford",
-      "webName": "Pickford",
-      "clubId": "EVE",
+    "p_futkara": {
+      "id": "p_futkara",
+      "name": "Aleksandre Phutkaradze",
+      "webName": "Futkara",
+      "clubId": "SCH",
       "position": "GKP",
-      "cost": 4.8,
-      "totalPoints": 9,
-      "gwPoints": 2,
-      "form": 3,
-      "selectedByPercent": 9.5,
-      "isAvailable": true,
-      "gwStats": {
-        "1": {
-          "minutes": 90,
-          "goals": 0,
-          "assists": 0,
-          "cleanSheet": false,
-          "goalsConceded": 2,
-          "yellowCards": 0,
-          "redCards": 0,
-          "saves": 3,
-          "penaltiesSaved": 0,
-          "penaltiesMissed": 0,
-          "ownGoals": 0,
-          "bonus": 0
-        }
-      }
-    },
-    "p_trent": {
-      "id": "p_trent",
-      "name": "Trent Alexander-Arnold",
-      "webName": "Alexander-Arnold",
-      "clubId": "LIV",
-      "position": "DEF",
-      "cost": 7,
-      "totalPoints": 22,
-      "gwPoints": 8,
-      "form": 7.3,
-      "selectedByPercent": 32.1,
-      "isAvailable": true,
-      "gwStats": {
-        "1": {
-          "minutes": 88,
-          "goals": 0,
-          "assists": 1,
-          "cleanSheet": true,
-          "goalsConceded": 0,
-          "yellowCards": 0,
-          "redCards": 0,
-          "saves": 0,
-          "penaltiesSaved": 0,
-          "penaltiesMissed": 0,
-          "ownGoals": 0,
-          "bonus": 2
-        }
-      }
-    },
-    "p_saliba": {
-      "id": "p_saliba",
-      "name": "William Saliba",
-      "webName": "Saliba",
-      "clubId": "ARS",
-      "position": "DEF",
-      "cost": 6,
-      "totalPoints": 19,
-      "gwPoints": 6,
-      "form": 6.3,
-      "selectedByPercent": 35.8,
-      "isAvailable": true,
-      "gwStats": {
-        "1": {
-          "minutes": 90,
-          "goals": 0,
-          "assists": 0,
-          "cleanSheet": true,
-          "goalsConceded": 0,
-          "yellowCards": 0,
-          "redCards": 0,
-          "saves": 0,
-          "penaltiesSaved": 0,
-          "penaltiesMissed": 0,
-          "ownGoals": 0,
-          "bonus": 0
-        }
-      }
-    },
-    "p_gabriel": {
-      "id": "p_gabriel",
-      "name": "Gabriel Magalhães",
-      "webName": "Gabriel",
-      "clubId": "ARS",
-      "position": "DEF",
-      "cost": 6,
-      "totalPoints": 24,
-      "gwPoints": 7,
-      "form": 8,
-      "selectedByPercent": 26.5,
-      "isAvailable": true,
-      "gwStats": {
-        "1": {
-          "minutes": 90,
-          "goals": 0,
-          "assists": 0,
-          "cleanSheet": true,
-          "goalsConceded": 0,
-          "yellowCards": 0,
-          "redCards": 0,
-          "saves": 0,
-          "penaltiesSaved": 0,
-          "penaltiesMissed": 0,
-          "ownGoals": 0,
-          "bonus": 1
-        }
-      }
-    },
-    "p_porro": {
-      "id": "p_porro",
-      "name": "Pedro Porro",
-      "webName": "Porro",
-      "clubId": "TOT",
-      "position": "DEF",
-      "cost": 5.5,
-      "totalPoints": 17,
-      "gwPoints": 5,
-      "form": 5.7,
-      "selectedByPercent": 29.2,
-      "isAvailable": true,
-      "gwStats": {
-        "1": {
-          "minutes": 90,
-          "goals": 0,
-          "assists": 1,
-          "cleanSheet": false,
-          "goalsConceded": 1,
-          "yellowCards": 0,
-          "redCards": 0,
-          "saves": 0,
-          "penaltiesSaved": 0,
-          "penaltiesMissed": 0,
-          "ownGoals": 0,
-          "bonus": 0
-        }
-      }
-    },
-    "p_gvardiol": {
-      "id": "p_gvardiol",
-      "name": "Joško Gvardiol",
-      "webName": "Gvardiol",
-      "clubId": "MCI",
-      "position": "DEF",
-      "cost": 5.9,
-      "totalPoints": 20,
-      "gwPoints": 6,
-      "form": 6.7,
-      "selectedByPercent": 24.1,
-      "isAvailable": true,
-      "gwStats": {
-        "1": {
-          "minutes": 90,
-          "goals": 0,
-          "assists": 0,
-          "cleanSheet": true,
-          "goalsConceded": 0,
-          "yellowCards": 0,
-          "redCards": 0,
-          "saves": 0,
-          "penaltiesSaved": 0,
-          "penaltiesMissed": 0,
-          "ownGoals": 0,
-          "bonus": 0
-        }
-      }
-    },
-    "p_robinson": {
-      "id": "p_robinson",
-      "name": "Antonee Robinson",
-      "webName": "Robinson",
-      "clubId": "FUL",
-      "position": "DEF",
-      "cost": 4.6,
-      "totalPoints": 14,
-      "gwPoints": 5,
-      "form": 4.7,
-      "selectedByPercent": 18.3,
-      "isAvailable": true,
-      "gwStats": {
-        "1": {
-          "minutes": 90,
-          "goals": 0,
-          "assists": 1,
-          "cleanSheet": false,
-          "goalsConceded": 1,
-          "yellowCards": 0,
-          "redCards": 0,
-          "saves": 0,
-          "penaltiesSaved": 0,
-          "penaltiesMissed": 0,
-          "ownGoals": 0,
-          "bonus": 0
-        }
-      }
-    },
-    "p_aina": {
-      "id": "p_aina",
-      "name": "Ola Aina",
-      "webName": "Aina",
-      "clubId": "NFO",
-      "position": "DEF",
-      "cost": 4.5,
-      "totalPoints": 15,
-      "gwPoints": 6,
+      "cost": 8.9,
+      "totalPoints": 0,
+      "gwPoints": 0,
       "form": 5,
-      "selectedByPercent": 14.2,
+      "selectedByPercent": 50,
       "isAvailable": true,
-      "gwStats": {
-        "1": {
-          "minutes": 90,
-          "goals": 0,
-          "assists": 0,
-          "cleanSheet": true,
-          "goalsConceded": 0,
-          "yellowCards": 0,
-          "redCards": 0,
-          "saves": 0,
-          "penaltiesSaved": 0,
-          "penaltiesMissed": 0,
-          "ownGoals": 0,
-          "bonus": 0
-        }
-      }
+      "gwStats": {}
     },
-    "p_salah": {
-      "id": "p_salah",
-      "name": "Mohamed Salah",
-      "webName": "Salah",
-      "clubId": "LIV",
-      "position": "MID",
-      "cost": 12.8,
-      "totalPoints": 34,
-      "gwPoints": 12,
-      "form": 11.3,
-      "selectedByPercent": 44.2,
-      "isAvailable": true,
-      "gwStats": {
-        "1": {
-          "minutes": 90,
-          "goals": 1,
-          "assists": 1,
-          "cleanSheet": true,
-          "goalsConceded": 0,
-          "yellowCards": 0,
-          "redCards": 0,
-          "saves": 0,
-          "penaltiesSaved": 0,
-          "penaltiesMissed": 0,
-          "ownGoals": 0,
-          "bonus": 3
-        }
-      }
-    },
-    "p_palmer": {
-      "id": "p_palmer",
-      "name": "Cole Palmer",
-      "webName": "Palmer",
-      "clubId": "CHE",
-      "position": "MID",
-      "cost": 10.8,
-      "totalPoints": 31,
-      "gwPoints": 10,
-      "form": 10.3,
-      "selectedByPercent": 51.7,
-      "isAvailable": true,
-      "gwStats": {
-        "1": {
-          "minutes": 85,
-          "goals": 1,
-          "assists": 1,
-          "cleanSheet": false,
-          "goalsConceded": 0,
-          "yellowCards": 0,
-          "redCards": 0,
-          "saves": 0,
-          "penaltiesSaved": 0,
-          "penaltiesMissed": 0,
-          "ownGoals": 0,
-          "bonus": 2
-        }
-      }
-    },
-    "p_saka": {
-      "id": "p_saka",
-      "name": "Bukayo Saka",
-      "webName": "Saka",
-      "clubId": "ARS",
-      "position": "MID",
-      "cost": 10.1,
-      "totalPoints": 28,
-      "gwPoints": 9,
-      "form": 9.3,
-      "selectedByPercent": 33.6,
-      "isAvailable": true,
-      "gwStats": {
-        "1": {
-          "minutes": 82,
-          "goals": 1,
-          "assists": 0,
-          "cleanSheet": true,
-          "goalsConceded": 0,
-          "yellowCards": 0,
-          "redCards": 0,
-          "saves": 0,
-          "penaltiesSaved": 0,
-          "penaltiesMissed": 0,
-          "ownGoals": 0,
-          "bonus": 2
-        }
-      }
-    },
-    "p_son": {
-      "id": "p_son",
-      "name": "Son Heung-min",
-      "webName": "Son",
-      "clubId": "TOT",
-      "position": "MID",
-      "cost": 9.8,
-      "totalPoints": 22,
-      "gwPoints": 8,
-      "form": 7.3,
-      "selectedByPercent": 16.5,
-      "isAvailable": true,
-      "gwStats": {
-        "1": {
-          "minutes": 90,
-          "goals": 1,
-          "assists": 0,
-          "cleanSheet": false,
-          "goalsConceded": 0,
-          "yellowCards": 0,
-          "redCards": 0,
-          "saves": 0,
-          "penaltiesSaved": 0,
-          "penaltiesMissed": 0,
-          "ownGoals": 0,
-          "bonus": 1
-        }
-      }
-    },
-    "p_foden": {
-      "id": "p_foden",
-      "name": "Phil Foden",
-      "webName": "Foden",
-      "clubId": "MCI",
-      "position": "MID",
-      "cost": 9.2,
-      "totalPoints": 18,
-      "gwPoints": 5,
-      "form": 6,
-      "selectedByPercent": 12.8,
-      "isAvailable": true,
-      "gwStats": {
-        "1": {
-          "minutes": 78,
-          "goals": 0,
-          "assists": 1,
-          "cleanSheet": true,
-          "goalsConceded": 0,
-          "yellowCards": 0,
-          "redCards": 0,
-          "saves": 0,
-          "penaltiesSaved": 0,
-          "penaltiesMissed": 0,
-          "ownGoals": 0,
-          "bonus": 0
-        }
-      }
-    },
-    "p_mbeumo": {
-      "id": "p_mbeumo",
-      "name": "Bryan Mbeumo",
-      "webName": "Mbeumo",
-      "clubId": "BRE",
-      "position": "MID",
-      "cost": 7.3,
-      "totalPoints": 25,
-      "gwPoints": 8,
-      "form": 8.3,
-      "selectedByPercent": 34,
-      "isAvailable": true,
-      "gwStats": {
-        "1": {
-          "minutes": 90,
-          "goals": 1,
-          "assists": 0,
-          "cleanSheet": false,
-          "goalsConceded": 0,
-          "yellowCards": 0,
-          "redCards": 0,
-          "saves": 0,
-          "penaltiesSaved": 0,
-          "penaltiesMissed": 0,
-          "ownGoals": 0,
-          "bonus": 1
-        }
-      }
-    },
-    "p_rogers": {
-      "id": "p_rogers",
-      "name": "Morgan Rogers",
-      "webName": "Rogers",
-      "clubId": "AVL",
-      "position": "MID",
-      "cost": 5.1,
-      "totalPoints": 16,
-      "gwPoints": 6,
-      "form": 5.3,
-      "selectedByPercent": 19.8,
-      "isAvailable": true,
-      "gwStats": {
-        "1": {
-          "minutes": 90,
-          "goals": 0,
-          "assists": 1,
-          "cleanSheet": false,
-          "goalsConceded": 0,
-          "yellowCards": 0,
-          "redCards": 0,
-          "saves": 0,
-          "penaltiesSaved": 0,
-          "penaltiesMissed": 0,
-          "ownGoals": 0,
-          "bonus": 1
-        }
-      }
-    },
-    "p_rice": {
-      "id": "p_rice",
-      "name": "Declan Rice",
-      "webName": "Rice",
-      "clubId": "ARS",
-      "position": "MID",
-      "cost": 6.3,
-      "totalPoints": 14,
-      "gwPoints": 4,
-      "form": 4.7,
-      "selectedByPercent": 8.4,
-      "isAvailable": true,
-      "gwStats": {
-        "1": {
-          "minutes": 90,
-          "goals": 0,
-          "assists": 0,
-          "cleanSheet": true,
-          "goalsConceded": 0,
-          "yellowCards": 0,
-          "redCards": 0,
-          "saves": 0,
-          "penaltiesSaved": 0,
-          "penaltiesMissed": 0,
-          "ownGoals": 0,
-          "bonus": 0
-        }
-      }
-    },
-    "p_haaland": {
-      "id": "p_haaland",
-      "name": "Erling Haaland",
-      "webName": "Haaland",
-      "clubId": "MCI",
-      "position": "FWD",
-      "cost": 15,
-      "totalPoints": 38,
-      "gwPoints": 13,
-      "form": 12.7,
-      "selectedByPercent": 68.4,
-      "isAvailable": true,
-      "gwStats": {
-        "1": {
-          "minutes": 90,
-          "goals": 2,
-          "assists": 0,
-          "cleanSheet": false,
-          "goalsConceded": 0,
-          "yellowCards": 0,
-          "redCards": 0,
-          "saves": 0,
-          "penaltiesSaved": 0,
-          "penaltiesMissed": 0,
-          "ownGoals": 0,
-          "bonus": 3
-        }
-      }
-    },
-    "p_watkins": {
-      "id": "p_watkins",
-      "name": "Ollie Watkins",
-      "webName": "Watkins",
-      "clubId": "AVL",
-      "position": "FWD",
-      "cost": 9,
-      "totalPoints": 24,
-      "gwPoints": 7,
-      "form": 8,
-      "selectedByPercent": 28.9,
-      "isAvailable": true,
-      "gwStats": {
-        "1": {
-          "minutes": 86,
-          "goals": 1,
-          "assists": 0,
-          "cleanSheet": false,
-          "goalsConceded": 0,
-          "yellowCards": 0,
-          "redCards": 0,
-          "saves": 0,
-          "penaltiesSaved": 0,
-          "penaltiesMissed": 0,
-          "ownGoals": 0,
-          "bonus": 1
-        }
-      }
-    },
-    "p_isak": {
-      "id": "p_isak",
-      "name": "Alexander Isak",
-      "webName": "Isak",
-      "clubId": "NEW",
-      "position": "FWD",
-      "cost": 8.4,
-      "totalPoints": 21,
-      "gwPoints": 6,
-      "form": 7,
-      "selectedByPercent": 27.2,
-      "isAvailable": true,
-      "gwStats": {
-        "1": {
-          "minutes": 84,
-          "goals": 1,
-          "assists": 0,
-          "cleanSheet": false,
-          "goalsConceded": 0,
-          "yellowCards": 0,
-          "redCards": 0,
-          "saves": 0,
-          "penaltiesSaved": 0,
-          "penaltiesMissed": 0,
-          "ownGoals": 0,
-          "bonus": 0
-        }
-      }
-    },
-    "p_wood": {
-      "id": "p_wood",
-      "name": "Chris Wood",
-      "webName": "Wood",
-      "clubId": "NFO",
-      "position": "FWD",
-      "cost": 6.3,
-      "totalPoints": 20,
-      "gwPoints": 6,
-      "form": 6.7,
-      "selectedByPercent": 22.6,
-      "isAvailable": true,
-      "gwStats": {
-        "1": {
-          "minutes": 90,
-          "goals": 1,
-          "assists": 0,
-          "cleanSheet": false,
-          "goalsConceded": 0,
-          "yellowCards": 0,
-          "redCards": 0,
-          "saves": 0,
-          "penaltiesSaved": 0,
-          "penaltiesMissed": 0,
-          "ownGoals": 0,
-          "bonus": 0
-        }
-      }
-    },
-    "p_welbeck": {
-      "id": "p_welbeck",
-      "name": "Danny Welbeck",
-      "webName": "Welbeck",
-      "clubId": "BHA",
-      "position": "FWD",
-      "cost": 5.8,
-      "totalPoints": 17,
-      "gwPoints": 5,
-      "form": 5.7,
-      "selectedByPercent": 15.1,
-      "isAvailable": true,
-      "gwStats": {
-        "1": {
-          "minutes": 75,
-          "goals": 1,
-          "assists": 0,
-          "cleanSheet": false,
-          "goalsConceded": 0,
-          "yellowCards": 0,
-          "redCards": 0,
-          "saves": 0,
-          "penaltiesSaved": 0,
-          "penaltiesMissed": 0,
-          "ownGoals": 0,
-          "bonus": 0
-        }
-      }
-    },
-    "p_delap": {
-      "id": "p_delap",
-      "name": "Liam Delap",
-      "webName": "Delap",
-      "clubId": "IPS",
-      "position": "FWD",
-      "cost": 5.5,
-      "totalPoints": 15,
-      "gwPoints": 4,
+    "p_shinjo": {
+      "id": "p_shinjo",
+      "name": "Ilia Shinjiashvili",
+      "webName": "Shinjo",
+      "clubId": "SCH",
+      "position": "DEF",
+      "cost": 10,
+      "totalPoints": 0,
+      "gwPoints": 0,
       "form": 5,
-      "selectedByPercent": 8.2,
+      "selectedByPercent": 100,
       "isAvailable": true,
-      "gwStats": {
-        "1": {
-          "minutes": 90,
-          "goals": 1,
-          "assists": 0,
-          "cleanSheet": false,
-          "goalsConceded": 0,
-          "yellowCards": 0,
-          "redCards": 0,
-          "saves": 0,
-          "penaltiesSaved": 0,
-          "penaltiesMissed": 0,
-          "ownGoals": 0,
-          "bonus": 0
-        }
-      }
+      "gwStats": {}
+    },
+    "p_zarno": {
+      "id": "p_zarno",
+      "name": "Dachi Zarnadze",
+      "webName": "Zarno",
+      "clubId": "SCH",
+      "position": "DEF",
+      "cost": 8.8,
+      "totalPoints": 0,
+      "gwPoints": 0,
+      "form": 5,
+      "selectedByPercent": 100,
+      "isAvailable": true,
+      "gwStats": {}
+    },
+    "p_dito": {
+      "id": "p_dito",
+      "name": "Demna Baqradze",
+      "webName": "Dito",
+      "clubId": "SCH",
+      "position": "DEF",
+      "cost": 8.3,
+      "totalPoints": 0,
+      "gwPoints": 0,
+      "form": 5,
+      "selectedByPercent": 100,
+      "isAvailable": true,
+      "gwStats": {}
+    },
+    "p_mandara": {
+      "id": "p_mandara",
+      "name": "Tsotne Mandaria",
+      "webName": "Mandara",
+      "clubId": "SCH",
+      "position": "DEF",
+      "cost": 8.2,
+      "totalPoints": 0,
+      "gwPoints": 0,
+      "form": 5,
+      "selectedByPercent": 100,
+      "isAvailable": true,
+      "gwStats": {}
+    },
+    "p_ciskara": {
+      "id": "p_ciskara",
+      "name": "Sandro Tsiskaradze",
+      "webName": "ciskara",
+      "clubId": "SCH",
+      "position": "MID",
+      "cost": 9.5,
+      "totalPoints": 0,
+      "gwPoints": 0,
+      "form": 5,
+      "selectedByPercent": 100,
+      "isAvailable": true,
+      "gwStats": {}
+    },
+    "p_rati": {
+      "id": "p_rati",
+      "name": "Rati Tomadze",
+      "webName": "Rati",
+      "clubId": "SCH",
+      "position": "MID",
+      "cost": 9.4,
+      "totalPoints": 0,
+      "gwPoints": 0,
+      "form": 5,
+      "selectedByPercent": 100,
+      "isAvailable": true,
+      "gwStats": {}
+    },
+    "p_vadzo": {
+      "id": "p_vadzo",
+      "name": "Vato Shekishvili",
+      "webName": "Vadzo",
+      "clubId": "SCH",
+      "position": "MID",
+      "cost": 8.3,
+      "totalPoints": 0,
+      "gwPoints": 0,
+      "form": 5,
+      "selectedByPercent": 100,
+      "isAvailable": true,
+      "gwStats": {}
+    },
+    "p_chaga": {
+      "id": "p_chaga",
+      "name": "Nika Chagalidze",
+      "webName": "Chaga",
+      "clubId": "SCH",
+      "position": "FWD",
+      "cost": 9.1,
+      "totalPoints": 0,
+      "gwPoints": 0,
+      "form": 5,
+      "selectedByPercent": 100,
+      "isAvailable": true,
+      "gwStats": {}
+    },
+    "p_tsotne": {
+      "id": "p_tsotne",
+      "name": "Tsotne Tsiskaradze",
+      "webName": "Tsotne",
+      "clubId": "SCH",
+      "position": "FWD",
+      "cost": 8.7,
+      "totalPoints": 0,
+      "gwPoints": 0,
+      "form": 5,
+      "selectedByPercent": 100,
+      "isAvailable": true,
+      "gwStats": {}
     }
   },
   "fixtures": [
     {
       "id": "fix_gw1_1",
       "gameweek": 1,
-      "homeClubId": "ARS",
+      "homeClubId": "SCH",
       "awayClubId": "WOL",
       "homeScore": 2,
       "awayScore": 0,
@@ -930,15 +359,6 @@
           "gwPoints": 65,
           "rank": 7,
           "previousRank": 7
-        },
-        {
-          "id": "user_1789929998559",
-          "managerName": "Jack",
-          "teamName": "Jack FC",
-          "totalPoints": 84,
-          "gwPoints": 0,
-          "rank": 8,
-          "previousRank": 8
         }
       ]
     },
@@ -988,112 +408,84 @@
         "managerName": "Apex Manager",
         "players": [
           {
-            "playerId": "p_raya",
+            "playerId": "p_ika",
             "isStarter": true,
             "benchOrder": 0,
             "isCaptain": false,
             "isViceCaptain": false
           },
           {
-            "playerId": "p_saliba",
+            "playerId": "p_shinjo",
             "isStarter": true,
             "benchOrder": 0,
             "isCaptain": false,
             "isViceCaptain": false
           },
           {
-            "playerId": "p_porro",
+            "playerId": "p_zarno",
             "isStarter": true,
             "benchOrder": 0,
             "isCaptain": false,
             "isViceCaptain": false
           },
           {
-            "playerId": "p_robinson",
+            "playerId": "p_dito",
             "isStarter": true,
             "benchOrder": 0,
             "isCaptain": false,
             "isViceCaptain": false
           },
           {
-            "playerId": "p_palmer",
+            "playerId": "p_mandara",
+            "isStarter": true,
+            "benchOrder": 0,
+            "isCaptain": false,
+            "isViceCaptain": false
+          },
+          {
+            "playerId": "p_ciskara",
             "isStarter": true,
             "benchOrder": 0,
             "isCaptain": false,
             "isViceCaptain": true
           },
           {
-            "playerId": "p_saka",
+            "playerId": "p_rati",
             "isStarter": true,
             "benchOrder": 0,
             "isCaptain": false,
             "isViceCaptain": false
           },
           {
-            "playerId": "p_mbeumo",
+            "playerId": "p_vadzo",
             "isStarter": true,
             "benchOrder": 0,
             "isCaptain": false,
             "isViceCaptain": false
           },
           {
-            "playerId": "p_rogers",
-            "isStarter": true,
-            "benchOrder": 0,
-            "isCaptain": false,
-            "isViceCaptain": false
-          },
-          {
-            "playerId": "p_haaland",
+            "playerId": "p_chaga",
             "isStarter": true,
             "benchOrder": 0,
             "isCaptain": true,
             "isViceCaptain": false
           },
           {
-            "playerId": "p_wood",
+            "playerId": "p_tsotne",
             "isStarter": true,
             "benchOrder": 0,
             "isCaptain": false,
             "isViceCaptain": false
           },
           {
-            "playerId": "p_welbeck",
-            "isStarter": true,
-            "benchOrder": 0,
-            "isCaptain": false,
-            "isViceCaptain": false
-          },
-          {
-            "playerId": "p_flekken",
+            "playerId": "p_futkara",
             "isStarter": false,
             "benchOrder": 1,
             "isCaptain": false,
             "isViceCaptain": false
-          },
-          {
-            "playerId": "p_aina",
-            "isStarter": false,
-            "benchOrder": 2,
-            "isCaptain": false,
-            "isViceCaptain": false
-          },
-          {
-            "playerId": "p_delap",
-            "isStarter": false,
-            "benchOrder": 3,
-            "isCaptain": false,
-            "isViceCaptain": false
-          },
-          {
-            "playerId": "p_gvardiol",
-            "isStarter": false,
-            "benchOrder": 4,
-            "isCaptain": false,
-            "isViceCaptain": false
           }
         ],
-        "bank": 0.5,
+        "bank": 2.9,
         "freeTransfers": 1,
         "transfersMadeThisGW": 0,
         "activeChip": null,
@@ -1114,112 +506,84 @@
         "managerName": "Jack",
         "players": [
           {
-            "playerId": "p_raya",
+            "playerId": "p_ika",
             "isStarter": true,
             "benchOrder": 0,
             "isCaptain": false,
             "isViceCaptain": false
           },
           {
-            "playerId": "p_saliba",
+            "playerId": "p_shinjo",
             "isStarter": true,
             "benchOrder": 0,
             "isCaptain": false,
             "isViceCaptain": false
           },
           {
-            "playerId": "p_porro",
+            "playerId": "p_zarno",
             "isStarter": true,
             "benchOrder": 0,
             "isCaptain": false,
             "isViceCaptain": false
           },
           {
-            "playerId": "p_robinson",
+            "playerId": "p_dito",
             "isStarter": true,
             "benchOrder": 0,
             "isCaptain": false,
             "isViceCaptain": false
           },
           {
-            "playerId": "p_palmer",
+            "playerId": "p_mandara",
+            "isStarter": true,
+            "benchOrder": 0,
+            "isCaptain": false,
+            "isViceCaptain": false
+          },
+          {
+            "playerId": "p_ciskara",
             "isStarter": true,
             "benchOrder": 0,
             "isCaptain": false,
             "isViceCaptain": true
           },
           {
-            "playerId": "p_saka",
+            "playerId": "p_rati",
             "isStarter": true,
             "benchOrder": 0,
             "isCaptain": false,
             "isViceCaptain": false
           },
           {
-            "playerId": "p_mbeumo",
+            "playerId": "p_vadzo",
             "isStarter": true,
             "benchOrder": 0,
             "isCaptain": false,
             "isViceCaptain": false
           },
           {
-            "playerId": "p_rogers",
-            "isStarter": true,
-            "benchOrder": 0,
-            "isCaptain": false,
-            "isViceCaptain": false
-          },
-          {
-            "playerId": "p_haaland",
+            "playerId": "p_chaga",
             "isStarter": true,
             "benchOrder": 0,
             "isCaptain": true,
             "isViceCaptain": false
           },
           {
-            "playerId": "p_wood",
+            "playerId": "p_tsotne",
             "isStarter": true,
             "benchOrder": 0,
             "isCaptain": false,
             "isViceCaptain": false
           },
           {
-            "playerId": "p_welbeck",
-            "isStarter": true,
-            "benchOrder": 0,
-            "isCaptain": false,
-            "isViceCaptain": false
-          },
-          {
-            "playerId": "p_flekken",
+            "playerId": "p_futkara",
             "isStarter": false,
             "benchOrder": 1,
             "isCaptain": false,
             "isViceCaptain": false
-          },
-          {
-            "playerId": "p_aina",
-            "isStarter": false,
-            "benchOrder": 2,
-            "isCaptain": false,
-            "isViceCaptain": false
-          },
-          {
-            "playerId": "p_delap",
-            "isStarter": false,
-            "benchOrder": 3,
-            "isCaptain": false,
-            "isViceCaptain": false
-          },
-          {
-            "playerId": "p_gvardiol",
-            "isStarter": false,
-            "benchOrder": 4,
-            "isCaptain": false,
-            "isViceCaptain": false
           }
         ],
-        "bank": 0.5,
+        "bank": 2.9,
         "freeTransfers": 1,
         "transfersMadeThisGW": 0,
         "activeChip": null,

@@ -150,7 +150,7 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       teamName: 'Apex XI',
       managerName: 'Apex Manager',
       players: DEFAULT_SQUAD_PLAYER_IDS,
-      bank: 0.5,
+      bank: 2.9,
       freeTransfers: 1,
       transfersMadeThisGW: 0,
       activeChip: null,
@@ -296,7 +296,7 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         teamName,
         managerName,
         players: [...DEFAULT_SQUAD_PLAYER_IDS],
-        bank: 0.5,
+        bank: 2.9,
         freeTransfers: 1,
         transfersMadeThisGW: 0,
         activeChip: null,
@@ -460,10 +460,11 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       return players[sp.playerId]?.clubId === inPlayer.clubId;
     }).length;
 
-    if (currentClubCount >= 3) {
+    const maxClubLimit = inPlayer.clubId === 'SCH' ? 15 : 3;
+    if (currentClubCount >= maxClubLimit) {
       return {
         success: false,
-        message: `Maximum 3 players allowed from ${CLUBS[inPlayer.clubId]?.name || inPlayer.clubId}`,
+        message: `Maximum ${maxClubLimit} players allowed from ${CLUBS[inPlayer.clubId]?.name || inPlayer.clubId}`,
       };
     }
 

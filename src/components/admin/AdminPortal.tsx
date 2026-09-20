@@ -49,7 +49,7 @@ export const AdminPortal: React.FC = () => {
   // New Player Form State
   const [newPlayerName, setNewPlayerName] = useState('');
   const [newPlayerWebName, setNewPlayerWebName] = useState('');
-  const [newPlayerClub, setNewPlayerClub] = useState('ARS');
+  const [newPlayerClub, setNewPlayerClub] = useState('SCH');
   const [newPlayerPos, setNewPlayerPos] = useState<Position>('MID');
   const [newPlayerCost, setNewPlayerCost] = useState('8.0');
 

@@ -97,7 +97,7 @@ app.post('/api/auth/register', (req: Request, res: Response) => {
       teamName: teamName.trim(),
       managerName: managerName.trim(),
       players: [...DEFAULT_SQUAD_PLAYER_IDS],
-      bank: 0.5,
+      bank: 2.9,
       freeTransfers: 1,
       transfersMadeThisGW: 0,
       activeChip: null,
@@ -242,7 +242,7 @@ app.post('/api/auth/logout', (req: Request, res: Response) => {
 
 // Admin Developer Authentication (Server-Side verification)
 app.post('/api/admin/login', (req: Request, res: Response) => {
-  const { password } = req.body;
+  const password = req.body.password || req.body.pin;
   const expectedPassword = process.env.ADMIN_PASSWORD || 'adminpassword';
 
   if (password && password === expectedPassword) {
@@ -277,7 +277,7 @@ app.post('/api/manager/login', (req: Request, res: Response) => {
         teamName: teamName.trim(),
         managerName: managerName.trim(),
         players: [...DEFAULT_SQUAD_PLAYER_IDS],
-        bank: 0.5,
+        bank: 2.9,
         freeTransfers: 1,
         transfersMadeThisGW: 0,
         activeChip: null,
@@ -365,13 +365,14 @@ app.post('/api/squad/transfer', (req: Request, res: Response) => {
     return res.status(400).json({ error: 'Must swap players in the same position' });
   }
 
-  // Club limit check
+  // Club limit check (allow up to 15 for SCH/Team 11/5)
   const clubCount = manager.squad.players.filter(
     (sp) => sp.playerId !== outPlayerId && data.players[sp.playerId]?.clubId === inP.clubId
   ).length;
 
-  if (clubCount >= 3) {
-    return res.status(400).json({ error: `Max 3 players from ${inP.clubId}` });
+  const maxClubLimit = inP.clubId === 'SCH' ? 15 : 3;
+  if (clubCount >= maxClubLimit) {
+    return res.status(400).json({ error: `Max ${maxClubLimit} players from ${inP.clubId}` });
   }
 
   const newBank = manager.squad.bank + outP.cost - inP.cost;

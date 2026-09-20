@@ -5,7 +5,7 @@ export const SEED_FIXTURES: Fixture[] = [
   {
     id: 'fix_gw1_1',
     gameweek: 1,
-    homeClubId: 'ARS',
+    homeClubId: 'SCH',
     awayClubId: 'WOL',
     homeScore: 2,
     awayScore: 0,
