@@ -31,8 +31,8 @@ export const TopHeader: React.FC = () => {
           />
           <div>
             <div className="flex items-center space-x-1.5">
-              <h1 className="text-sm font-extrabold tracking-tight text-white uppercase flex items-center gap-1 font-display">
-                Komarovi <span className="text-[#00ff87]">Fantasy</span>
+              <h1 className="text-xs sm:text-sm font-extrabold tracking-tight text-white uppercase flex items-center gap-1 font-display">
+                Komarovi <span className="text-[#00ff87]">Charity League</span>
               </h1>
               <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-[#00ff87]/20 text-[#00ff87] border border-[#00ff87]/30">
                 GW {currentGW}

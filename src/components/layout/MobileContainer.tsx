@@ -47,7 +47,7 @@ export const MobileContainer: React.FC<MobileContainerProps> = ({ children }) =>
               <img src="/komarovi-logo.png" alt="Komarovi School" className="h-5 w-auto object-contain opacity-75" />
             </div>
             <p className="text-[10px] text-gray-400/60 font-medium tracking-wide">
-              © Komarovi Fantasy • (Created By TheIulius)
+              © Komarovi Charity League • (Created By TheIulius)
             </p>
           </footer>
         </main>

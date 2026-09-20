@@ -141,8 +141,8 @@ export const SEED_FIXTURES: Fixture[] = [
 export const SEED_LEAGUES: League[] = [
   {
     id: 'league_overall',
-    name: 'Overall',
-    code: 'PL-GLOBAL',
+    name: 'Komarovi Charity League',
+    code: 'KCL-GLOBAL',
     isGlobal: true,
     members: [
       { id: 'mem_1', managerName: 'Oliver Smith', teamName: 'Klopps and Robbers', totalPoints: 92, gwPoints: 92, rank: 1, previousRank: 1 },

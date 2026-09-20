@@ -293,8 +293,8 @@
   "leagues": [
     {
       "id": "league_overall",
-      "name": "Overall",
-      "code": "PL-GLOBAL",
+      "name": "Komarovi Charity League",
+      "code": "KCL-GLOBAL",
       "isGlobal": true,
       "members": [
         {

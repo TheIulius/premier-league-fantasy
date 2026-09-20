@@ -23,7 +23,7 @@ export const FixturesView: React.FC = () => {
 
         <div className="text-center">
           <span className="text-[10px] text-gray-400 font-bold uppercase block">
-            Komarovi League Fixtures
+            Komarovi Charity League Fixtures
           </span>
           <span className="text-sm font-black text-white">Gameweek {selectedGW}</span>
         </div>
