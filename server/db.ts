@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { Player, Fixture, League, Squad } from '../src/types/fpl';
 import { SEED_PLAYERS, DEFAULT_SQUAD_PLAYER_IDS } from '../src/data/seedPlayers';
@@ -7,6 +8,18 @@ import { SEED_FIXTURES, SEED_LEAGUES } from '../src/data/seedFixtures';
 
 const DATA_DIR = process.env.DATA_DIR || path.join(process.cwd(), 'data');
 const DB_FILE = path.join(DATA_DIR, 'db.json');
+
+export interface UserAccount {
+  id: string;
+  username: string;
+  email: string;
+  passwordHash: string;
+  salt: string;
+  managerName: string;
+  teamName: string;
+  token?: string;
+  createdAt: string;
+}
 
 export interface ManagerProfile {
   id: string;
@@ -22,6 +35,22 @@ export interface DatabaseSchema {
   fixtures: Fixture[];
   leagues: League[];
   managers: Record<string, ManagerProfile>;
+  users: Record<string, UserAccount>; // Keyed by user ID
+}
+
+export function hashPassword(password: string, salt?: string): { hash: string; salt: string } {
+  const s = salt || crypto.randomBytes(16).toString('hex');
+  const hash = crypto.pbkdf2Sync(password, s, 1000, 64, 'sha512').toString('hex');
+  return { hash, salt: s };
+}
+
+export function verifyPassword(password: string, hash: string, salt: string): boolean {
+  const testHash = crypto.pbkdf2Sync(password, salt, 1000, 64, 'sha512').toString('hex');
+  return testHash === hash;
+}
+
+export function generateToken(): string {
+  return crypto.randomBytes(32).toString('hex');
 }
 
 function getDefaultData(): DatabaseSchema {
@@ -29,6 +58,20 @@ function getDefaultData(): DatabaseSchema {
   SEED_PLAYERS.forEach((p) => {
     playerMap[p.id] = p;
   });
+
+  const defaultPassword = hashPassword('fantasy123');
+
+  const defaultUser: UserAccount = {
+    id: 'user_1',
+    username: 'apex',
+    email: 'apex@fantasy.pl',
+    passwordHash: defaultPassword.hash,
+    salt: defaultPassword.salt,
+    managerName: 'Apex Manager',
+    teamName: 'Apex XI',
+    token: 'token_apex_demo',
+    createdAt: new Date().toISOString(),
+  };
 
   const defaultManager: ManagerProfile = {
     id: 'user_1',
@@ -59,6 +102,9 @@ function getDefaultData(): DatabaseSchema {
     managers: {
       user_1: defaultManager,
     },
+    users: {
+      user_1: defaultUser,
+    },
   };
 }
 
@@ -74,6 +120,9 @@ class Database {
       try {
         const raw = fs.readFileSync(DB_FILE, 'utf-8');
         this.data = JSON.parse(raw);
+        if (!this.data.users) {
+          this.data.users = {};
+        }
       } catch (err) {
         console.error('Error reading db.json, initializing with default data', err);
         this.data = getDefaultData();

@@ -2,7 +2,7 @@ import express, { Request, Response } from 'express';
 import cors from 'cors';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { db, ManagerProfile } from './db';
+import { db, ManagerProfile, hashPassword, verifyPassword, generateToken, UserAccount } from './db';
 import { calculateGameweekSquadPoints, calculatePlayerPoints } from '../src/engine/scoring';
 import { DEFAULT_SQUAD_PLAYER_IDS } from '../src/data/seedPlayers';
 import { CLUBS } from '../src/data/clubs';
@@ -42,6 +42,202 @@ app.get('/api/state', (req: Request, res: Response) => {
     managers: managersList,
     activeManager: manager,
   });
+});
+
+// --- AUTHENTICATION & SEPARATE ACCOUNTS ---
+
+// Register Account with Password
+app.post('/api/auth/register', (req: Request, res: Response) => {
+  const { username, email, password, managerName, teamName } = req.body;
+
+  if (!username || !password || !managerName || !teamName) {
+    return res.status(400).json({ error: 'Username, password, manager name and team name are required' });
+  }
+
+  if (password.length < 4) {
+    return res.status(400).json({ error: 'Password must be at least 4 characters' });
+  }
+
+  const data = db.getData();
+  if (!data.users) data.users = {};
+
+  const cleanUser = username.trim().toLowerCase();
+  const cleanEmail = (email || `${cleanUser}@fantasy.pl`).trim().toLowerCase();
+
+  // Check username uniqueness
+  const existingUser = Object.values(data.users).find(
+    (u) => u.username.toLowerCase() === cleanUser || (u.email && u.email.toLowerCase() === cleanEmail)
+  );
+
+  if (existingUser) {
+    return res.status(400).json({ error: 'Username or email is already taken' });
+  }
+
+  const id = 'user_' + Date.now();
+  const pwd = hashPassword(password);
+  const token = generateToken();
+
+  const newUser: UserAccount = {
+    id,
+    username: cleanUser,
+    email: cleanEmail,
+    passwordHash: pwd.hash,
+    salt: pwd.salt,
+    managerName: managerName.trim(),
+    teamName: teamName.trim(),
+    token,
+    createdAt: new Date().toISOString(),
+  };
+
+  const newManager: ManagerProfile = {
+    id,
+    managerName: managerName.trim(),
+    teamName: teamName.trim(),
+    squad: {
+      teamName: teamName.trim(),
+      managerName: managerName.trim(),
+      players: [...DEFAULT_SQUAD_PLAYER_IDS],
+      bank: 0.5,
+      freeTransfers: 1,
+      transfersMadeThisGW: 0,
+      activeChip: null,
+      usedChips: {
+        triple_captain: false,
+        bench_boost: false,
+        free_hit: false,
+      },
+    },
+    joinedAt: new Date().toISOString(),
+  };
+
+  data.users[id] = newUser;
+  data.managers[id] = newManager;
+
+  // Add to Global League
+  const globalLeague = data.leagues.find((l) => l.isGlobal);
+  if (globalLeague) {
+    globalLeague.members.push({
+      id,
+      managerName: newManager.managerName,
+      teamName: newManager.teamName,
+      totalPoints: 84,
+      gwPoints: 0,
+      rank: globalLeague.members.length + 1,
+      previousRank: globalLeague.members.length + 1,
+    });
+  }
+
+  db.save();
+
+  res.json({
+    success: true,
+    token,
+    user: {
+      id: newUser.id,
+      username: newUser.username,
+      email: newUser.email,
+      managerName: newUser.managerName,
+      teamName: newUser.teamName,
+    },
+    squad: newManager.squad,
+  });
+});
+
+// Log In with Username/Email & Password
+app.post('/api/auth/login', (req: Request, res: Response) => {
+  const { login, password } = req.body;
+  if (!login || !password) {
+    return res.status(400).json({ error: 'Login and password are required' });
+  }
+
+  const data = db.getData();
+  if (!data.users) data.users = {};
+
+  const clean = login.trim().toLowerCase();
+  const user = Object.values(data.users).find(
+    (u) => u.username.toLowerCase() === clean || (u.email && u.email.toLowerCase() === clean)
+  );
+
+  if (!user) {
+    return res.status(401).json({ error: 'Account not found. Please register.' });
+  }
+
+  const isValid = verifyPassword(password, user.passwordHash, user.salt);
+  if (!isValid) {
+    return res.status(401).json({ error: 'Incorrect password.' });
+  }
+
+  const token = generateToken();
+  user.token = token;
+  db.save();
+
+  const manager = data.managers[user.id] || Object.values(data.managers)[0];
+
+  res.json({
+    success: true,
+    token,
+    user: {
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      managerName: user.managerName,
+      teamName: user.teamName,
+    },
+    squad: manager ? manager.squad : null,
+  });
+});
+
+// Check Session / Current Logged In User
+app.get('/api/auth/me', (req: Request, res: Response) => {
+  const authHeader = req.headers.authorization;
+  const token = authHeader?.startsWith('Bearer ')
+    ? authHeader.substring(7)
+    : (req.query.token as string);
+
+  if (!token) {
+    return res.status(401).json({ error: 'No token provided' });
+  }
+
+  const data = db.getData();
+  if (!data.users) data.users = {};
+
+  const user = Object.values(data.users).find((u) => u.token === token);
+  if (!user) {
+    return res.status(401).json({ error: 'Invalid or expired session' });
+  }
+
+  const manager = data.managers[user.id];
+
+  res.json({
+    success: true,
+    user: {
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      managerName: user.managerName,
+      teamName: user.teamName,
+    },
+    squad: manager ? manager.squad : null,
+  });
+});
+
+// Log Out
+app.post('/api/auth/logout', (req: Request, res: Response) => {
+  const authHeader = req.headers.authorization;
+  const token = authHeader?.startsWith('Bearer ') ? authHeader.substring(7) : req.body.token;
+
+  if (token) {
+    const data = db.getData();
+    if (data.users) {
+      const user = Object.values(data.users).find((u) => u.token === token);
+      if (user) {
+        user.token = undefined;
+        db.save();
+      }
+    }
+  }
+
+  res.json({ success: true });
 });
 
 // 3. Manager Login / Register (for friends to join)

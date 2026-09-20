@@ -2,6 +2,7 @@ import React from 'react';
 import { TopHeader } from './TopHeader';
 import { BottomNav } from './BottomNav';
 import { ManagerModal } from './ManagerModal';
+import { AuthModal } from './AuthModal';
 import { useFPL } from '../../context/FPLContext';
 import { Wifi, Battery, Signal } from 'lucide-react';
 
@@ -10,7 +11,12 @@ interface MobileContainerProps {
 }
 
 export const MobileContainer: React.FC<MobileContainerProps> = ({ children }) => {
-  const { isManagerModalOpen, setIsManagerModalOpen } = useFPL();
+  const {
+    isManagerModalOpen,
+    setIsManagerModalOpen,
+    isAuthModalOpen,
+    setIsAuthModalOpen,
+  } = useFPL();
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-[#0e0010] py-0 md:py-6 px-0 md:px-4">
@@ -43,6 +49,12 @@ export const MobileContainer: React.FC<MobileContainerProps> = ({ children }) =>
         <ManagerModal
           isOpen={isManagerModalOpen}
           onClose={() => setIsManagerModalOpen(false)}
+        />
+
+        {/* Secure User Registration / Password Login Modal */}
+        <AuthModal
+          isOpen={isAuthModalOpen}
+          onClose={() => setIsAuthModalOpen(false)}
         />
       </div>
     </div>

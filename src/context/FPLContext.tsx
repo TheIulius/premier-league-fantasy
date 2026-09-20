@@ -73,8 +73,17 @@ interface FPLContextType {
   isManagerModalOpen: boolean;
   setIsManagerModalOpen: (open: boolean) => void;
   refreshServerState: () => void;
+  authUser: { id: string; username: string; email?: string; managerName: string; teamName: string } | null;
+  authToken: string | null;
+  isAuthModalOpen: boolean;
+  setIsAuthModalOpen: (open: boolean) => void;
+  loginUser: (login: string, pass: string) => Promise<void>;
+  registerUser: (data: { username: string; email?: string; password: string; managerName: string; teamName: string }) => Promise<void>;
+  logoutUser: () => void;
 }
 
+const STORAGE_KEY_AUTH_TOKEN = 'fpl_auth_token_v1';
+const STORAGE_KEY_AUTH_USER = 'fpl_auth_user_v1';
 const STORAGE_KEY_MANAGER_ID = 'fpl_active_manager_id_v1';
 const STORAGE_KEY_PLAYERS = 'fpl_players_v1';
 const STORAGE_KEY_SQUAD = 'fpl_squad_v1';
@@ -85,6 +94,26 @@ const STORAGE_KEY_GW = 'fpl_gw_v1';
 const FPLContext = createContext<FPLContextType | undefined>(undefined);
 
 export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [authToken, setAuthToken] = useState<string | null>(() => {
+    return localStorage.getItem(STORAGE_KEY_AUTH_TOKEN);
+  });
+
+  const [authUser, setAuthUser] = useState<{
+    id: string;
+    username: string;
+    email?: string;
+    managerName: string;
+    teamName: string;
+  } | null>(() => {
+    const saved = localStorage.getItem(STORAGE_KEY_AUTH_USER);
+    if (saved) {
+      try { return JSON.parse(saved); } catch (e) {}
+    }
+    return null;
+  });
+
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState<boolean>(false);
+
   const [currentManagerId, setCurrentManagerId] = useState<string>(() => {
     return localStorage.getItem(STORAGE_KEY_MANAGER_ID) || 'user_1';
   });
@@ -243,7 +272,7 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setCurrentManagerId(managerId);
   };
 
-  // Register New Friend Manager Profile
+  // Register New Friend Manager Profile (Legacy / Quick)
   const registerManager = async (managerName: string, teamName: string) => {
     try {
       const res = await api.loginManagerApi(managerName, teamName);
@@ -258,7 +287,6 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         await refreshServerState();
       }
     } catch (err) {
-      // Local fallback
       const id = 'user_' + Date.now();
       const newM: ManagerSummary = { id, managerName, teamName };
       setAvailableManagers((prev) => [...prev, newM]);
@@ -275,6 +303,65 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         usedChips: { triple_captain: false, bench_boost: false, free_hit: false },
       });
     }
+  };
+
+  // Secure Password-Protected Account Login
+  const loginUser = async (login: string, pass: string) => {
+    const res = await api.authLogin({ login, password: pass });
+    if (res.token && res.user) {
+      setAuthToken(res.token);
+      setAuthUser(res.user);
+      localStorage.setItem(STORAGE_KEY_AUTH_TOKEN, res.token);
+      localStorage.setItem(STORAGE_KEY_AUTH_USER, JSON.stringify(res.user));
+
+      setCurrentManagerId(res.user.id);
+      setCurrentManager({
+        id: res.user.id,
+        managerName: res.user.managerName,
+        teamName: res.user.teamName,
+      });
+
+      if (res.squad) setSquad(res.squad);
+      await refreshServerState();
+    }
+  };
+
+  // Secure Password-Protected Account Registration
+  const registerUser = async (data: {
+    username: string;
+    email?: string;
+    password: string;
+    managerName: string;
+    teamName: string;
+  }) => {
+    const res = await api.authRegister(data);
+    if (res.token && res.user) {
+      setAuthToken(res.token);
+      setAuthUser(res.user);
+      localStorage.setItem(STORAGE_KEY_AUTH_TOKEN, res.token);
+      localStorage.setItem(STORAGE_KEY_AUTH_USER, JSON.stringify(res.user));
+
+      setCurrentManagerId(res.user.id);
+      setCurrentManager({
+        id: res.user.id,
+        managerName: res.user.managerName,
+        teamName: res.user.teamName,
+      });
+
+      if (res.squad) setSquad(res.squad);
+      await refreshServerState();
+    }
+  };
+
+  // Log Out
+  const logoutUser = () => {
+    if (authToken) {
+      api.authLogout(authToken).catch(() => {});
+    }
+    setAuthToken(null);
+    setAuthUser(null);
+    localStorage.removeItem(STORAGE_KEY_AUTH_TOKEN);
+    localStorage.removeItem(STORAGE_KEY_AUTH_USER);
   };
 
   // Dev Login
@@ -652,6 +739,13 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         isManagerModalOpen,
         setIsManagerModalOpen,
         refreshServerState,
+        authUser,
+        authToken,
+        isAuthModalOpen,
+        setIsAuthModalOpen,
+        loginUser,
+        registerUser,
+        logoutUser,
       }}
     >
       {children}
