@@ -4,7 +4,6 @@ import { BottomNav } from './BottomNav';
 import { ManagerModal } from './ManagerModal';
 import { AuthModal } from './AuthModal';
 import { useFPL } from '../../context/FPLContext';
-import { Wifi, Battery, Signal } from 'lucide-react';
 
 interface MobileContainerProps {
   children: React.ReactNode;
@@ -20,18 +19,13 @@ export const MobileContainer: React.FC<MobileContainerProps> = ({ children }) =>
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-[#0e0010] py-0 md:py-6 px-0 md:px-4">
-      {/* Mobile Smartphone Frame Container */}
-      <div className="relative w-full max-w-[440px] min-h-screen md:min-h-[860px] md:max-h-[920px] bg-[#1a001d] md:rounded-[40px] shadow-[0_0_60px_rgba(55,0,60,0.8)] border-0 md:border-[8px] md:border-[#2f0334] overflow-hidden flex flex-col select-none">
-        {/* Dynamic Island / Notch on Desktop Preview */}
-        <div className="hidden md:flex justify-between items-center px-6 pt-2.5 pb-1 text-[11px] font-semibold text-gray-300 z-50 bg-[#2a002e] border-b border-white/5">
-          <span>9:41</span>
-          {/* Virtual Camera pill */}
-          <div className="w-20 h-4 bg-black/70 rounded-full mx-auto" />
-          <div className="flex items-center space-x-1.5 text-gray-300">
-            <Signal className="w-3 h-3" />
-            <Wifi className="w-3 h-3" />
-            <Battery className="w-3.5 h-3.5" />
-          </div>
+      {/* Mobile-first Container Frame */}
+      <div className="relative w-full max-w-[460px] min-h-screen md:min-h-[860px] md:max-h-[920px] bg-[#1a001d] md:rounded-3xl shadow-2xl border-0 md:border md:border-[#4d0c54]/60 overflow-hidden flex flex-col select-none">
+        {/* Top small Beta Version banner */}
+        <div className="w-full bg-[#220027] border-b border-white/5 py-1 px-3 text-center select-none">
+          <span className="text-[10px] font-semibold text-gray-400/80 tracking-widest uppercase">
+            Beta Version
+          </span>
         </div>
 
         {/* Top Header */}
