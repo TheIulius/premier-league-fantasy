@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2c0032" />
+      <stop offset="50%" stop-color="#19001e" />
+      <stop offset="100%" stop-color="#0f0013" />
+    </linearGradient>
+
+    <linearGradient id="neonBorder" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00ff87" />
+      <stop offset="50%" stop-color="#04f5ff" />
+      <stop offset="100%" stop-color="#ab00ff" />
+    </linearGradient>
+
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffe259" />
+      <stop offset="100%" stop-color="#ffa751" />
+    </linearGradient>
+
+    <linearGradient id="textGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" />
+      <stop offset="35%" stop-color="#00ff87" />
+      <stop offset="100%" stop-color="#00bd63" />
+    </linearGradient>
+
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#00ff87" flood-opacity="0.6" />
+    </filter>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#000000" flood-opacity="0.8" />
+    </filter>
+  </defs>
+
+  <!-- Outer Crest Circle with Gradient Neon Border -->
+  <circle cx="100" cy="100" r="95" fill="url(#bgGrad)" stroke="url(#neonBorder)" stroke-width="5" />
+  <circle cx="100" cy="100" r="88" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="1.5" stroke-dasharray="3,3" />
+
+  <!-- Stars at top -->
+  <g fill="url(#goldGrad)" transform="translate(100, 20) scale(0.8)">
+    <polygon points="0,-7 2,-2 7,-2 3,2 5,7 0,4 -5,7 -3,2 -7,-2 -2,-2" />
+    <polygon points="-22,-5 -20,-1 -16,-1 -19,2 -18,6 -22,3 -26,6 -25,2 -28,-1 -24,-1" />
+    <polygon points="22,-5 24,-1 28,-1 25,2 26,6 22,3 18,6 19,2 16,-1 20,-1" />
+  </g>
+
+  <!-- Official Komarovi School Emblem -->
+  <g filter="url(#shadow)">
+    <image href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEgAAABICAYAAABV7bNHAAAACXBIWXMAAAsTAAALEwEAmpwYAAAGx2lUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4gPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgNi4wLWMwMDIgNzkuMTY0NDYwLCAyMDIwLzA1LzEyLTE2OjA0OjE3ICAgICAgICAiPiA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPiA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtbG5zOnhtcE1NPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvbW0vIiB4bWxuczpzdFJlZj0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL3NUeXBlL1Jlc291cmNlUmVmIyIgeG1sbnM6c3RFdnQ9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZUV2ZW50IyIgeG1sbnM6ZGM9Imh0dHA6Ly9wdXJsLm9yZy9kYy9lbGVtZW50cy8xLjEvIiB4bWxuczpwaG90b3Nob3A9Imh0dHA6Ly9ucy5hZG9iZS5jb20vcGhvdG9zaG9wLzEuMC8iIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIDIxLjIgKFdpbmRvd3MpIiB4bXA6Q3JlYXRlRGF0ZT0iMjAyMy0wMi0xM1QxMzo0MDowMyswNDowMCIgeG1wOk1vZGlmeURhdGU9IjIwMjMtMDItMTNUMTM6NDY6NTArMDQ6MDAiIHhtcDpNZXRhZGF0YURhdGU9IjIwMjMtMDItMTNUMTM6NDY6NTArMDQ6MDAiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6ZWNkNjRlOWMtMGQ5Mi1iODQxLWI1NmEtMDAxYjIwMDMyYTcyIiB4bXBNTTpEb2N1bWVudElEPSJhZG9iZTpkb2NpZDpwaG90b3Nob3A6Mjg0ZTNjODEtZmMwNC02OTRlLTg1Y2EtZTU4ZjQ0YWY0MjA4IiB4bXBNTTpPcmlnaW5hbERvY3VtZW50SUQ9InhtcC5kaWQ6REMxRkMyOTJBQjgyMTFFRDhEOERGMjM2MDJFRUE2Q0IiIGRjOmZvcm1hdD0iaW1hZ2UvcG5nIiBwaG90b3Nob3A6Q29sb3JNb2RlPSIzIiBwaG90b3Nob3A6SUNDUHJvZmlsZT0ic1JHQiBJRUM2MTk2Ni0yLjEiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDpEQzFGQzI4RkFCODIxMUVEOEQ4REYyMzYwMkVFQTZDQiIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDpEQzFGQzI5MEFCODIxMUVEOEQ4REYyMzYwMkVFQTZDQiIvPiA8eG1wTU06SGlzdG9yeT4gPHJkZjpTZXE+IDxyZGY6bGkgc3RFdnQ6YWN0aW9uPSJzYXZlZCIgc3RFdnQ6aW5zdGFuY2VJRD0ieG1wLmlpZDpkYzMzYjcyYy1lNDZhLTVkNDQtODMyMi1hYTcyNTJkMWMwYzMiIHN0RXZ0OndoZW49IjIwMjMtMDItMTNUMTM6NDY6NTArMDQ6MDAiIHN0RXZ0OnNvZnR3YXJlQWdlbnQ9IkFkb2JlIFBob3Rvc2hvcCAyMS4yIChXaW5kb3dzKSIgc3RFdnQ6Y2hhbmdlZD0iLyIvPiA8cmRmOmxpIHN0RXZ0OmFjdGlvbj0ic2F2ZWQiIHN0RXZ0Omluc3RhbmNlSUQ9InhtcC5paWQ6ZWNkNjRlOWMtMGQ5Mi1iODQxLWI1NmEtMDAxYjIwMDMyYTcyIiBzdEV2dDp3aGVuPSIyMDIzLTAyLTEzVDEzOjQ2OjUwKzA0OjAwIiBzdEV2dDpzb2Z0d2FyZUFnZW50PSJBZG9iZSBQaG90b3Nob3AgMjEuMiAoV2luZG93cykiIHN0RXZ0OmNoYW5nZWQ9Ii8iLz4gPC9yZGY6U2VxPiA8L3htcE1NOkhpc3Rvcnk+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+UGk3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" x="66" y="32" width="68" height="68" />
+  </g>
+
+  <!-- Separator Arc -->
+  <path d="M 32 110 Q 100 118 168 110" fill="none" stroke="url(#neonBorder)" stroke-width="2.5" opacity="0.85" />
+
+  <!-- Bold Athletic KCL Text -->
+  <text x="100" y="152"
+        text-anchor="middle"
+        font-family="-apple-system, BlinkMacSystemFont, Inter, Impact, sans-serif"
+        font-weight="900"
+        font-size="38"
+        letter-spacing="5"
+        fill="#000000"
+        opacity="0.75">
+    KCL
+  </text>
+  <text x="100" y="150"
+        text-anchor="middle"
+        font-family="-apple-system, BlinkMacSystemFont, Inter, Impact, sans-serif"
+        font-weight="900"
+        font-size="38"
+        letter-spacing="5"
+        fill="url(#textGrad)"
+        filter="url(#glow)">
+    KCL
+  </text>
+
+  <!-- Subtitle -->
+  <text x="100" y="174"
+        text-anchor="middle"
+        font-family="-apple-system, BlinkMacSystemFont, Inter, sans-serif"
+        font-weight="800"
+        font-size="8"
+        letter-spacing="2"
+        fill="#ffffff"
+        opacity="0.85">
+    CHARITY LEAGUE
+  </text>
+</svg>

@@ -23,11 +23,11 @@ export const TopHeader: React.FC = () => {
       {/* Top branding line */}
       <div className="px-3.5 pt-3 pb-2 flex items-center justify-between">
         <div className="flex items-center space-x-2.5">
-          {/* Komarovi School Logo */}
+          {/* Official KCL Logo Crest */}
           <img
-            src="/komarovi-favicon.png"
-            alt="Komarovi School"
-            className="w-8 h-8 rounded-full object-contain ring-2 ring-[#00ff87]/40 bg-white/10 p-0.5 shadow-md flex-shrink-0"
+            src="/kcl-logo.svg"
+            alt="KCL Logo"
+            className="w-9 h-9 rounded-full object-contain shadow-lg hover:scale-105 transition-transform flex-shrink-0"
           />
           <div>
             <div className="flex items-center space-x-1.5">
