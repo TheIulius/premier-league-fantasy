@@ -13,10 +13,16 @@ export const TopHeader: React.FC = () => {
     setIsManagerModalOpen,
     authUser,
     setIsAuthModalOpen,
+    leagues,
+    currentManager,
   } = useFPL();
 
-  // Find user's overall points from league or calculation
-  const totalUserPoints = 84 + (calculationResult.totalPoints || 0);
+  // Find user's overall points and rank from active leagues or live calculation
+  const userLeagueMember = leagues.flatMap((l) => l.members).find(
+    (m) => m.id === currentManager?.id || m.id === 'user' || (authUser && m.id === authUser.id)
+  );
+  const totalUserPoints = userLeagueMember ? userLeagueMember.totalPoints : (calculationResult.totalPoints || 0);
+  const overallRank = userLeagueMember ? `#${userLeagueMember.rank}` : '-';
 
   return (
     <header className="sticky top-0 z-40 bg-gradient-to-b from-[#2a002e] via-[#320037] to-[#250029] border-b border-[#4f0c57]/60 shadow-lg select-none">
@@ -105,7 +111,7 @@ export const TopHeader: React.FC = () => {
         <div>
           <span className="block text-[10px] text-gray-400 uppercase font-medium">Overall Rank</span>
           <span className="text-sm font-black text-[#04f5ff]">
-            #3
+            {overallRank}
           </span>
         </div>
         <div>

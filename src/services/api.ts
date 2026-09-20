@@ -183,3 +183,14 @@ export async function joinLeagueApi(managerId: string, code: string) {
   if (!res.ok) throw new Error(data.error || 'Failed to join league');
   return data;
 }
+
+export async function deleteLeagueApi(leagueId: string) {
+  const res = await fetch(`${API_BASE}/api/league/delete`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ leagueId }),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Failed to delete league');
+  return data;
+}

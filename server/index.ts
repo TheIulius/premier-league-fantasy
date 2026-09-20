@@ -51,24 +51,9 @@ app.get('/api/manager/:id', (req: Request, res: Response) => {
 
   let manager = data.managers[managerId];
   if (!manager) {
-    // Check if it's one of the league members (e.g. mem_1, mem_2)
+    // Check if it's one of the league members
     const leagueMember = data.leagues.flatMap((l) => l.members).find((m) => m.id === managerId);
     if (leagueMember) {
-      const capId = managerId === 'mem_1' ? 'p_chaga'
-        : managerId === 'mem_2' ? 'p_ciskara'
-        : managerId === 'mem_3' ? 'p_tsotne'
-        : managerId === 'mem_4' ? 'p_rati'
-        : managerId === 'mem_5' ? 'p_vadzo'
-        : 'p_shinjo';
-
-      const vcId = capId === 'p_ciskara' ? 'p_rati' : 'p_ciskara';
-
-      const squadWithCaptains = DEFAULT_SQUAD_PLAYER_IDS.map((p) => ({
-        ...p,
-        isCaptain: p.playerId === capId,
-        isViceCaptain: p.playerId === vcId,
-      }));
-
       manager = {
         id: leagueMember.id,
         managerName: leagueMember.managerName,
@@ -76,7 +61,7 @@ app.get('/api/manager/:id', (req: Request, res: Response) => {
         squad: {
           teamName: leagueMember.teamName,
           managerName: leagueMember.managerName,
-          players: squadWithCaptains,
+          players: DEFAULT_SQUAD_PLAYER_IDS,
           bank: 2.9,
           freeTransfers: 1,
           transfersMadeThisGW: 0,
@@ -185,7 +170,7 @@ app.post('/api/auth/register', (req: Request, res: Response) => {
       id,
       managerName: newManager.managerName,
       teamName: newManager.teamName,
-      totalPoints: 84,
+      totalPoints: 0,
       gwPoints: 0,
       rank: globalLeague.members.length + 1,
       previousRank: globalLeague.members.length + 1,
@@ -364,7 +349,7 @@ app.post('/api/manager/login', (req: Request, res: Response) => {
         id,
         managerName: existing.managerName,
         teamName: existing.teamName,
-        totalPoints: 84,
+        totalPoints: 0,
         gwPoints: 0,
         rank: globalLeague.members.length + 1,
         previousRank: globalLeague.members.length + 1,
@@ -656,7 +641,7 @@ app.post('/api/admin/reset', (req: Request, res: Response) => {
   res.json({ success: true });
 });
 
-// 12. Create / Join Mini-League
+// 12. Create / Join / Delete Mini-League
 app.post('/api/league/create', (req: Request, res: Response) => {
   const { name, managerId } = req.body;
   const data = db.getData();
@@ -664,7 +649,16 @@ app.post('/api/league/create', (req: Request, res: Response) => {
 
   if (!manager) return res.status(404).json({ error: 'Manager not found' });
 
-  const code = 'PL-' + Math.random().toString(36).substring(2, 7).toUpperCase();
+  const code = 'KCL-' + Math.random().toString(36).substring(2, 7).toUpperCase();
+  const calc = calculateGameweekSquadPoints(
+    manager.squad.players,
+    data.players,
+    manager.squad.activeChip,
+    manager.squad.transfersMadeThisGW,
+    manager.squad.freeTransfers
+  );
+  const currentPts = calc.totalPoints || 0;
+
   const newLeague = {
     id: 'league_' + Date.now(),
     name,
@@ -675,8 +669,8 @@ app.post('/api/league/create', (req: Request, res: Response) => {
         id: manager.id,
         managerName: manager.managerName,
         teamName: manager.teamName,
-        totalPoints: 84,
-        gwPoints: 0,
+        totalPoints: currentPts,
+        gwPoints: currentPts,
         rank: 1,
         previousRank: 1,
       },
@@ -700,19 +694,47 @@ app.post('/api/league/join', (req: Request, res: Response) => {
   if (!league) return res.status(404).json({ error: 'League code not found' });
 
   if (!league.members.some((m) => m.id === manager.id)) {
+    const calc = calculateGameweekSquadPoints(
+      manager.squad.players,
+      data.players,
+      manager.squad.activeChip,
+      manager.squad.transfersMadeThisGW,
+      manager.squad.freeTransfers
+    );
+    const currentPts = calc.totalPoints || 0;
+
     league.members.push({
       id: manager.id,
       managerName: manager.managerName,
       teamName: manager.teamName,
-      totalPoints: 84,
-      gwPoints: 0,
+      totalPoints: currentPts,
+      gwPoints: currentPts,
       rank: league.members.length + 1,
       previousRank: league.members.length + 1,
     });
+
+    // Re-rank members by score
+    league.members.sort((a, b) => b.totalPoints - a.totalPoints);
+    league.members.forEach((m, idx) => {
+      m.previousRank = m.rank;
+      m.rank = idx + 1;
+    });
+
     db.save();
   }
 
   res.json({ success: true, league });
+});
+
+app.post('/api/league/delete', (req: Request, res: Response) => {
+  const { leagueId } = req.body;
+  const data = db.getData();
+  const idx = data.leagues.findIndex((l) => l.id === leagueId);
+  if (idx === -1) return res.status(404).json({ error: 'League not found' });
+
+  data.leagues.splice(idx, 1);
+  db.save();
+  res.json({ success: true, leagues: data.leagues });
 });
 
 // Static assets in production

@@ -63,6 +63,7 @@ interface FPLContextType {
   resetToDefaults: () => void;
   createLeague: (name: string) => Promise<string>;
   joinLeague: (code: string) => Promise<boolean>;
+  deleteLeague: (leagueId: string) => Promise<void>;
   calculationResult: GameweekCalculationResult;
   teamValue: number;
   freeTransfersRemaining: number;
@@ -173,7 +174,14 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [leagues, setLeagues] = useState<League[]>(() => {
     const saved = localStorage.getItem(STORAGE_KEY_LEAGUES);
     if (saved) {
-      try { return JSON.parse(saved); } catch (e) { /* fallback */ }
+      try {
+        const parsed = JSON.parse(saved);
+        const hasDummy = Array.isArray(parsed) && parsed.some((l: League) =>
+          l.id === 'league_overall' || l.id === 'league_mini_1' ||
+          l.members?.some((m: any) => m.id === 'mem_1' || m.teamName === 'Klopps and Robbers')
+        );
+        if (!hasDummy) return parsed;
+      } catch (e) { /* fallback */ }
     }
     return SEED_LEAGUES;
   });
@@ -656,7 +664,7 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   };
 
-  // Mini-leagues: Create & Join
+  // Mini-leagues: Create & Join & Delete
   const createLeague = async (name: string): Promise<string> => {
     try {
       const res = await api.createLeagueApi(currentManagerId, name);
@@ -667,7 +675,8 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     } catch {
       // local fallback
     }
-    const code = 'PL-' + Math.random().toString(36).substring(2, 7).toUpperCase();
+    const code = 'KCL-' + Math.random().toString(36).substring(2, 7).toUpperCase();
+    const currentPts = calculationResult.totalPoints || 0;
     const newLeague: League = {
       id: 'league_' + Date.now(),
       name,
@@ -678,8 +687,8 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           id: currentManagerId,
           managerName: squad.managerName,
           teamName: squad.teamName,
-          totalPoints: 84,
-          gwPoints: calculationResult.totalPoints,
+          totalPoints: currentPts,
+          gwPoints: currentPts,
           rank: 1,
           previousRank: 1,
         },
@@ -702,6 +711,15 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const existing = leagues.find((l) => l.code.toUpperCase() === code.trim().toUpperCase());
     if (!existing) return false;
     return true;
+  };
+
+  const deleteLeague = async (leagueId: string): Promise<void> => {
+    try {
+      await api.deleteLeagueApi(leagueId);
+    } catch {
+      // local fallback
+    }
+    setLeagues((prev) => prev.filter((l) => l.id !== leagueId));
   };
 
   return (
@@ -735,6 +753,7 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         resetToDefaults,
         createLeague,
         joinLeague,
+        deleteLeague,
         calculationResult,
         teamValue,
         freeTransfersRemaining,
