@@ -5,9 +5,7 @@ import { Player, Fixture, League, Squad } from '../src/types/fpl';
 import { SEED_PLAYERS, DEFAULT_SQUAD_PLAYER_IDS } from '../src/data/seedPlayers';
 import { SEED_FIXTURES, SEED_LEAGUES } from '../src/data/seedFixtures';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const DATA_DIR = path.join(__dirname, 'data');
+const DATA_DIR = process.env.DATA_DIR || path.join(process.cwd(), 'data');
 const DB_FILE = path.join(DATA_DIR, 'db.json');
 
 export interface ManagerProfile {
