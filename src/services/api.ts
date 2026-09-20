@@ -67,6 +67,12 @@ export async function fetchAppState(managerId?: string) {
   return res.json();
 }
 
+export async function fetchManagerSquadApi(managerId: string) {
+  const res = await fetch(`${API_BASE}/api/manager/${encodeURIComponent(managerId)}`);
+  if (!res.ok) throw new Error('Failed to fetch manager squad');
+  return res.json();
+}
+
 export async function loginManagerApi(managerName: string, teamName: string) {
   const res = await fetch(`${API_BASE}/api/manager/login`, {
     method: 'POST',

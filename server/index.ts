@@ -44,6 +44,71 @@ app.get('/api/state', (req: Request, res: Response) => {
   });
 });
 
+// 2b. Fetch a Specific Manager Profile, Squad, and Live Calculated Points
+app.get('/api/manager/:id', (req: Request, res: Response) => {
+  const managerId = req.params.id;
+  const data = db.getData();
+
+  let manager = data.managers[managerId];
+  if (!manager) {
+    // Check if it's one of the league members (e.g. mem_1, mem_2)
+    const leagueMember = data.leagues.flatMap((l) => l.members).find((m) => m.id === managerId);
+    if (leagueMember) {
+      const capId = managerId === 'mem_1' ? 'p_chaga'
+        : managerId === 'mem_2' ? 'p_ciskara'
+        : managerId === 'mem_3' ? 'p_tsotne'
+        : managerId === 'mem_4' ? 'p_rati'
+        : managerId === 'mem_5' ? 'p_vadzo'
+        : 'p_shinjo';
+
+      const vcId = capId === 'p_ciskara' ? 'p_rati' : 'p_ciskara';
+
+      const squadWithCaptains = DEFAULT_SQUAD_PLAYER_IDS.map((p) => ({
+        ...p,
+        isCaptain: p.playerId === capId,
+        isViceCaptain: p.playerId === vcId,
+      }));
+
+      manager = {
+        id: leagueMember.id,
+        managerName: leagueMember.managerName,
+        teamName: leagueMember.teamName,
+        squad: {
+          teamName: leagueMember.teamName,
+          managerName: leagueMember.managerName,
+          players: squadWithCaptains,
+          bank: 2.9,
+          freeTransfers: 1,
+          transfersMadeThisGW: 0,
+          activeChip: null,
+          usedChips: { triple_captain: false, bench_boost: false, free_hit: false },
+        },
+        joinedAt: new Date().toISOString(),
+      };
+    }
+  }
+
+  if (!manager) {
+    return res.status(404).json({ error: 'Manager not found' });
+  }
+
+  const calc = calculateGameweekSquadPoints(
+    manager.squad.players,
+    data.players,
+    data.currentGW,
+    manager.squad.activeChip,
+    manager.squad.transfersMadeThisGW,
+    manager.squad.freeTransfers
+  );
+
+  res.json({
+    success: true,
+    manager,
+    calculationResult: calc,
+    currentGW: data.currentGW,
+  });
+});
+
 // --- AUTHENTICATION & SEPARATE ACCOUNTS ---
 
 // Register Account with Password

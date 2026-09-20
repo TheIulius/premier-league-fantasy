@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useFPL } from '../../context/FPLContext';
-import { Trophy, Users, Plus, Key, ArrowUp, ArrowDown, Minus, Copy, Check } from 'lucide-react';
+import { Trophy, Users, Plus, Key, ArrowUp, ArrowDown, Minus, Copy, Check, ChevronRight, Eye } from 'lucide-react';
+import { ManagerSquadModal } from '../leagues/ManagerSquadModal';
 
 export const LeaguesView: React.FC = () => {
   const { leagues, createLeague, joinLeague } = useFPL();
@@ -11,6 +12,7 @@ export const LeaguesView: React.FC = () => {
   const [joinCode, setJoinCode] = useState('');
   const [copiedCode, setCopiedCode] = useState(false);
   const [feedbackMsg, setFeedbackMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [inspectedManagerId, setInspectedManagerId] = useState<string | null>(null);
 
   const activeLeague = leagues.find((l) => l.id === selectedLeagueId) || leagues[0];
 
@@ -203,11 +205,14 @@ export const LeaguesView: React.FC = () => {
 
           {/* Standings Table */}
           <div className="divide-y divide-white/5">
-            <div className="grid grid-cols-12 px-3 py-1.5 text-[10px] font-black uppercase text-gray-400 bg-black/20">
+            <div className="grid grid-cols-12 px-3 py-2 text-[10px] font-black uppercase text-gray-400 bg-black/30 items-center">
               <span className="col-span-2">Rank</span>
-              <span className="col-span-6">Team & Manager</span>
+              <span className="col-span-5">
+                Team & Manager
+                <span className="hidden sm:inline-block text-[8px] text-[#00ff87] font-semibold lowercase ml-1">(tap to view)</span>
+              </span>
               <span className="col-span-2 text-center">GW</span>
-              <span className="col-span-2 text-right">Total</span>
+              <span className="col-span-3 text-right">Total</span>
             </div>
 
             {activeLeague.members.map((member) => {
@@ -217,7 +222,9 @@ export const LeaguesView: React.FC = () => {
               return (
                 <div
                   key={member.id}
-                  className={`grid grid-cols-12 px-3 py-2.5 items-center text-xs transition-colors ${
+                  onClick={() => setInspectedManagerId(member.id)}
+                  title={`View ${member.managerName}'s squad & live points`}
+                  className={`grid grid-cols-12 px-3 py-2.5 items-center text-xs transition-all cursor-pointer group hover:bg-white/10 active:scale-[0.99] ${
                     isUser
                       ? 'bg-[#37003c]/60 border-l-4 border-[#00ff87] font-bold text-white'
                       : 'text-gray-200 hover:bg-white/5'
@@ -236,9 +243,10 @@ export const LeaguesView: React.FC = () => {
                   </div>
 
                   {/* Team & Manager */}
-                  <div className="col-span-6 min-w-0 pr-1">
-                    <div className="font-extrabold truncate text-white">
-                      {member.teamName}
+                  <div className="col-span-5 min-w-0 pr-1">
+                    <div className="font-extrabold truncate text-white group-hover:text-[#00ff87] transition-colors flex items-center gap-1">
+                      <span className="truncate">{member.teamName}</span>
+                      {isUser && <span className="text-[8px] bg-[#00ff87]/20 text-[#00ff87] px-1 py-0.2 rounded font-bold">YOU</span>}
                     </div>
                     <div className="text-[10px] text-gray-400 truncate">
                       {member.managerName}
@@ -250,9 +258,10 @@ export const LeaguesView: React.FC = () => {
                     {member.gwPoints}
                   </div>
 
-                  {/* Total Points */}
-                  <div className="col-span-2 text-right font-black text-[#00ff87]">
-                    {member.totalPoints}
+                  {/* Total Points + Chevron */}
+                  <div className="col-span-3 flex items-center justify-end gap-1 text-right font-black text-[#00ff87]">
+                    <span>{member.totalPoints}</span>
+                    <ChevronRight className="w-3.5 h-3.5 text-gray-400 group-hover:text-[#00ff87] group-hover:translate-x-0.5 transition-all" />
                   </div>
                 </div>
               );
@@ -260,6 +269,12 @@ export const LeaguesView: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Other Manager Squad & Score Breakdown Modal (Just like real FPL!) */}
+      <ManagerSquadModal
+        managerId={inspectedManagerId}
+        onClose={() => setInspectedManagerId(null)}
+      />
     </div>
   );
 };
