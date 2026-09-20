@@ -1,0 +1,80 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --pl-purple: #37003c;
+    --pl-green: #00ff87;
+    --pl-magenta: #e90052;
+  }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    min-height: 100%;
+    background-color: #120014;
+    color: #ffffff;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+
+  #root {
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    background-color: #120014;
+  }
+}
+
+/* Custom scrollbar for mobile feel */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 255, 135, 0.4);
+}
+
+/* Pitch Grass Stripes Pattern */
+.pitch-stripes {
+  background-color: #156d31;
+  background-image: repeating-linear-gradient(
+    0deg,
+    #13662d,
+    #13662d 38px,
+    #177536 38px,
+    #177536 76px
+  );
+}
+
+/* Premier League Badge Gradient */
+.pl-gradient {
+  background: linear-gradient(135deg, #37003c 0%, #1f0022 100%);
+}
+
+.pl-gradient-green {
+  background: linear-gradient(135deg, #00ff87 0%, #00cc6a 100%);
+}
+
+.pl-gradient-magenta {
+  background: linear-gradient(135deg, #e90052 0%, #a00038 100%);
+}
+
+/* Safe area insets for mobile iOS / Android */
+.safe-bottom {
+  padding-bottom: max(16px, env(safe-area-inset-bottom));
+}
+
+.safe-top {
+  padding-top: max(8px, env(safe-area-inset-top));
+}
