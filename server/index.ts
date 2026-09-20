@@ -240,6 +240,19 @@ app.post('/api/auth/logout', (req: Request, res: Response) => {
   res.json({ success: true });
 });
 
+// Admin Developer Authentication (Server-Side verification)
+app.post('/api/admin/login', (req: Request, res: Response) => {
+  const { password } = req.body;
+  const expectedPassword = process.env.ADMIN_PASSWORD || 'adminpassword';
+
+  if (password && password === expectedPassword) {
+    const adminToken = generateToken();
+    return res.json({ success: true, token: adminToken });
+  }
+
+  return res.status(401).json({ error: 'Incorrect password. Access denied.' });
+});
+
 // 3. Manager Login / Register (for friends to join)
 app.post('/api/manager/login', (req: Request, res: Response) => {
   const { managerName, teamName } = req.body;

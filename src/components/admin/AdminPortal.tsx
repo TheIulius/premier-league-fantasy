@@ -6,7 +6,6 @@ import { KitJersey } from '../pitch/KitJersey';
 import {
   Wrench,
   Lock,
-  Unlock,
   Plus,
   Trash2,
   Edit2,
@@ -66,9 +65,10 @@ export const AdminPortal: React.FC = () => {
     setTimeout(() => setBannerNotice(null), 3500);
   };
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (devLogin(pinInput)) {
+    const ok = await devLogin(pinInput);
+    if (ok) {
       setLoginError(false);
       setPinInput('');
     } else {
@@ -168,7 +168,7 @@ export const AdminPortal: React.FC = () => {
             <div className="relative">
               <input
                 type="password"
-                placeholder="Enter password (default: adminpassword)"
+                placeholder="Enter admin password"
                 value={pinInput}
                 onChange={(e) => {
                   setPinInput(e.target.value);
@@ -181,7 +181,7 @@ export const AdminPortal: React.FC = () => {
 
             {loginError && (
               <div className="text-[11px] font-bold text-[#e90052] flex items-center justify-center gap-1">
-                <AlertCircle className="w-3.5 h-3.5" /> Incorrect password. Use adminpassword
+                <AlertCircle className="w-3.5 h-3.5" /> Incorrect password. Access denied.
               </div>
             )}
 
@@ -192,17 +192,6 @@ export const AdminPortal: React.FC = () => {
               Sign In to Dev Portal
             </button>
           </form>
-
-          {/* Quick bypass button for user */}
-          <div className="mt-4 pt-3 border-t border-white/10">
-            <button
-              onClick={() => devLogin('adminpassword')}
-              className="text-xs font-bold text-gray-400 hover:text-[#00ff87] flex items-center justify-center gap-1 mx-auto"
-            >
-              <Unlock className="w-3.5 h-3.5" />
-              <span>One-Click Quick Dev Access</span>
-            </button>
-          </div>
         </div>
       </div>
     );

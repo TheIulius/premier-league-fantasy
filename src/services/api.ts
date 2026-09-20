@@ -49,6 +49,17 @@ export async function authLogout(token: string) {
   });
 }
 
+export async function adminLoginApi(password: string) {
+  const res = await fetch(`${API_BASE}/api/admin/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ password }),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Incorrect developer password');
+  return data;
+}
+
 export async function fetchAppState(managerId?: string) {
   const query = managerId ? `?managerId=${encodeURIComponent(managerId)}` : '';
   const res = await fetch(`${API_BASE}/api/state${query}`);

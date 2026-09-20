@@ -37,7 +37,7 @@ interface FPLContextType {
   activeTab: TabType;
   setActiveTab: (tab: TabType) => void;
   isDevAuthenticated: boolean;
-  devLogin: (pass: string) => boolean;
+  devLogin: (pass: string) => Promise<boolean>;
   devLogout: () => void;
   selectedPlayerForSwap: string | null;
   setSelectedPlayerForSwap: (id: string | null) => void;
@@ -364,13 +364,18 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     localStorage.removeItem(STORAGE_KEY_AUTH_USER);
   };
 
-  // Dev Login
-  const devLogin = (pass: string) => {
-    if (pass === 'adminpassword' || pass === 'admin' || pass === 'dev') {
-      setIsDevAuthenticated(true);
-      return true;
+  // Dev Login (Server-Verified)
+  const devLogin = async (pass: string): Promise<boolean> => {
+    try {
+      const res = await api.adminLoginApi(pass);
+      if (res.success) {
+        setIsDevAuthenticated(true);
+        return true;
+      }
+      return false;
+    } catch {
+      return false;
     }
-    return false;
   };
 
   const devLogout = () => {
