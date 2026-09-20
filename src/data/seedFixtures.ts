@@ -141,7 +141,7 @@ export const SEED_FIXTURES: Fixture[] = [
 export const SEED_LEAGUES: League[] = [
   {
     id: 'league_overall',
-    name: 'Komarovi Charity League',
+    name: 'Komarovi Champions League',
     code: 'KCL-GLOBAL',
     isGlobal: true,
     members: [

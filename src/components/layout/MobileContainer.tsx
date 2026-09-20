@@ -37,12 +37,12 @@ export const MobileContainer: React.FC<MobileContainerProps> = ({ children }) =>
 
           {/* School branding & creator watermark */}
           <footer className="pt-6 pb-4 text-center select-none space-y-2">
-            <div className="flex items-center justify-center space-x-2.5">
-              <img src="/kcl-logo.svg" alt="KCL Logo" className="w-7 h-7 object-contain drop-shadow" />
-              <img src="/komarovi-logo.png" alt="Komarovi School" className="h-5 w-auto object-contain opacity-80" />
+            <div className="flex items-center justify-center space-x-3">
+              <img src="/kcl-logo.png" alt="KCL Logo" className="h-10 w-auto rounded-lg object-contain shadow-sm border border-white/10" />
+              <img src="/komarovi-logo.png" alt="Komarovi School" className="h-6 w-auto object-contain opacity-80" />
             </div>
             <p className="text-[10px] text-gray-400/60 font-medium tracking-wide">
-              © Komarovi Charity League (KCL) • (Created By TheIulius)
+              © Komarovi Champions League (KCL) • (Created By TheIulius)
             </p>
           </footer>
         </main>
