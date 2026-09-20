@@ -23,30 +23,35 @@ export const TopHeader: React.FC = () => {
       {/* Top branding line */}
       <div className="px-3.5 pt-3 pb-2 flex items-center justify-between">
         <div className="flex items-center space-x-2.5">
-          {/* Premier League Lion Icon SVG */}
-          <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#00ff87] to-[#04f5ff] p-[2px] shadow-glow-green flex items-center justify-center">
-            <div className="w-full h-full rounded-full bg-[#37003c] flex items-center justify-center font-black text-sm text-[#00ff87]">
-              PL
-            </div>
-          </div>
+          {/* Komarovi School Logo */}
+          <img
+            src="/komarovi-favicon.png"
+            alt="Komarovi School"
+            className="w-8 h-8 rounded-full object-contain ring-2 ring-[#00ff87]/40 bg-white/10 p-0.5 shadow-md flex-shrink-0"
+          />
           <div>
             <div className="flex items-center space-x-1.5">
               <h1 className="text-sm font-extrabold tracking-tight text-white uppercase flex items-center gap-1 font-display">
-                Fantasy <span className="text-[#00ff87]">PL</span>
+                Komarovi <span className="text-[#00ff87]">Fantasy</span>
               </h1>
               <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-[#00ff87]/20 text-[#00ff87] border border-[#00ff87]/30">
                 GW {currentGW}
               </span>
             </div>
-            <button
-              onClick={() => setIsAuthModalOpen(true)}
-              className="text-[11px] font-medium text-gray-300 hover:text-[#00ff87] flex items-center gap-1 transition-colors text-left"
-            >
-              <span className="truncate max-w-[110px]">{squad.teamName}</span>
-              <span className="text-[8px] bg-white/10 px-1 py-0.2 rounded text-gray-400">
-                {authUser ? `@${authUser.username}` : 'Login'}
+            <div className="flex items-center gap-1.5">
+              <button
+                onClick={() => setIsAuthModalOpen(true)}
+                className="text-[11px] font-medium text-gray-300 hover:text-[#00ff87] flex items-center gap-1 transition-colors text-left"
+              >
+                <span className="truncate max-w-[95px]">{squad.teamName}</span>
+                <span className="text-[8px] bg-white/10 px-1 py-0.2 rounded text-gray-400">
+                  {authUser ? `@${authUser.username}` : 'Login'}
+                </span>
+              </button>
+              <span className="text-[9px] text-gray-400/80 font-normal">
+                (Created By TheIulius)
               </span>
-            </button>
+            </div>
           </div>
         </div>
 

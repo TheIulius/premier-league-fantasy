@@ -38,8 +38,18 @@ export const MobileContainer: React.FC<MobileContainerProps> = ({ children }) =>
         <TopHeader />
 
         {/* Main Scrollable View Area */}
-        <main className="flex-1 overflow-y-auto overscroll-contain pb-16">
+        <main className="flex-1 overflow-y-auto overscroll-contain pb-20">
           {children}
+
+          {/* School branding & creator watermark */}
+          <footer className="pt-6 pb-4 text-center select-none space-y-1">
+            <div className="flex items-center justify-center space-x-2">
+              <img src="/komarovi-logo.png" alt="Komarovi School" className="h-5 w-auto object-contain opacity-75" />
+            </div>
+            <p className="text-[10px] text-gray-400/60 font-medium tracking-wide">
+              © Komarovi Fantasy • (Created By TheIulius)
+            </p>
+          </footer>
         </main>
 
         {/* Fixed Bottom Navigation */}
