@@ -81,7 +81,7 @@ function getDefaultData(): DatabaseSchema {
       teamName: 'Apex XI',
       managerName: 'Apex Manager',
       players: DEFAULT_SQUAD_PLAYER_IDS,
-      bank: 2.9,
+      bank: 5.3,
       freeTransfers: 1,
       transfersMadeThisGW: 0,
       activeChip: null,

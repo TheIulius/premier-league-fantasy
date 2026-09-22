@@ -44,18 +44,28 @@ export const PickTeamView: React.FC = () => {
   return (
     <div className="flex flex-col space-y-3 pb-24">
       {/* Team Info Strip */}
-      <div className="mx-2 mt-2 p-2.5 rounded-xl bg-[#2a002e] border border-[#4d0c54] flex items-center justify-between text-xs">
-        <div>
-          <span className="text-gray-400 block text-[10px] uppercase font-bold">Team Value</span>
-          <span className="text-sm font-black text-white">£{teamValue.toFixed(1)}m</span>
+      <div className="mx-2 mt-2 p-2.5 rounded-xl bg-[#2a002e] border border-[#4d0c54] flex flex-col gap-2 text-xs">
+        <div className="flex items-center justify-between">
+          <div>
+            <span className="text-gray-400 block text-[10px] uppercase font-bold">Starting 6</span>
+            <span className="text-sm font-black text-white">£{teamValue.toFixed(1)}m</span>
+          </div>
+          <div>
+            <span className="text-gray-400 block text-[10px] uppercase font-bold">Budget</span>
+            <span className="text-sm font-black text-white">£60.0m</span>
+          </div>
+          <div>
+            <span className="text-gray-400 block text-[10px] uppercase font-bold">In Bank</span>
+            <span className="text-sm font-black text-gray-200">£{squad.bank.toFixed(1)}m</span>
+          </div>
+          <div>
+            <span className="text-gray-400 block text-[10px] uppercase font-bold">Free Transfers</span>
+            <span className="text-sm font-black text-[#00ff87]">{freeTransfersRemaining}</span>
+          </div>
         </div>
-        <div>
-          <span className="text-gray-400 block text-[10px] uppercase font-bold">Free Transfers</span>
-          <span className="text-sm font-black text-[#00ff87]">{freeTransfersRemaining}</span>
-        </div>
-        <div>
-          <span className="text-gray-400 block text-[10px] uppercase font-bold">Bank Balance</span>
-          <span className="text-sm font-black text-gray-200">£{squad.bank.toFixed(1)}m</span>
+        <div className="flex items-center justify-between pt-1.5 border-t border-white/10 text-[10px] text-gray-400">
+          <span className="font-bold text-[#00ff87]">6 Starters • 3 Bench Reserves</span>
+          <span className="text-gray-300">Starting 6 budget limit: £60.0m</span>
         </div>
       </div>
 

@@ -85,7 +85,7 @@ export function canSwapPlayers(
   if (!isValidStartingXI(currentStarterPositions)) {
     return {
       canSwap: false,
-      reason: 'This substitution violates formation rules (min 3 DEF, 2 MID, 1 FWD)',
+      reason: 'This substitution violates 6-a-side formation rules (1 GKP, min 1 DEF, 1 MID, 1 FWD, max 6 starters)',
     };
   }
 

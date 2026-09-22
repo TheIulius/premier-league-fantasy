@@ -62,7 +62,7 @@ app.get('/api/manager/:id', (req: Request, res: Response) => {
           teamName: leagueMember.teamName,
           managerName: leagueMember.managerName,
           players: DEFAULT_SQUAD_PLAYER_IDS,
-          bank: 2.9,
+          bank: 5.3,
           freeTransfers: 1,
           transfersMadeThisGW: 0,
           activeChip: null,
@@ -147,7 +147,7 @@ app.post('/api/auth/register', (req: Request, res: Response) => {
       teamName: teamName.trim(),
       managerName: managerName.trim(),
       players: [...DEFAULT_SQUAD_PLAYER_IDS],
-      bank: 2.9,
+      bank: 5.3,
       freeTransfers: 1,
       transfersMadeThisGW: 0,
       activeChip: null,
@@ -327,7 +327,7 @@ app.post('/api/manager/login', (req: Request, res: Response) => {
         teamName: teamName.trim(),
         managerName: managerName.trim(),
         players: [...DEFAULT_SQUAD_PLAYER_IDS],
-        bank: 2.9,
+        bank: 5.3,
         freeTransfers: 1,
         transfersMadeThisGW: 0,
         activeChip: null,
@@ -372,7 +372,13 @@ app.post('/api/squad/save', (req: Request, res: Response) => {
     return res.status(404).json({ error: 'Manager not found' });
   }
 
-  if (players) manager.squad.players = players;
+  if (players) {
+    manager.squad.players = players;
+    const startersCost = players
+      .filter((sp: any) => sp.isStarter)
+      .reduce((sum: number, sp: any) => sum + (data.players[sp.playerId]?.cost || 0), 0);
+    manager.squad.bank = Math.max(0, Math.round((60.0 - startersCost) * 10) / 10);
+  }
   if (teamName) {
     manager.teamName = teamName;
     manager.squad.teamName = teamName;
@@ -425,8 +431,12 @@ app.post('/api/squad/transfer', (req: Request, res: Response) => {
     return res.status(400).json({ error: `Max ${maxClubLimit} players from ${inP.clubId}` });
   }
 
-  const newBank = manager.squad.bank + outP.cost - inP.cost;
-  if (newBank < 0) {
+  const isStarterTransfer = manager.squad.players.find((sp) => sp.playerId === outPlayerId)?.isStarter;
+  const newBank = isStarterTransfer
+    ? manager.squad.bank + outP.cost - inP.cost
+    : manager.squad.bank;
+
+  if (isStarterTransfer && newBank < 0) {
     return res.status(400).json({ error: 'Insufficient funds' });
   }
 

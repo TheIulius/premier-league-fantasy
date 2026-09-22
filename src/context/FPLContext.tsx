@@ -145,13 +145,23 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [squad, setSquad] = useState<Squad>(() => {
     const saved = localStorage.getItem(STORAGE_KEY_SQUAD);
     if (saved) {
-      try { return JSON.parse(saved); } catch (e) { /* fallback */ }
+      try {
+        const parsed = JSON.parse(saved);
+        if (
+          parsed &&
+          Array.isArray(parsed.players) &&
+          parsed.players.length === 9 &&
+          parsed.players.filter((p: any) => p.isStarter).length === 6
+        ) {
+          return parsed;
+        }
+      } catch (e) { /* fallback */ }
     }
     return {
       teamName: 'Apex XI',
       managerName: 'Apex Manager',
       players: DEFAULT_SQUAD_PLAYER_IDS,
-      bank: 2.9,
+      bank: 5.3,
       freeTransfers: 1,
       transfersMadeThisGW: 0,
       activeChip: null,
@@ -267,8 +277,10 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const teamValue = useMemo(() => {
     let cost = 0;
     squad.players.forEach((sp) => {
-      const p = players[sp.playerId];
-      if (p) cost += p.cost;
+      if (sp.isStarter) {
+        const p = players[sp.playerId];
+        if (p) cost += p.cost;
+      }
     });
     return Math.round(cost * 10) / 10;
   }, [squad.players, players]);
@@ -304,7 +316,7 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         teamName,
         managerName,
         players: [...DEFAULT_SQUAD_PLAYER_IDS],
-        bank: 2.9,
+        bank: 5.3,
         freeTransfers: 1,
         transfersMadeThisGW: 0,
         activeChip: null,
@@ -409,7 +421,26 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       return sp;
     });
 
-    setSquad((prev) => ({ ...prev, players: updatedPlayers }));
+    // Check budget of the 6 starters against the £60.0m budget
+    const newStartersCost = updatedPlayers
+      .filter((sp) => sp.isStarter)
+      .reduce((sum, sp) => sum + (players[sp.playerId]?.cost || 0), 0);
+    const roundedStartersCost = Math.round(newStartersCost * 10) / 10;
+
+    if (roundedStartersCost > 60.0) {
+      return {
+        success: false,
+        message: `Starting 6 would cost £${roundedStartersCost.toFixed(1)}m, exceeding the £60.0m budget!`,
+      };
+    }
+
+    const newBank = Math.round((60.0 - roundedStartersCost) * 10) / 10;
+
+    setSquad((prev) => ({
+      ...prev,
+      bank: newBank,
+      players: updatedPlayers,
+    }));
     api.saveSquadApi(currentManagerId, updatedPlayers).catch(() => {});
     setSelectedPlayerForSwap(null);
     return { success: true };
@@ -476,8 +507,12 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       };
     }
 
-    const newBank = squad.bank + outPlayer.cost - inPlayer.cost;
-    if (newBank < 0) {
+    const isStarterTransfer = squad.players.find((sp) => sp.playerId === outPlayerId)?.isStarter;
+    const newBank = isStarterTransfer
+      ? squad.bank + outPlayer.cost - inPlayer.cost
+      : squad.bank;
+
+    if (isStarterTransfer && newBank < 0) {
       return {
         success: false,
         message: `Insufficient funds. Needed £${inPlayer.cost.toFixed(1)}m, bank is £${(squad.bank + outPlayer.cost).toFixed(1)}m`,

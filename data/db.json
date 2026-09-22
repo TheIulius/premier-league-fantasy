@@ -322,20 +322,6 @@
             "isViceCaptain": false
           },
           {
-            "playerId": "p_dito",
-            "isStarter": true,
-            "benchOrder": 0,
-            "isCaptain": false,
-            "isViceCaptain": false
-          },
-          {
-            "playerId": "p_mandara",
-            "isStarter": true,
-            "benchOrder": 0,
-            "isCaptain": false,
-            "isViceCaptain": false
-          },
-          {
             "playerId": "p_ciskara",
             "isStarter": true,
             "benchOrder": 0,
@@ -350,24 +336,10 @@
             "isViceCaptain": false
           },
           {
-            "playerId": "p_vadzo",
-            "isStarter": true,
-            "benchOrder": 0,
-            "isCaptain": false,
-            "isViceCaptain": false
-          },
-          {
             "playerId": "p_chaga",
             "isStarter": true,
             "benchOrder": 0,
             "isCaptain": true,
-            "isViceCaptain": false
-          },
-          {
-            "playerId": "p_tsotne",
-            "isStarter": true,
-            "benchOrder": 0,
-            "isCaptain": false,
             "isViceCaptain": false
           },
           {
@@ -376,9 +348,23 @@
             "benchOrder": 1,
             "isCaptain": false,
             "isViceCaptain": false
+          },
+          {
+            "playerId": "p_dito",
+            "isStarter": false,
+            "benchOrder": 2,
+            "isCaptain": false,
+            "isViceCaptain": false
+          },
+          {
+            "playerId": "p_vadzo",
+            "isStarter": false,
+            "benchOrder": 3,
+            "isCaptain": false,
+            "isViceCaptain": false
           }
         ],
-        "bank": 2.9,
+        "bank": 5.3,
         "freeTransfers": 1,
         "transfersMadeThisGW": 0,
         "activeChip": null,
@@ -420,20 +406,6 @@
             "isViceCaptain": false
           },
           {
-            "playerId": "p_dito",
-            "isStarter": true,
-            "benchOrder": 0,
-            "isCaptain": false,
-            "isViceCaptain": false
-          },
-          {
-            "playerId": "p_mandara",
-            "isStarter": true,
-            "benchOrder": 0,
-            "isCaptain": false,
-            "isViceCaptain": false
-          },
-          {
             "playerId": "p_ciskara",
             "isStarter": true,
             "benchOrder": 0,
@@ -448,24 +420,10 @@
             "isViceCaptain": false
           },
           {
-            "playerId": "p_vadzo",
-            "isStarter": true,
-            "benchOrder": 0,
-            "isCaptain": false,
-            "isViceCaptain": false
-          },
-          {
             "playerId": "p_chaga",
             "isStarter": true,
             "benchOrder": 0,
             "isCaptain": true,
-            "isViceCaptain": false
-          },
-          {
-            "playerId": "p_tsotne",
-            "isStarter": true,
-            "benchOrder": 0,
-            "isCaptain": false,
             "isViceCaptain": false
           },
           {
@@ -474,9 +432,23 @@
             "benchOrder": 1,
             "isCaptain": false,
             "isViceCaptain": false
+          },
+          {
+            "playerId": "p_dito",
+            "isStarter": false,
+            "benchOrder": 2,
+            "isCaptain": false,
+            "isViceCaptain": false
+          },
+          {
+            "playerId": "p_vadzo",
+            "isStarter": false,
+            "benchOrder": 3,
+            "isCaptain": false,
+            "isViceCaptain": false
           }
         ],
-        "bank": 2.9,
+        "bank": 5.3,
         "freeTransfers": 1,
         "transfersMadeThisGW": 0,
         "activeChip": null,

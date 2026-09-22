@@ -28,8 +28,10 @@ export const TransfersView: React.FC = () => {
   // Calculate potential bank after transfer
   const potentialBank = useMemo(() => {
     if (!outPlayer || !inPlayer) return squad.bank;
+    const isStarter = squad.players.find((sp) => sp.playerId === outPlayer.id)?.isStarter;
+    if (!isStarter) return squad.bank;
     return Math.round((squad.bank + outPlayer.cost - inPlayer.cost) * 10) / 10;
-  }, [outPlayer, inPlayer, squad.bank]);
+  }, [outPlayer, inPlayer, squad.bank, squad.players]);
 
   // Filter available players for transfer
   const squadPlayerIds = useMemo(() => new Set(squad.players.map((p) => p.playerId)), [squad.players]);
@@ -78,20 +80,30 @@ export const TransfersView: React.FC = () => {
   return (
     <div className="flex flex-col space-y-3 pb-24 px-2 pt-2 select-none">
       {/* Transfer Metrics Bar */}
-      <div className="grid grid-cols-3 gap-2 p-2.5 rounded-xl bg-[#2a002e] border border-[#4d0c54] text-center text-xs">
-        <div>
-          <span className="text-[10px] text-gray-400 uppercase font-bold block">Free Transfers</span>
-          <span className="text-sm font-black text-[#00ff87]">{freeTransfersRemaining}</span>
+      <div className="p-2.5 rounded-xl bg-[#2a002e] border border-[#4d0c54] flex flex-col gap-2 text-xs">
+        <div className="grid grid-cols-4 gap-1.5 text-center">
+          <div>
+            <span className="text-[10px] text-gray-400 uppercase font-bold block">Budget</span>
+            <span className="text-sm font-black text-white">£60.0m</span>
+          </div>
+          <div>
+            <span className="text-[10px] text-gray-400 uppercase font-bold block">In Bank</span>
+            <span className="text-sm font-black text-white">£{squad.bank.toFixed(1)}m</span>
+          </div>
+          <div>
+            <span className="text-[10px] text-gray-400 uppercase font-bold block">Free Transf.</span>
+            <span className="text-sm font-black text-[#00ff87]">{freeTransfersRemaining}</span>
+          </div>
+          <div>
+            <span className="text-[10px] text-gray-400 uppercase font-bold block">Cost Next</span>
+            <span className="text-sm font-black text-[#e90052]">
+              {freeTransfersRemaining > 0 ? '0 pts' : '-4 pts'}
+            </span>
+          </div>
         </div>
-        <div>
-          <span className="text-[10px] text-gray-400 uppercase font-bold block">Cost Next Transfer</span>
-          <span className="text-sm font-black text-[#e90052]">
-            {freeTransfersRemaining > 0 ? '0 pts' : '-4 pts'}
-          </span>
-        </div>
-        <div>
-          <span className="text-[10px] text-gray-400 uppercase font-bold block">Bank</span>
-          <span className="text-sm font-black text-white">£{squad.bank.toFixed(1)}m</span>
+        <div className="flex items-center justify-between pt-1.5 border-t border-white/10 text-[10px] text-gray-400">
+          <span className="font-bold text-[#00ff87]">6 Starters • 3 Bench Reserves</span>
+          <span className="text-gray-300">Bank is governed by Starting 6</span>
         </div>
       </div>
 
@@ -271,7 +283,10 @@ export const TransfersView: React.FC = () => {
           ) : (
             candidatePlayers.map((p) => {
               const isSelected = inPlayerId === p.id;
-              const affordable = outPlayer ? squad.bank + outPlayer.cost >= p.cost : squad.bank >= p.cost;
+              const isStarterOut = outPlayer ? squad.players.find((sp) => sp.playerId === outPlayer.id)?.isStarter : true;
+              const affordable = outPlayer
+                ? (isStarterOut ? squad.bank + outPlayer.cost >= p.cost : true)
+                : squad.bank >= p.cost;
 
               return (
                 <div

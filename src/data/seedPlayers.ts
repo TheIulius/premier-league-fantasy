@@ -179,22 +179,21 @@ export const SEED_PLAYERS: Player[] = [
   },
 ];
 
-// Initial Squad containing all 11 school footballers
-// Total cost: 7.9 + 8.9 + 10.0 + 8.8 + 8.3 + 8.2 + 9.5 + 9.4 + 8.3 + 9.1 + 8.7 = 97.1m
-// Bank = £2.9m
+// 6-a-side Fantasy Squad: 6 Starters + 3 Reserves (9 total footballers)
+// Total Budget = £60.0m
+// Starting 6 Cost: 7.9 (Ika) + 10.0 (Shinjo) + 8.8 (Zarno) + 9.5 (ciskara) + 9.4 (Rati) + 9.1 (Chaga) = £54.7m
+// Bank = £5.3m (out of £60.0m budget)
 export const DEFAULT_SQUAD_PLAYER_IDS = [
-  // 10 Starters
+  // 6 Starters on Pitch (Formation: 2-2-1)
   { playerId: 'p_ika', isStarter: true, benchOrder: 0, isCaptain: false, isViceCaptain: false }, // GKP
   { playerId: 'p_shinjo', isStarter: true, benchOrder: 0, isCaptain: false, isViceCaptain: false }, // DEF
   { playerId: 'p_zarno', isStarter: true, benchOrder: 0, isCaptain: false, isViceCaptain: false }, // DEF
-  { playerId: 'p_dito', isStarter: true, benchOrder: 0, isCaptain: false, isViceCaptain: false }, // DEF
-  { playerId: 'p_mandara', isStarter: true, benchOrder: 0, isCaptain: false, isViceCaptain: false }, // DEF
   { playerId: 'p_ciskara', isStarter: true, benchOrder: 0, isCaptain: false, isViceCaptain: true }, // MID (VC)
   { playerId: 'p_rati', isStarter: true, benchOrder: 0, isCaptain: false, isViceCaptain: false }, // MID
-  { playerId: 'p_vadzo', isStarter: true, benchOrder: 0, isCaptain: false, isViceCaptain: false }, // MID
   { playerId: 'p_chaga', isStarter: true, benchOrder: 0, isCaptain: true, isViceCaptain: false }, // FWD (C)
-  { playerId: 'p_tsotne', isStarter: true, benchOrder: 0, isCaptain: false, isViceCaptain: false }, // FWD
 
-  // 1 Substitute
+  // 3 Reserves on Bench
   { playerId: 'p_futkara', isStarter: false, benchOrder: 1, isCaptain: false, isViceCaptain: false }, // Sub GKP
+  { playerId: 'p_dito', isStarter: false, benchOrder: 2, isCaptain: false, isViceCaptain: false }, // Sub DEF
+  { playerId: 'p_vadzo', isStarter: false, benchOrder: 3, isCaptain: false, isViceCaptain: false }, // Sub MID
 ];
