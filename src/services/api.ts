@@ -83,14 +83,15 @@ export async function loginManagerApi(managerName: string, teamName: string) {
   return res.json();
 }
 
-export async function saveSquadApi(managerId: string, players: SquadPlayer[], teamName?: string) {
+export async function saveSquadApi(managerId: string, players: SquadPlayer[], teamName?: string, bank?: number) {
   const res = await fetch(`${API_BASE}/api/squad/save`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ managerId, players, teamName }),
+    body: JSON.stringify({ managerId, players, teamName, bank }),
   });
-  if (!res.ok) throw new Error('Failed to save squad');
-  return res.json();
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || 'Failed to save squad');
+  return data;
 }
 
 export async function transferPlayerApi(managerId: string, outPlayerId: string, inPlayerId: string) {

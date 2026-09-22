@@ -26,7 +26,33 @@ app.get('/api/health', (req: Request, res: Response) => {
 app.get('/api/state', (req: Request, res: Response) => {
   const data = db.getData();
   const managerId = (req.query.managerId as string) || Object.keys(data.managers)[0] || 'user_1';
-  const manager = data.managers[managerId] || Object.values(data.managers)[0];
+  let manager = data.managers[managerId];
+
+  if (!manager) {
+    const user = data.users?.[managerId];
+    if (user) {
+      manager = {
+        id: user.id,
+        managerName: user.managerName,
+        teamName: user.teamName,
+        squad: {
+          teamName: user.teamName,
+          managerName: user.managerName,
+          players: [...DEFAULT_SQUAD_PLAYER_IDS],
+          bank: 5.3,
+          freeTransfers: 1,
+          transfersMadeThisGW: 0,
+          activeChip: null,
+          usedChips: { triple_captain: false, bench_boost: false, free_hit: false },
+        },
+        joinedAt: new Date().toISOString(),
+      };
+      data.managers[user.id] = manager;
+      db.save();
+    } else {
+      manager = Object.values(data.managers)[0];
+    }
+  }
 
   const managersList = Object.values(data.managers).map((m) => ({
     id: m.id,
@@ -365,37 +391,87 @@ app.post('/api/manager/login', (req: Request, res: Response) => {
 
 // 4. Save Squad Lineup
 app.post('/api/squad/save', (req: Request, res: Response) => {
-  const { managerId, players, teamName } = req.body;
+  const { managerId, players, teamName, bank } = req.body;
+  if (!managerId) {
+    return res.status(400).json({ error: 'managerId is required' });
+  }
+
   const data = db.getData();
-  const manager = data.managers[managerId];
+  let manager = data.managers[managerId];
 
   if (!manager) {
-    return res.status(404).json({ error: 'Manager not found' });
+    const user = data.users?.[managerId];
+    manager = {
+      id: managerId,
+      managerName: user?.managerName || 'My Team Manager',
+      teamName: teamName || user?.teamName || 'My Squad XI',
+      squad: {
+        teamName: teamName || user?.teamName || 'My Squad XI',
+        managerName: user?.managerName || 'My Team Manager',
+        players: players || [...DEFAULT_SQUAD_PLAYER_IDS],
+        bank: typeof bank === 'number' ? Math.round(bank * 10) / 10 : 5.3,
+        freeTransfers: 1,
+        transfersMadeThisGW: 0,
+        activeChip: null,
+        usedChips: { triple_captain: false, bench_boost: false, free_hit: false },
+      },
+      joinedAt: new Date().toISOString(),
+    };
+    data.managers[managerId] = manager;
   }
 
-  if (players) {
+  if (players && Array.isArray(players)) {
     manager.squad.players = players;
-    const startersCost = players
-      .filter((sp: any) => sp.isStarter)
-      .reduce((sum: number, sp: any) => sum + (data.players[sp.playerId]?.cost || 0), 0);
-    manager.squad.bank = Math.max(0, Math.round((60.0 - startersCost) * 10) / 10);
+    if (typeof bank === 'number') {
+      manager.squad.bank = Math.round(bank * 10) / 10;
+    } else {
+      const startersCost = players
+        .filter((sp: any) => sp.isStarter)
+        .reduce((sum: number, sp: any) => sum + (data.players[sp.playerId]?.cost || 0), 0);
+      manager.squad.bank = Math.max(0, Math.round((60.0 - startersCost) * 10) / 10);
+    }
   }
+
   if (teamName) {
     manager.teamName = teamName;
     manager.squad.teamName = teamName;
   }
 
   db.save();
-  res.json({ success: true, squad: manager.squad });
+  res.json({ success: true, squad: manager.squad, manager });
 });
 
 // 5. Activate Chip
 app.post('/api/squad/chip', (req: Request, res: Response) => {
   const { managerId, chip } = req.body;
   const data = db.getData();
-  const manager = data.managers[managerId];
+  let manager = data.managers[managerId];
 
-  if (!manager) return res.status(404).json({ error: 'Manager not found' });
+  if (!manager) {
+    const user = data.users?.[managerId];
+    if (user) {
+      manager = {
+        id: user.id,
+        managerName: user.managerName,
+        teamName: user.teamName,
+        squad: {
+          teamName: user.teamName,
+          managerName: user.managerName,
+          players: [...DEFAULT_SQUAD_PLAYER_IDS],
+          bank: 5.3,
+          freeTransfers: 1,
+          transfersMadeThisGW: 0,
+          activeChip: null,
+          usedChips: { triple_captain: false, bench_boost: false, free_hit: false },
+        },
+        joinedAt: new Date().toISOString(),
+      };
+      data.managers[user.id] = manager;
+    } else {
+      return res.status(404).json({ error: 'Manager not found' });
+    }
+  }
+
   if (chip && manager.squad.usedChips[chip]) {
     return res.status(400).json({ error: 'Chip already used' });
   }
@@ -410,9 +486,32 @@ app.post('/api/squad/chip', (req: Request, res: Response) => {
 app.post('/api/squad/transfer', (req: Request, res: Response) => {
   const { managerId, outPlayerId, inPlayerId } = req.body;
   const data = db.getData();
-  const manager = data.managers[managerId];
+  let manager = data.managers[managerId];
 
-  if (!manager) return res.status(404).json({ error: 'Manager not found' });
+  if (!manager) {
+    const user = data.users?.[managerId];
+    if (user) {
+      manager = {
+        id: user.id,
+        managerName: user.managerName,
+        teamName: user.teamName,
+        squad: {
+          teamName: user.teamName,
+          managerName: user.managerName,
+          players: [...DEFAULT_SQUAD_PLAYER_IDS],
+          bank: 5.3,
+          freeTransfers: 1,
+          transfersMadeThisGW: 0,
+          activeChip: null,
+          usedChips: { triple_captain: false, bench_boost: false, free_hit: false },
+        },
+        joinedAt: new Date().toISOString(),
+      };
+      data.managers[user.id] = manager;
+    } else {
+      return res.status(404).json({ error: 'Manager not found' });
+    }
+  }
 
   const outP = data.players[outPlayerId];
   const inP = data.players[inPlayerId];

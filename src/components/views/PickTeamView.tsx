@@ -2,12 +2,14 @@ import React, { useState } from 'react';
 import { useFPL } from '../../context/FPLContext';
 import { PitchView } from '../pitch/PitchView';
 import { ChipType } from '../../types/fpl';
-import { Sparkles, Shield, Zap, RefreshCw, CheckCircle } from 'lucide-react';
+import { Sparkles, Shield, Zap, RefreshCw, CheckCircle, Loader2, AlertCircle } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 export const PickTeamView: React.FC = () => {
-  const { squad, activateChip, teamValue, freeTransfersRemaining } = useFPL();
+  const { squad, activateChip, teamValue, freeTransfersRemaining, saveSquad } = useFPL();
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const chips: { id: ChipType; label: string; desc: string; icon: any }[] = [
     {
@@ -30,15 +32,30 @@ export const PickTeamView: React.FC = () => {
     },
   ];
 
-  const handleSaveTeam = () => {
-    setSaveSuccess(true);
-    confetti({
-      particleCount: 50,
-      spread: 60,
-      origin: { y: 0.8 },
-      colors: ['#00ff87', '#37003c', '#04f5ff'],
-    });
-    setTimeout(() => setSaveSuccess(false), 2500);
+  const handleSaveTeam = async () => {
+    setIsSaving(true);
+    setErrorMessage(null);
+    try {
+      const res = await saveSquad();
+      if (res.success) {
+        setSaveSuccess(true);
+        confetti({
+          particleCount: 50,
+          spread: 60,
+          origin: { y: 0.8 },
+          colors: ['#00ff87', '#37003c', '#04f5ff'],
+        });
+        setTimeout(() => setSaveSuccess(false), 2500);
+      } else {
+        setErrorMessage(res.message || 'Failed to save lineup');
+        setTimeout(() => setErrorMessage(null), 4000);
+      }
+    } catch (err: any) {
+      setErrorMessage(err?.message || 'Failed to save lineup to database');
+      setTimeout(() => setErrorMessage(null), 4000);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -115,12 +132,24 @@ export const PickTeamView: React.FC = () => {
       <PitchView showPoints={false} />
 
       {/* Save Squad Button */}
-      <div className="px-4">
+      <div className="px-4 flex flex-col gap-2">
+        {errorMessage && (
+          <div className="p-2.5 rounded-xl bg-[#e90052]/20 border border-[#e90052]/40 text-[#e90052] text-xs font-bold flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 flex-shrink-0" />
+            <span>{errorMessage}</span>
+          </div>
+        )}
         <button
           onClick={handleSaveTeam}
-          className="w-full py-3.5 px-4 rounded-xl font-black text-sm uppercase tracking-wider bg-gradient-to-r from-[#00ff87] to-[#00cc6a] text-[#37003c] shadow-glow-green hover:opacity-95 active:scale-98 transition-all flex items-center justify-center gap-2"
+          disabled={isSaving}
+          className="w-full py-3.5 px-4 rounded-xl font-black text-sm uppercase tracking-wider bg-gradient-to-r from-[#00ff87] to-[#00cc6a] text-[#37003c] shadow-glow-green hover:opacity-95 active:scale-98 disabled:opacity-75 transition-all flex items-center justify-center gap-2"
         >
-          {saveSuccess ? (
+          {isSaving ? (
+            <>
+              <Loader2 className="w-5 h-5 text-[#37003c] animate-spin" />
+              <span>Saving Lineup to Database...</span>
+            </>
+          ) : saveSuccess ? (
             <>
               <CheckCircle className="w-5 h-5 text-[#37003c]" />
               <span>Squad Saved Successfully!</span>

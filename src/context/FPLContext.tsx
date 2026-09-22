@@ -45,6 +45,7 @@ interface FPLContextType {
   selectedPlayerForSwap: string | null;
   setSelectedPlayerForSwap: (id: string | null) => void;
   substitutePlayers: (playerAId: string, playerBId: string) => { success: boolean; message?: string };
+  saveSquad: (customPlayers?: SquadPlayer[]) => Promise<{ success: boolean; message?: string }>;
   setCaptain: (playerId: string) => void;
   setViceCaptain: (playerId: string) => void;
   activateChip: (chip: ChipType) => boolean;
@@ -131,6 +132,13 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [isAuthModalOpen, setIsAuthModalOpen] = useState<boolean>(false);
 
   const [currentManagerId, setCurrentManagerId] = useState<string>(() => {
+    const savedAuthUser = localStorage.getItem(STORAGE_KEY_AUTH_USER);
+    if (savedAuthUser) {
+      try {
+        const parsed = JSON.parse(savedAuthUser);
+        if (parsed?.id) return parsed.id;
+      } catch (e) {}
+    }
     return localStorage.getItem(STORAGE_KEY_MANAGER_ID) || 'user_1';
   });
 
@@ -255,13 +263,34 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             managerName: data.activeManager.managerName,
             teamName: data.activeManager.teamName,
           });
-          if (data.activeManager.squad) setSquad(data.activeManager.squad);
+          if (data.activeManager.squad) {
+            setSquad(data.activeManager.squad);
+            localStorage.setItem(STORAGE_KEY_SQUAD, JSON.stringify(data.activeManager.squad));
+          }
         }
       }
     } catch (err) {
       // Offline fallback: continue using local state
     }
   }, [currentManagerId]);
+
+  // Verify auth session on mount
+  useEffect(() => {
+    if (authToken) {
+      api.authMe(authToken).then((res) => {
+        if (res && res.user) {
+          setAuthUser(res.user);
+          localStorage.setItem(STORAGE_KEY_AUTH_USER, JSON.stringify(res.user));
+          setCurrentManagerId(res.user.id);
+          localStorage.setItem(STORAGE_KEY_MANAGER_ID, res.user.id);
+          if (res.squad) {
+            setSquad(res.squad);
+            localStorage.setItem(STORAGE_KEY_SQUAD, JSON.stringify(res.squad));
+          }
+        }
+      }).catch(() => {});
+    }
+  }, [authToken]);
 
   // Hydrate from server on mount
   useEffect(() => {
@@ -440,6 +469,45 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setIsDevAuthenticated(false);
   };
 
+  // Explicit Save Squad to Backend Database & LocalStorage
+  const saveSquad = async (customPlayers?: SquadPlayer[]): Promise<{ success: boolean; message?: string }> => {
+    try {
+      const targetPlayers = customPlayers || squad.players;
+
+      const startersCost = targetPlayers
+        .filter((sp) => sp.isStarter)
+        .reduce((sum, sp) => sum + (players[sp.playerId]?.cost || 0), 0);
+      const roundedStartersCost = Math.round(startersCost * 10) / 10;
+      const calculatedBank = Math.max(0, Math.round((60.0 - roundedStartersCost) * 10) / 10);
+
+      const updatedSquad: Squad = {
+        ...squad,
+        players: targetPlayers,
+        bank: calculatedBank,
+      };
+
+      setSquad(updatedSquad);
+      localStorage.setItem(STORAGE_KEY_SQUAD, JSON.stringify(updatedSquad));
+
+      const res = await api.saveSquadApi(
+        currentManagerId,
+        targetPlayers,
+        updatedSquad.teamName,
+        calculatedBank
+      );
+
+      if (res && res.squad) {
+        setSquad(res.squad);
+        localStorage.setItem(STORAGE_KEY_SQUAD, JSON.stringify(res.squad));
+      }
+
+      return { success: true };
+    } catch (err: any) {
+      console.error('Failed to save squad to database:', err);
+      return { success: false, message: err?.message || 'Failed to save squad to database' };
+    }
+  };
+
   // Substitute / Swap logic
   const substitutePlayers = (playerAId: string, playerBId: string) => {
     const check = canSwapPlayers(playerAId, playerBId, squad.players, players);
@@ -474,12 +542,17 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
     const newBank = Math.round((60.0 - roundedStartersCost) * 10) / 10;
 
-    setSquad((prev) => ({
-      ...prev,
+    const updatedSquad: Squad = {
+      ...squad,
       bank: newBank,
       players: updatedPlayers,
-    }));
-    api.saveSquadApi(currentManagerId, updatedPlayers).catch(() => {});
+    };
+
+    setSquad(updatedSquad);
+    localStorage.setItem(STORAGE_KEY_SQUAD, JSON.stringify(updatedSquad));
+    api.saveSquadApi(currentManagerId, updatedPlayers, updatedSquad.teamName, newBank).catch((err) => {
+      console.warn('Auto-save squad substitution failed:', err);
+    });
     setSelectedPlayerForSwap(null);
     return { success: true };
   };
@@ -495,8 +568,12 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       isViceCaptain: sp.playerId === playerId ? false : sp.isViceCaptain,
     }));
 
-    setSquad((prev) => ({ ...prev, players: updated }));
-    api.saveSquadApi(currentManagerId, updated).catch(() => {});
+    const updatedSquad = { ...squad, players: updated };
+    setSquad(updatedSquad);
+    localStorage.setItem(STORAGE_KEY_SQUAD, JSON.stringify(updatedSquad));
+    api.saveSquadApi(currentManagerId, updated, updatedSquad.teamName, updatedSquad.bank).catch((err) => {
+      console.warn('Auto-save captain failed:', err);
+    });
   };
 
   // Set Vice-Captain
@@ -509,16 +586,22 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       isViceCaptain: sp.playerId === playerId,
     }));
 
-    setSquad((prev) => ({ ...prev, players: updated }));
-    api.saveSquadApi(currentManagerId, updated).catch(() => {});
+    const updatedSquad = { ...squad, players: updated };
+    setSquad(updatedSquad);
+    localStorage.setItem(STORAGE_KEY_SQUAD, JSON.stringify(updatedSquad));
+    api.saveSquadApi(currentManagerId, updated, updatedSquad.teamName, updatedSquad.bank).catch((err) => {
+      console.warn('Auto-save vice captain failed:', err);
+    });
   };
 
   // Activate Chip
   const activateChip = (chip: ChipType): boolean => {
     if (squad.usedChips[chip]) return false;
     const newActive = squad.activeChip === chip ? null : chip;
-    setSquad((prev) => ({ ...prev, activeChip: newActive }));
-    api.activateChipApi(currentManagerId, chip).catch(() => {});
+    const updatedSquad = { ...squad, activeChip: newActive };
+    setSquad(updatedSquad);
+    localStorage.setItem(STORAGE_KEY_SQUAD, JSON.stringify(updatedSquad));
+    api.activateChipApi(currentManagerId, chip).catch(console.error);
     return true;
   };
 
@@ -561,14 +644,20 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       sp.playerId === outPlayerId ? { ...sp, playerId: inPlayerId } : sp
     );
 
-    setSquad((prev) => ({
-      ...prev,
+    const updatedSquad: Squad = {
+      ...squad,
       bank: Math.round(newBank * 10) / 10,
-      transfersMadeThisGW: prev.transfersMadeThisGW + 1,
+      transfersMadeThisGW: squad.transfersMadeThisGW + 1,
       players: updatedPlayers,
-    }));
+    };
 
-    api.transferPlayerApi(currentManagerId, outPlayerId, inPlayerId).catch(() => {});
+    setSquad(updatedSquad);
+    localStorage.setItem(STORAGE_KEY_SQUAD, JSON.stringify(updatedSquad));
+
+    api.transferPlayerApi(currentManagerId, outPlayerId, inPlayerId).catch((e) => {
+      console.warn('transferPlayerApi failed, syncing via saveSquadApi:', e);
+      api.saveSquadApi(currentManagerId, updatedPlayers, updatedSquad.teamName, updatedSquad.bank).catch(console.error);
+    });
     return { success: true };
   };
 
@@ -904,6 +993,7 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         selectedPlayerForSwap,
         setSelectedPlayerForSwap,
         substitutePlayers,
+        saveSquad,
         setCaptain,
         setViceCaptain,
         activateChip,
