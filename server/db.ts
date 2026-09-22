@@ -2,9 +2,10 @@ import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
-import { Player, Fixture, League, Squad } from '../src/types/fpl';
+import { Player, Fixture, League, Squad, Club } from '../src/types/fpl';
 import { SEED_PLAYERS, DEFAULT_SQUAD_PLAYER_IDS } from '../src/data/seedPlayers';
 import { SEED_FIXTURES, SEED_LEAGUES } from '../src/data/seedFixtures';
+import { CLUBS } from '../src/data/clubs';
 
 const DATA_DIR = process.env.DATA_DIR || path.join(process.cwd(), 'data');
 const DB_FILE = path.join(DATA_DIR, 'db.json');
@@ -32,6 +33,7 @@ export interface ManagerProfile {
 export interface DatabaseSchema {
   currentGW: number;
   players: Record<string, Player>;
+  clubs?: Record<string, Club>;
   fixtures: Fixture[];
   leagues: League[];
   managers: Record<string, ManagerProfile>;
@@ -97,7 +99,8 @@ function getDefaultData(): DatabaseSchema {
   return {
     currentGW: 1,
     players: playerMap,
-    fixtures: SEED_FIXTURES,
+    clubs: { ...CLUBS },
+    fixtures: [...SEED_FIXTURES],
     leagues: SEED_LEAGUES,
     managers: {
       user_1: defaultManager,
@@ -122,6 +125,16 @@ class Database {
         this.data = JSON.parse(raw);
         if (!this.data.users) {
           this.data.users = {};
+        }
+        if (!this.data.clubs || Object.keys(this.data.clubs).some((k) => k === 'ARS' || k === 'CHE' || k === 'WOL')) {
+          this.data.clubs = { ...CLUBS };
+        }
+        // Cleanse any legacy Premier League fixtures
+        const plClubCodes = new Set(['ARS', 'AVL', 'BOU', 'BRE', 'BHA', 'CHE', 'CRY', 'EVE', 'FUL', 'IPS', 'LEI', 'LIV', 'MCI', 'MUN', 'NEW', 'NFO', 'SOU', 'TOT', 'WHU', 'WOL']);
+        const hasPLFixtures = Array.isArray(this.data.fixtures) && this.data.fixtures.some((f) => plClubCodes.has(f.homeClubId) || plClubCodes.has(f.awayClubId));
+        if (hasPLFixtures || !this.data.fixtures || this.data.fixtures.length === 0) {
+          this.data.fixtures = [...SEED_FIXTURES];
+          this.save();
         }
       } catch (err) {
         console.error('Error reading db.json, initializing with default data', err);

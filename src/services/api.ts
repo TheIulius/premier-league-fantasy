@@ -1,4 +1,4 @@
-import { SquadPlayer, ChipType, PlayerStats } from '../types/fpl';
+import { SquadPlayer, ChipType, PlayerStats, Fixture, Club } from '../types/fpl';
 
 const API_BASE = ''; // Same host (works for both local Vite proxy and production Express)
 
@@ -194,3 +194,64 @@ export async function deleteLeagueApi(leagueId: string) {
   if (!res.ok) throw new Error(data.error || 'Failed to delete league');
   return data;
 }
+
+export async function adminAddFixtureApi(payload: {
+  gameweek: number;
+  homeClubId: string;
+  awayClubId: string;
+  homeScore?: number | null;
+  awayScore?: number | null;
+  isFinished?: boolean;
+  isLive?: boolean;
+  kickoffTime?: string;
+}) {
+  const res = await fetch(`${API_BASE}/api/admin/fixture/add`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Failed to add game fixture');
+  return data;
+}
+
+export async function adminUpdateFixtureApi(id: string, updates: Partial<Fixture>) {
+  const res = await fetch(`${API_BASE}/api/admin/fixture/update`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id, updates }),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Failed to update fixture');
+  return data;
+}
+
+export async function adminDeleteFixtureApi(id: string) {
+  const res = await fetch(`${API_BASE}/api/admin/fixture/delete`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id }),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Failed to delete fixture');
+  return data;
+}
+
+export async function adminAddClubApi(club: {
+  id?: string;
+  name: string;
+  shortName?: string;
+  primaryColor?: string;
+  secondaryColor?: string;
+  textColor?: string;
+}) {
+  const res = await fetch(`${API_BASE}/api/admin/club/add`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(club),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Failed to add school team');
+  return data;
+}
+

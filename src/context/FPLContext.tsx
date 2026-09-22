@@ -8,6 +8,7 @@ import {
   ChipType,
   Position,
   PlayerStats,
+  Club,
 } from '../types/fpl';
 import { SEED_PLAYERS, DEFAULT_SQUAD_PLAYER_IDS } from '../data/seedPlayers';
 import { SEED_FIXTURES, SEED_LEAGUES } from '../data/seedFixtures';
@@ -30,6 +31,8 @@ export interface ManagerSummary {
 
 interface FPLContextType {
   players: Record<string, Player>;
+  clubs: Record<string, Club>;
+  addClub: (club: { name: string; shortName?: string; primaryColor?: string; secondaryColor?: string }) => Promise<Club>;
   squad: Squad;
   fixtures: Fixture[];
   leagues: League[];
@@ -56,7 +59,18 @@ interface FPLContextType {
   }) => Player;
   editPlayer: (playerId: string, data: Partial<Player>) => void;
   deletePlayer: (playerId: string) => void;
-  updateFixture: (fixtureId: string, data: Partial<Fixture>) => void;
+  addFixture: (fixture: {
+    gameweek: number;
+    homeClubId: string;
+    awayClubId: string;
+    homeScore?: number | null;
+    awayScore?: number | null;
+    isFinished?: boolean;
+    isLive?: boolean;
+    kickoffTime?: string;
+  }) => Promise<void>;
+  updateFixture: (fixtureId: string, data: Partial<Fixture>) => Promise<void>;
+  deleteFixture: (fixtureId: string) => Promise<void>;
   simulateGameweek: (gw: number) => void;
   finalizeGameweek: () => void;
   advanceGameweek: () => void;
@@ -87,6 +101,7 @@ const STORAGE_KEY_AUTH_TOKEN = 'fpl_auth_token_v1';
 const STORAGE_KEY_AUTH_USER = 'fpl_auth_user_v1';
 const STORAGE_KEY_MANAGER_ID = 'fpl_active_manager_id_v1';
 const STORAGE_KEY_PLAYERS = 'fpl_players_v1';
+const STORAGE_KEY_CLUBS = 'fpl_clubs_v1';
 const STORAGE_KEY_SQUAD = 'fpl_squad_v1';
 const STORAGE_KEY_FIXTURES = 'fpl_fixtures_v1';
 const STORAGE_KEY_LEAGUES = 'fpl_leagues_v1';
@@ -132,6 +147,19 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [isManagerModalOpen, setIsManagerModalOpen] = useState<boolean>(false);
 
   // Core Game State
+  const [clubs, setClubs] = useState<Record<string, Club>>(() => {
+    const saved = localStorage.getItem(STORAGE_KEY_CLUBS);
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (parsed && typeof parsed === 'object' && !('ARS' in parsed)) {
+          return parsed;
+        }
+      } catch (e) {}
+    }
+    return { ...CLUBS };
+  });
+
   const [players, setPlayers] = useState<Record<string, Player>>(() => {
     const saved = localStorage.getItem(STORAGE_KEY_PLAYERS);
     if (saved) {
@@ -176,9 +204,14 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [fixtures, setFixtures] = useState<Fixture[]>(() => {
     const saved = localStorage.getItem(STORAGE_KEY_FIXTURES);
     if (saved) {
-      try { return JSON.parse(saved); } catch (e) { /* fallback */ }
+      try {
+        const parsed = JSON.parse(saved);
+        const plClubCodes = new Set(['ARS', 'AVL', 'BOU', 'BRE', 'BHA', 'CHE', 'CRY', 'EVE', 'FUL', 'IPS', 'LEI', 'LIV', 'MCI', 'MUN', 'NEW', 'NFO', 'SOU', 'TOT', 'WHU', 'WOL']);
+        const hasPL = Array.isArray(parsed) && parsed.some((f: any) => plClubCodes.has(f.homeClubId) || plClubCodes.has(f.awayClubId));
+        if (!hasPL && Array.isArray(parsed) && parsed.length > 0) return parsed;
+      } catch (e) { /* fallback */ }
     }
-    return SEED_FIXTURES;
+    return [...SEED_FIXTURES];
   });
 
   const [leagues, setLeagues] = useState<League[]>(() => {
@@ -210,6 +243,7 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     try {
       const data = await api.fetchAppState(currentManagerId);
       if (data) {
+        if (data.clubs) setClubs(data.clubs);
         if (data.players) setPlayers(data.players);
         if (data.fixtures) setFixtures(data.fixtures);
         if (data.leagues) setLeagues(data.leagues);
@@ -241,6 +275,10 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY_MANAGER_ID, currentManagerId);
   }, [currentManagerId]);
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY_CLUBS, JSON.stringify(clubs));
+  }, [clubs]);
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY_PLAYERS, JSON.stringify(players));
@@ -642,11 +680,99 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     api.adminPlayerApi({ action: 'delete', playerId }).catch(() => {});
   };
 
+  // Developer: Add game fixture
+  const addFixture = async (fixtureData: {
+    gameweek: number;
+    homeClubId: string;
+    awayClubId: string;
+    homeScore?: number | null;
+    awayScore?: number | null;
+    isFinished?: boolean;
+    isLive?: boolean;
+    kickoffTime?: string;
+  }) => {
+    try {
+      const res = await api.adminAddFixtureApi(fixtureData);
+      if (res.fixtures) {
+        setFixtures(res.fixtures);
+      }
+    } catch {
+      const id = `fix_gw${fixtureData.gameweek}_${Date.now()}`;
+      setFixtures((prev) => [
+        ...prev,
+        {
+          id,
+          gameweek: fixtureData.gameweek,
+          homeClubId: fixtureData.homeClubId,
+          awayClubId: fixtureData.awayClubId,
+          homeScore: fixtureData.homeScore ?? null,
+          awayScore: fixtureData.awayScore ?? null,
+          isFinished: !!fixtureData.isFinished,
+          isLive: !!fixtureData.isLive,
+          kickoffTime: fixtureData.kickoffTime || 'TBD',
+        },
+      ]);
+    }
+  };
+
   // Developer: Update fixture
-  const updateFixture = (fixtureId: string, data: Partial<Fixture>) => {
-    setFixtures((prev) =>
-      prev.map((f) => (f.id === fixtureId ? { ...f, ...data } : f))
-    );
+  const updateFixture = async (fixtureId: string, data: Partial<Fixture>) => {
+    try {
+      const res = await api.adminUpdateFixtureApi(fixtureId, data);
+      if (res.fixtures) {
+        setFixtures(res.fixtures);
+      } else {
+        setFixtures((prev) =>
+          prev.map((f) => (f.id === fixtureId ? { ...f, ...data } : f))
+        );
+      }
+    } catch {
+      setFixtures((prev) =>
+        prev.map((f) => (f.id === fixtureId ? { ...f, ...data } : f))
+      );
+    }
+  };
+
+  // Developer: Delete fixture
+  const deleteFixture = async (fixtureId: string) => {
+    try {
+      const res = await api.adminDeleteFixtureApi(fixtureId);
+      if (res.fixtures) {
+        setFixtures(res.fixtures);
+      } else {
+        setFixtures((prev) => prev.filter((f) => f.id !== fixtureId));
+      }
+    } catch {
+      setFixtures((prev) => prev.filter((f) => f.id !== fixtureId));
+    }
+  };
+
+  // Developer: Add custom school team/club
+  const addClub = async (clubData: {
+    name: string;
+    shortName?: string;
+    primaryColor?: string;
+    secondaryColor?: string;
+  }) => {
+    try {
+      const res = await api.adminAddClubApi(clubData);
+      if (res.clubs) {
+        setClubs(res.clubs);
+      }
+      return res.club;
+    } catch {
+      const clubId = `SCH_${clubData.name.trim().replace(/[^a-zA-Z0-9]/g, '_').toUpperCase()}`;
+      const newClub: Club = {
+        id: clubId,
+        name: clubData.name.trim(),
+        shortName: clubData.shortName?.trim() || clubData.name.trim().slice(0, 4).toUpperCase(),
+        primaryColor: clubData.primaryColor || '#37003c',
+        secondaryColor: clubData.secondaryColor || '#00ff87',
+        textColor: '#ffffff',
+      };
+      setClubs((prev) => ({ ...prev, [clubId]: newClub }));
+      return newClub;
+    }
   };
 
   // Developer: Simulate Gameweek Match Day
@@ -761,8 +887,13 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     <FPLContext.Provider
       value={{
         players,
+        clubs,
+        addClub,
         squad,
         fixtures,
+        addFixture,
+        updateFixture,
+        deleteFixture,
         leagues,
         currentGW,
         activeTab,
@@ -781,7 +912,6 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         addCustomPlayer,
         editPlayer,
         deletePlayer,
-        updateFixture,
         simulateGameweek,
         finalizeGameweek,
         advanceGameweek,

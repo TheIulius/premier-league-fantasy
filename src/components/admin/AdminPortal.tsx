@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useFPL } from '../../context/FPLContext';
-import { Position, Player, PlayerStats } from '../../types/fpl';
+import { Position, Player, PlayerStats, Fixture } from '../../types/fpl';
 import { CLUBS } from '../../data/clubs';
 import { KitJersey } from '../pitch/KitJersey';
 import {
@@ -16,6 +16,12 @@ import {
   Play,
   ArrowRight,
   Sparkles,
+  Calendar,
+  ChevronLeft,
+  ChevronRight,
+  Clock,
+  Activity,
+  Layers,
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
@@ -25,11 +31,17 @@ export const AdminPortal: React.FC = () => {
     devLogin,
     devLogout,
     players,
+    clubs,
+    fixtures,
     currentGW,
     updatePlayerStats,
     addCustomPlayer,
     editPlayer,
     deletePlayer,
+    addFixture,
+    updateFixture,
+    deleteFixture,
+    addClub,
     simulateGameweek,
     finalizeGameweek,
     advanceGameweek,
@@ -38,7 +50,24 @@ export const AdminPortal: React.FC = () => {
 
   const [pinInput, setPinInput] = useState('');
   const [loginError, setLoginError] = useState(false);
-  const [adminTab, setAdminTab] = useState<'events' | 'players' | 'gw'>('events');
+  const [adminTab, setAdminTab] = useState<'fixtures' | 'events' | 'players' | 'gw'>('fixtures');
+
+  // Games & Fixtures Admin State
+  const [selectedGWForFix, setSelectedGWForFix] = useState<number>(currentGW);
+  const [isAddingFixture, setIsAddingFixture] = useState<boolean>(false);
+  const [newFixHome, setNewFixHome] = useState<string>('SCH');
+  const [newFixAway, setNewFixAway] = useState<string>('SCH_11_2');
+  const [newFixKickoff, setNewFixKickoff] = useState<string>('Fri 15:30');
+  const [newFixStatus, setNewFixStatus] = useState<'upcoming' | 'live' | 'finished'>('upcoming');
+  const [newFixHomeScore, setNewFixHomeScore] = useState<string>('0');
+  const [newFixAwayScore, setNewFixAwayScore] = useState<string>('0');
+
+  // Custom School Team State
+  const [isAddingTeam, setIsAddingTeam] = useState<boolean>(false);
+  const [newTeamName, setNewTeamName] = useState<string>('');
+  const [newTeamShort, setNewTeamShort] = useState<string>('');
+  const [newTeamPrimaryColor, setNewTeamPrimaryColor] = useState<string>('#37003c');
+  const [newTeamSecondaryColor, setNewTeamSecondaryColor] = useState<string>('#00ff87');
 
   // Live Stat Entry State
   const [selectedPlayerId, setSelectedPlayerId] = useState<string>(
@@ -146,6 +175,110 @@ export const AdminPortal: React.FC = () => {
     showNotification(`Finalized Gameweek ${currentGW} & updated league rankings!`);
   };
 
+  const handleCreateFixture = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newFixHome || !newFixAway) {
+      showNotification('Please select both home and away teams');
+      return;
+    }
+    if (newFixHome === newFixAway) {
+      showNotification('Home and Away teams must be different');
+      return;
+    }
+
+    const homeScore = newFixStatus === 'upcoming' ? null : parseInt(newFixHomeScore, 10) || 0;
+    const awayScore = newFixStatus === 'upcoming' ? null : parseInt(newFixAwayScore, 10) || 0;
+
+    await addFixture({
+      gameweek: selectedGWForFix,
+      homeClubId: newFixHome,
+      awayClubId: newFixAway,
+      homeScore,
+      awayScore,
+      isFinished: newFixStatus === 'finished',
+      isLive: newFixStatus === 'live',
+      kickoffTime: newFixKickoff.trim() || 'TBD',
+    });
+
+    const homeClubName = clubs[newFixHome]?.name || newFixHome;
+    const awayClubName = clubs[newFixAway]?.name || newFixAway;
+
+    showNotification(`Scheduled ${homeClubName} vs ${awayClubName}!`);
+    confetti({
+      particleCount: 35,
+      spread: 50,
+      origin: { y: 0.6 },
+      colors: ['#00ff87', '#37003c'],
+    });
+    setIsAddingFixture(false);
+  };
+
+  const handleQuickScore = async (fix: Fixture, team: 'home' | 'away', delta: number) => {
+    const currentH = fix.homeScore ?? 0;
+    const currentA = fix.awayScore ?? 0;
+    const newH = team === 'home' ? Math.max(0, currentH + delta) : currentH;
+    const newA = team === 'away' ? Math.max(0, currentA + delta) : currentA;
+
+    await updateFixture(fix.id, {
+      homeScore: newH,
+      awayScore: newA,
+      isFinished: fix.isFinished || (!fix.isLive && true),
+      isLive: fix.isLive,
+    });
+  };
+
+  const handleToggleStatus = async (fix: Fixture) => {
+    if (!fix.isLive && !fix.isFinished) {
+      await updateFixture(fix.id, {
+        isLive: true,
+        isFinished: false,
+        homeScore: fix.homeScore ?? 0,
+        awayScore: fix.awayScore ?? 0,
+      });
+      showNotification('Match marked as LIVE');
+    } else if (fix.isLive) {
+      await updateFixture(fix.id, {
+        isLive: false,
+        isFinished: true,
+      });
+      showNotification('Match marked as Finished (FT)');
+    } else {
+      await updateFixture(fix.id, {
+        isLive: false,
+        isFinished: false,
+        homeScore: null,
+        awayScore: null,
+      });
+      showNotification('Match reset to Upcoming');
+    }
+  };
+
+  const handleDeleteFixture = async (fixId: string) => {
+    if (confirm('Are you sure you want to delete this game fixture?')) {
+      await deleteFixture(fixId);
+      showNotification('Game deleted');
+    }
+  };
+
+  const handleCreateSchoolTeam = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newTeamName.trim()) {
+      showNotification('Please enter a team name');
+      return;
+    }
+    const created = await addClub({
+      name: newTeamName.trim(),
+      shortName: newTeamShort.trim(),
+      primaryColor: newTeamPrimaryColor,
+      secondaryColor: newTeamSecondaryColor,
+    });
+    setNewFixHome(created.id);
+    setIsAddingTeam(false);
+    setNewTeamName('');
+    setNewTeamShort('');
+    showNotification(`Created school team: ${created.name}`);
+  };
+
   // LOGIN SCREEN
   if (!isDevAuthenticated) {
     return (
@@ -233,14 +366,22 @@ export const AdminPortal: React.FC = () => {
       )}
 
       {/* Sub-Panel Switcher */}
-      <div className="grid grid-cols-3 gap-1 bg-black/40 p-1 rounded-xl border border-white/10 text-xs font-bold">
+      <div className="grid grid-cols-4 gap-1 bg-black/40 p-1 rounded-xl border border-white/10 text-xs font-bold">
+        <button
+          onClick={() => setAdminTab('fixtures')}
+          className={`py-1.5 rounded-lg transition-all ${
+            adminTab === 'fixtures' ? 'bg-[#00ff87] text-[#37003c]' : 'text-gray-400 hover:text-white'
+          }`}
+        >
+          🏟️ Games
+        </button>
         <button
           onClick={() => setAdminTab('events')}
           className={`py-1.5 rounded-lg transition-all ${
             adminTab === 'events' ? 'bg-[#00ff87] text-[#37003c]' : 'text-gray-400 hover:text-white'
           }`}
         >
-          Live Match Data
+          ⚽ Stats
         </button>
         <button
           onClick={() => setAdminTab('players')}
@@ -248,7 +389,7 @@ export const AdminPortal: React.FC = () => {
             adminTab === 'players' ? 'bg-[#00ff87] text-[#37003c]' : 'text-gray-400 hover:text-white'
           }`}
         >
-          Players
+          👤 Squad
         </button>
         <button
           onClick={() => setAdminTab('gw')}
@@ -256,9 +397,318 @@ export const AdminPortal: React.FC = () => {
             adminTab === 'gw' ? 'bg-[#00ff87] text-[#37003c]' : 'text-gray-400 hover:text-white'
           }`}
         >
-          Gameweek Ops
+          ⚙️ Ops
         </button>
       </div>
+
+      {/* PANEL 0: GAMES & FIXTURES ADMIN */}
+      {adminTab === 'fixtures' && (
+        <div className="space-y-3">
+          {/* Top Control Bar: GW Selector + New Game + New Team */}
+          <div className="p-3 rounded-2xl bg-[#2a002e] border border-[#520d5a] space-y-2.5">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-1.5">
+                <button
+                  onClick={() => setSelectedGWForFix((prev) => Math.max(1, prev - 1))}
+                  disabled={selectedGWForFix <= 1}
+                  className="p-1 rounded bg-white/5 hover:bg-white/10 disabled:opacity-30 text-white"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+                <span className="text-xs font-black text-white px-2 py-0.5 rounded-lg bg-black/40 border border-white/10">
+                  GW {selectedGWForFix} Games
+                </span>
+                <button
+                  onClick={() => setSelectedGWForFix((prev) => prev + 1)}
+                  className="p-1 rounded bg-white/5 hover:bg-white/10 text-white"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+
+              <div className="flex items-center gap-1.5">
+                <button
+                  onClick={() => {
+                    setIsAddingFixture(!isAddingFixture);
+                    setIsAddingTeam(false);
+                  }}
+                  className="px-2.5 py-1.5 rounded-lg text-xs font-black bg-[#00ff87] text-[#37003c] flex items-center gap-1 shadow-glow-green"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  {isAddingFixture ? 'Close' : 'Add Game'}
+                </button>
+                <button
+                  onClick={() => {
+                    setIsAddingTeam(!isAddingTeam);
+                    setIsAddingFixture(false);
+                  }}
+                  className="px-2 py-1.5 rounded-lg text-xs font-bold bg-white/10 hover:bg-white/20 text-gray-200 border border-white/10"
+                >
+                  + School Team
+                </button>
+              </div>
+            </div>
+
+            {/* Quick Add School Team Drawer */}
+            {isAddingTeam && (
+              <form onSubmit={handleCreateSchoolTeam} className="p-3 rounded-xl bg-black/40 border border-white/10 space-y-2 mt-2">
+                <span className="text-[11px] font-bold text-[#00ff87] uppercase block">
+                  Add New School Class / Team
+                </span>
+                <div className="grid grid-cols-2 gap-2">
+                  <input
+                    type="text"
+                    placeholder="Team Name (e.g. Team 10/2)"
+                    value={newTeamName}
+                    onChange={(e) => setNewTeamName(e.target.value)}
+                    className="bg-black/60 border border-white/10 rounded-lg px-2.5 py-1.5 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-[#00ff87]"
+                  />
+                  <input
+                    type="text"
+                    placeholder="Short (e.g. 10/2)"
+                    value={newTeamShort}
+                    onChange={(e) => setNewTeamShort(e.target.value)}
+                    className="bg-black/60 border border-white/10 rounded-lg px-2.5 py-1.5 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-[#00ff87]"
+                  />
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1.5 text-xs text-gray-400">
+                    <span>Color:</span>
+                    <input
+                      type="color"
+                      value={newTeamPrimaryColor}
+                      onChange={(e) => setNewTeamPrimaryColor(e.target.value)}
+                      className="w-6 h-6 rounded border-0 bg-transparent cursor-pointer"
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    className="ml-auto px-3 py-1.5 rounded-lg bg-[#00ff87] text-[#37003c] font-black text-xs"
+                  >
+                    Save Team
+                  </button>
+                </div>
+              </form>
+            )}
+
+            {/* Quick Add Game Form */}
+            {isAddingFixture && (
+              <form onSubmit={handleCreateFixture} className="p-3 rounded-xl bg-black/40 border border-[#00ff87]/30 space-y-2.5 mt-2">
+                <span className="text-[11px] font-bold text-white uppercase block">
+                  Schedule New Game (GW {selectedGWForFix})
+                </span>
+
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="text-[10px] text-gray-400 block mb-0.5">Home Team</label>
+                    <select
+                      value={newFixHome}
+                      onChange={(e) => setNewFixHome(e.target.value)}
+                      className="w-full bg-black/60 border border-white/10 rounded-lg px-2 py-1.5 text-xs text-white focus:outline-none focus:border-[#00ff87]"
+                    >
+                      {Object.values(clubs).map((c) => (
+                        <option key={c.id} value={c.id}>
+                          {c.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-[10px] text-gray-400 block mb-0.5">Away Team</label>
+                    <select
+                      value={newFixAway}
+                      onChange={(e) => setNewFixAway(e.target.value)}
+                      className="w-full bg-black/60 border border-white/10 rounded-lg px-2 py-1.5 text-xs text-white focus:outline-none focus:border-[#00ff87]"
+                    >
+                      {Object.values(clubs).map((c) => (
+                        <option key={c.id} value={c.id}>
+                          {c.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="text-[10px] text-gray-400 block mb-0.5">Kickoff Time / Day</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Fri 15:30"
+                      value={newFixKickoff}
+                      onChange={(e) => setNewFixKickoff(e.target.value)}
+                      className="w-full bg-black/60 border border-white/10 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-[#00ff87]"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[10px] text-gray-400 block mb-0.5">Match Status</label>
+                    <select
+                      value={newFixStatus}
+                      onChange={(e: any) => setNewFixStatus(e.target.value)}
+                      className="w-full bg-black/60 border border-white/10 rounded-lg px-2 py-1.5 text-xs text-white focus:outline-none focus:border-[#00ff87]"
+                    >
+                      <option value="upcoming">Upcoming</option>
+                      <option value="live">LIVE</option>
+                      <option value="finished">Finished (FT)</option>
+                    </select>
+                  </div>
+                </div>
+
+                {newFixStatus !== 'upcoming' && (
+                  <div className="grid grid-cols-2 gap-2 p-2 rounded-lg bg-white/5 border border-white/10">
+                    <div>
+                      <label className="text-[10px] text-gray-400 block mb-0.5">Home Score</label>
+                      <input
+                        type="number"
+                        min="0"
+                        value={newFixHomeScore}
+                        onChange={(e) => setNewFixHomeScore(e.target.value)}
+                        className="w-full bg-black/60 border border-white/10 rounded-lg px-2.5 py-1 text-xs text-white text-center font-bold"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10px] text-gray-400 block mb-0.5">Away Score</label>
+                      <input
+                        type="number"
+                        min="0"
+                        value={newFixAwayScore}
+                        onChange={(e) => setNewFixAwayScore(e.target.value)}
+                        className="w-full bg-black/60 border border-white/10 rounded-lg px-2.5 py-1 text-xs text-white text-center font-bold"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                <div className="flex gap-2 pt-1">
+                  <button
+                    type="button"
+                    onClick={() => setIsAddingFixture(false)}
+                    className="w-1/3 py-2 rounded-lg text-xs font-bold text-gray-400 bg-white/5 hover:bg-white/10"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="flex-1 py-2 rounded-lg text-xs font-black uppercase tracking-wider bg-gradient-to-r from-[#00ff87] to-[#00cc6a] text-[#37003c] shadow-glow-green"
+                  >
+                    Schedule Match
+                  </button>
+                </div>
+              </form>
+            )}
+          </div>
+
+          {/* List of Scheduled Games for GW */}
+          <div className="space-y-2">
+            {fixtures.filter((f) => f.gameweek === selectedGWForFix).length === 0 ? (
+              <div className="p-8 text-center text-xs text-gray-400 bg-[#200024] rounded-2xl border border-white/5 space-y-2">
+                <Calendar className="w-8 h-8 text-gray-500 mx-auto opacity-50" />
+                <p>No games scheduled for Gameweek {selectedGWForFix}.</p>
+                <button
+                  onClick={() => setIsAddingFixture(true)}
+                  className="px-3 py-1.5 rounded-lg bg-[#00ff87] text-[#37003c] font-black text-xs hover:opacity-90 inline-flex items-center gap-1"
+                >
+                  <Plus className="w-3.5 h-3.5" /> Schedule First Game
+                </button>
+              </div>
+            ) : (
+              fixtures
+                .filter((f) => f.gameweek === selectedGWForFix)
+                .map((fix) => {
+                  const home = clubs[fix.homeClubId] || CLUBS[fix.homeClubId] || { name: fix.homeClubId, primaryColor: '#555' };
+                  const away = clubs[fix.awayClubId] || CLUBS[fix.awayClubId] || { name: fix.awayClubId, primaryColor: '#555' };
+
+                  return (
+                    <div
+                      key={fix.id}
+                      className="p-3 rounded-xl bg-[#200024] border border-white/10 space-y-2 shadow-md"
+                    >
+                      <div className="flex items-center justify-between text-xs">
+                        {/* Home Team */}
+                        <div className="flex-1 flex items-center justify-end space-x-2 text-right">
+                          <span className="font-bold text-white truncate max-w-[95px]">{home.name}</span>
+                          <div
+                            className="w-3.5 h-3.5 rounded-full border border-white/30 flex-shrink-0"
+                            style={{ backgroundColor: home.primaryColor }}
+                          />
+                        </div>
+
+                        {/* Score Controller Center */}
+                        <div className="mx-2 flex items-center space-x-1.5">
+                          <button
+                            onClick={() => handleQuickScore(fix, 'home', -1)}
+                            className="w-5 h-5 rounded bg-white/10 hover:bg-white/20 text-white flex items-center justify-center font-bold text-xs"
+                          >
+                            -
+                          </button>
+                          <span className="min-w-[42px] px-1.5 py-0.5 rounded bg-black/60 border border-white/10 text-center font-black text-sm text-[#00ff87]">
+                            {fix.homeScore ?? 0} - {fix.awayScore ?? 0}
+                          </span>
+                          <button
+                            onClick={() => handleQuickScore(fix, 'home', 1)}
+                            className="w-5 h-5 rounded bg-white/10 hover:bg-white/20 text-white flex items-center justify-center font-bold text-xs"
+                          >
+                            +
+                          </button>
+
+                          <span className="text-gray-500 font-bold px-0.5">|</span>
+
+                          <button
+                            onClick={() => handleQuickScore(fix, 'away', -1)}
+                            className="w-5 h-5 rounded bg-white/10 hover:bg-white/20 text-white flex items-center justify-center font-bold text-xs"
+                          >
+                            -
+                          </button>
+                          <button
+                            onClick={() => handleQuickScore(fix, 'away', 1)}
+                            className="w-5 h-5 rounded bg-white/10 hover:bg-white/20 text-white flex items-center justify-center font-bold text-xs"
+                          >
+                            +
+                          </button>
+                        </div>
+
+                        {/* Away Team */}
+                        <div className="flex-1 flex items-center justify-start space-x-2 text-left">
+                          <div
+                            className="w-3.5 h-3.5 rounded-full border border-white/30 flex-shrink-0"
+                            style={{ backgroundColor: away.primaryColor }}
+                          />
+                          <span className="font-bold text-white truncate max-w-[95px]">{away.name}</span>
+                        </div>
+                      </div>
+
+                      {/* Bottom row: Status Toggle & Kickoff & Delete */}
+                      <div className="flex items-center justify-between pt-1 border-t border-white/5 text-[10px]">
+                        <button
+                          onClick={() => handleToggleStatus(fix)}
+                          className={`px-2 py-0.5 rounded-full font-bold uppercase transition-all ${
+                            fix.isFinished
+                              ? 'bg-[#00ff87]/20 text-[#00ff87] border border-[#00ff87]/40'
+                              : fix.isLive
+                              ? 'bg-[#e90052]/20 text-[#e90052] border border-[#e90052] animate-pulse'
+                              : 'bg-white/10 text-gray-400 hover:text-white'
+                          }`}
+                        >
+                          {fix.isFinished ? '✓ Finished (FT)' : fix.isLive ? '● LIVE' : '🕒 Upcoming'}
+                        </button>
+
+                        <span className="text-gray-400 font-medium">{fix.kickoffTime}</span>
+
+                        <button
+                          onClick={() => handleDeleteFixture(fix.id)}
+                          className="p-1 rounded text-red-400 hover:bg-red-500/20 hover:text-red-300 transition-colors"
+                          title="Delete Game"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })
+            )}
+          </div>
+        </div>
+      )}
 
       {/* PANEL 1: LIVE MATCH DATA & STAT ENTRY */}
       {adminTab === 'events' && (
@@ -323,7 +773,7 @@ export const AdminPortal: React.FC = () => {
                   <div>
                     <div className="text-xs font-black text-white">{selectedPlayer.name}</div>
                     <div className="text-[10px] text-gray-400">
-                      {selectedPlayer.position} • {CLUBS[selectedPlayer.clubId]?.name}
+                      {selectedPlayer.position} • {clubs[selectedPlayer.clubId]?.name || CLUBS[selectedPlayer.clubId]?.name || selectedPlayer.clubId}
                     </div>
                   </div>
                 </div>
@@ -569,7 +1019,7 @@ export const AdminPortal: React.FC = () => {
                 onChange={(e) => setNewPlayerClub(e.target.value)}
                 className="bg-black/40 border border-white/10 rounded-lg px-2 py-1.5 text-xs text-white focus:outline-none"
               >
-                {Object.values(CLUBS).map((c) => (
+                {Object.values(clubs).map((c) => (
                   <option key={c.id} value={c.id}>
                     {c.shortName} - {c.name}
                   </option>
@@ -632,7 +1082,7 @@ export const AdminPortal: React.FC = () => {
                       <div>
                         <div className="font-bold text-white">{p.name}</div>
                         <div className="text-[10px] text-gray-400">
-                          {p.position} • {CLUBS[p.clubId]?.shortName} • £{p.cost.toFixed(1)}m • {p.totalPoints} pts
+                          {p.position} • {clubs[p.clubId]?.shortName || CLUBS[p.clubId]?.shortName || p.clubId} • £{p.cost.toFixed(1)}m • {p.totalPoints} pts
                         </div>
                       </div>
                     </div>
@@ -727,7 +1177,7 @@ export const AdminPortal: React.FC = () => {
               Database Reset
             </span>
             <p className="text-[11px] text-gray-400">
-              Clear all localStorage changes and restore original pristine Premier League seed data (players, squads, fixtures, leagues).
+              Clear all changes and restore original pristine Komarovi Charity League school data (footballers, squads, school fixtures, and leagues).
             </p>
             <button
               onClick={() => {

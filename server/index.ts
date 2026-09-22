@@ -6,7 +6,7 @@ import { db, ManagerProfile, hashPassword, verifyPassword, generateToken, UserAc
 import { calculateGameweekSquadPoints, calculatePlayerPoints } from '../src/engine/scoring';
 import { DEFAULT_SQUAD_PLAYER_IDS } from '../src/data/seedPlayers';
 import { CLUBS } from '../src/data/clubs';
-import { Player, PlayerStats } from '../src/types/fpl';
+import { Player, PlayerStats, Fixture, Club } from '../src/types/fpl';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -37,6 +37,7 @@ app.get('/api/state', (req: Request, res: Response) => {
   res.json({
     currentGW: data.currentGW,
     players: data.players,
+    clubs: data.clubs || CLUBS,
     fixtures: data.fixtures,
     leagues: data.leagues,
     managers: managersList,
@@ -649,6 +650,80 @@ app.post('/api/admin/player', (req: Request, res: Response) => {
 app.post('/api/admin/reset', (req: Request, res: Response) => {
   db.reset();
   res.json({ success: true });
+});
+
+// 11b. Developer Admin: Add Game / Fixture
+app.post('/api/admin/fixture/add', (req: Request, res: Response) => {
+  const { gameweek, homeClubId, awayClubId, homeScore, awayScore, isFinished, isLive, kickoffTime } = req.body;
+  if (!gameweek || !homeClubId || !awayClubId) {
+    return res.status(400).json({ error: 'gameweek, homeClubId, and awayClubId are required' });
+  }
+  const data = db.getData();
+  const id = `fix_gw${gameweek}_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
+  const newFixture: Fixture = {
+    id,
+    gameweek: parseInt(gameweek, 10),
+    homeClubId,
+    awayClubId,
+    homeScore: homeScore !== undefined && homeScore !== null && homeScore !== '' ? parseInt(homeScore, 10) : null,
+    awayScore: awayScore !== undefined && awayScore !== null && awayScore !== '' ? parseInt(awayScore, 10) : null,
+    isFinished: !!isFinished,
+    isLive: !!isLive,
+    kickoffTime: kickoffTime || 'TBD',
+  };
+  data.fixtures.push(newFixture);
+  db.save();
+  res.json({ success: true, fixture: newFixture, fixtures: data.fixtures });
+});
+
+// 11c. Developer Admin: Update Game / Fixture
+app.post('/api/admin/fixture/update', (req: Request, res: Response) => {
+  const { id, updates } = req.body;
+  if (!id || !updates) {
+    return res.status(400).json({ error: 'id and updates are required' });
+  }
+  const data = db.getData();
+  const fix = data.fixtures.find((f) => f.id === id);
+  if (!fix) {
+    return res.status(404).json({ error: 'Fixture not found' });
+  }
+  Object.assign(fix, updates);
+  db.save();
+  res.json({ success: true, fixture: fix, fixtures: data.fixtures });
+});
+
+// 11d. Developer Admin: Delete Game / Fixture
+app.post('/api/admin/fixture/delete', (req: Request, res: Response) => {
+  const { id } = req.body;
+  if (!id) {
+    return res.status(400).json({ error: 'id is required' });
+  }
+  const data = db.getData();
+  data.fixtures = data.fixtures.filter((f) => f.id !== id);
+  db.save();
+  res.json({ success: true, fixtures: data.fixtures });
+});
+
+// 11e. Developer Admin: Add School Club / Team
+app.post('/api/admin/club/add', (req: Request, res: Response) => {
+  const { id, name, shortName, primaryColor, secondaryColor, textColor } = req.body;
+  if (!name || !name.trim()) {
+    return res.status(400).json({ error: 'Team name is required' });
+  }
+  const data = db.getData();
+  if (!data.clubs) data.clubs = { ...CLUBS };
+  const clubId = id || `SCH_${name.trim().replace(/[^a-zA-Z0-9]/g, '_').toUpperCase()}`;
+  const newClub: Club = {
+    id: clubId,
+    name: name.trim(),
+    shortName: shortName?.trim() || name.trim().slice(0, 4).toUpperCase(),
+    primaryColor: primaryColor || '#37003c',
+    secondaryColor: secondaryColor || '#00ff87',
+    textColor: textColor || '#ffffff',
+  };
+  data.clubs[clubId] = newClub;
+  db.save();
+  res.json({ success: true, club: newClub, clubs: data.clubs });
 });
 
 // 12. Create / Join / Delete Mini-League

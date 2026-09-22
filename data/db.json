@@ -156,138 +156,146 @@
       "gwStats": {}
     }
   },
+  "clubs": {
+    "SCH": {
+      "id": "SCH",
+      "name": "Team 11/5",
+      "shortName": "11/5",
+      "primaryColor": "#37003c",
+      "secondaryColor": "#00ff87",
+      "textColor": "#ffffff"
+    },
+    "SCH_11_1": {
+      "id": "SCH_11_1",
+      "name": "Team 11/1",
+      "shortName": "11/1",
+      "primaryColor": "#0057B8",
+      "secondaryColor": "#FFFFFF",
+      "textColor": "#FFFFFF"
+    },
+    "SCH_11_2": {
+      "id": "SCH_11_2",
+      "name": "Team 11/2",
+      "shortName": "11/2",
+      "primaryColor": "#E90052",
+      "secondaryColor": "#FFFFFF",
+      "textColor": "#FFFFFF"
+    },
+    "SCH_11_3": {
+      "id": "SCH_11_3",
+      "name": "Team 11/3",
+      "shortName": "11/3",
+      "primaryColor": "#00C2FF",
+      "secondaryColor": "#111111",
+      "textColor": "#FFFFFF"
+    },
+    "SCH_11_4": {
+      "id": "SCH_11_4",
+      "name": "Team 11/4",
+      "shortName": "11/4",
+      "primaryColor": "#FFB703",
+      "secondaryColor": "#023047",
+      "textColor": "#000000"
+    },
+    "SCH_11_6": {
+      "id": "SCH_11_6",
+      "name": "Team 11/6",
+      "shortName": "11/6",
+      "primaryColor": "#7209B7",
+      "secondaryColor": "#4CC9F0",
+      "textColor": "#FFFFFF"
+    },
+    "SCH_10": {
+      "id": "SCH_10",
+      "name": "Team 10th Grade",
+      "shortName": "10th",
+      "primaryColor": "#2A9D8F",
+      "secondaryColor": "#E76F51",
+      "textColor": "#FFFFFF"
+    },
+    "SCH_12": {
+      "id": "SCH_12",
+      "name": "Team 12th Grade",
+      "shortName": "12th",
+      "primaryColor": "#E76F51",
+      "secondaryColor": "#264653",
+      "textColor": "#FFFFFF"
+    },
+    "SCH_TCH": {
+      "id": "SCH_TCH",
+      "name": "Teachers FC",
+      "shortName": "TCH",
+      "primaryColor": "#4A4E69",
+      "secondaryColor": "#F2E9E4",
+      "textColor": "#FFFFFF"
+    }
+  },
   "fixtures": [
     {
       "id": "fix_gw1_1",
       "gameweek": 1,
       "homeClubId": "SCH",
-      "awayClubId": "WOL",
-      "homeScore": 2,
-      "awayScore": 0,
-      "isFinished": true,
+      "awayClubId": "SCH_11_2",
+      "homeScore": null,
+      "awayScore": null,
+      "isFinished": false,
       "isLive": false,
-      "kickoffTime": "Sat 15:00"
+      "kickoffTime": "Fri 15:30"
     },
     {
       "id": "fix_gw1_2",
       "gameweek": 1,
-      "homeClubId": "CHE",
-      "awayClubId": "MCI",
-      "homeScore": 0,
-      "awayScore": 2,
-      "isFinished": true,
+      "homeClubId": "SCH_11_1",
+      "awayClubId": "SCH_11_3",
+      "homeScore": null,
+      "awayScore": null,
+      "isFinished": false,
       "isLive": false,
-      "kickoffTime": "Sun 16:30"
+      "kickoffTime": "Fri 16:30"
     },
     {
       "id": "fix_gw1_3",
       "gameweek": 1,
-      "homeClubId": "IPS",
-      "awayClubId": "LIV",
-      "homeScore": 0,
-      "awayScore": 2,
-      "isFinished": true,
+      "homeClubId": "SCH_11_4",
+      "awayClubId": "SCH_11_6",
+      "homeScore": null,
+      "awayScore": null,
+      "isFinished": false,
       "isLive": false,
-      "kickoffTime": "Sat 12:30"
+      "kickoffTime": "Sat 14:00"
     },
     {
       "id": "fix_gw1_4",
       "gameweek": 1,
-      "homeClubId": "TOT",
-      "awayClubId": "EVE",
-      "homeScore": 4,
-      "awayScore": 0,
-      "isFinished": true,
+      "homeClubId": "SCH_10",
+      "awayClubId": "SCH_TCH",
+      "homeScore": null,
+      "awayScore": null,
+      "isFinished": false,
       "isLive": false,
-      "kickoffTime": "Sat 15:00"
-    },
-    {
-      "id": "fix_gw1_5",
-      "gameweek": 1,
-      "homeClubId": "BRE",
-      "awayClubId": "CRY",
-      "homeScore": 2,
-      "awayScore": 1,
-      "isFinished": true,
-      "isLive": false,
-      "kickoffTime": "Sun 14:00"
-    },
-    {
-      "id": "fix_gw1_6",
-      "gameweek": 1,
-      "homeClubId": "WHU",
-      "awayClubId": "AVL",
-      "homeScore": 1,
-      "awayScore": 2,
-      "isFinished": true,
-      "isLive": false,
-      "kickoffTime": "Sat 17:30"
-    },
-    {
-      "id": "fix_gw1_7",
-      "gameweek": 1,
-      "homeClubId": "NFO",
-      "awayClubId": "BOU",
-      "homeScore": 1,
-      "awayScore": 1,
-      "isFinished": true,
-      "isLive": false,
-      "kickoffTime": "Sat 15:00"
-    },
-    {
-      "id": "fix_gw1_8",
-      "gameweek": 1,
-      "homeClubId": "NEW",
-      "awayClubId": "SOU",
-      "homeScore": 1,
-      "awayScore": 0,
-      "isFinished": true,
-      "isLive": false,
-      "kickoffTime": "Sat 15:00"
+      "kickoffTime": "Sat 15:30"
     },
     {
       "id": "fix_gw2_1",
       "gameweek": 2,
-      "homeClubId": "AVL",
-      "awayClubId": "ARS",
+      "homeClubId": "SCH",
+      "awayClubId": "SCH_11_1",
       "homeScore": null,
       "awayScore": null,
       "isFinished": false,
       "isLive": false,
-      "kickoffTime": "Sat 17:30"
+      "kickoffTime": "Fri 15:30"
     },
     {
       "id": "fix_gw2_2",
       "gameweek": 2,
-      "homeClubId": "MCI",
-      "awayClubId": "IPS",
+      "homeClubId": "SCH_11_2",
+      "awayClubId": "SCH_11_4",
       "homeScore": null,
       "awayScore": null,
       "isFinished": false,
       "isLive": false,
-      "kickoffTime": "Sat 15:00"
-    },
-    {
-      "id": "fix_gw2_3",
-      "gameweek": 2,
-      "homeClubId": "LIV",
-      "awayClubId": "BRE",
-      "homeScore": null,
-      "awayScore": null,
-      "isFinished": false,
-      "isLive": false,
-      "kickoffTime": "Sun 16:30"
-    },
-    {
-      "id": "fix_gw2_4",
-      "gameweek": 2,
-      "homeClubId": "WOL",
-      "awayClubId": "CHE",
-      "homeScore": null,
-      "awayScore": null,
-      "isFinished": false,
-      "isLive": false,
-      "kickoffTime": "Sun 14:00"
+      "kickoffTime": "Sat 14:00"
     }
   ],
   "leagues": [],

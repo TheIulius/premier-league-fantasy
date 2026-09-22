@@ -4,7 +4,7 @@ import { CLUBS } from '../../data/clubs';
 import { Calendar, ChevronLeft, ChevronRight, Clock } from 'lucide-react';
 
 export const FixturesView: React.FC = () => {
-  const { fixtures, currentGW } = useFPL();
+  const { fixtures, clubs, currentGW, setActiveTab } = useFPL();
   const [selectedGW, setSelectedGW] = useState<number>(currentGW);
 
   const gwFixtures = fixtures.filter((f) => f.gameweek === selectedGW);
@@ -23,7 +23,7 @@ export const FixturesView: React.FC = () => {
 
         <div className="text-center">
           <span className="text-[10px] text-gray-400 font-bold uppercase block">
-            Komarovi Champions League Fixtures
+            Komarovi Charity League Fixtures
           </span>
           <span className="text-sm font-black text-white">Gameweek {selectedGW}</span>
         </div>
@@ -42,14 +42,19 @@ export const FixturesView: React.FC = () => {
           <div className="p-8 text-center text-xs text-gray-400 bg-[#200024] rounded-2xl border border-white/5">
             <Calendar className="w-8 h-8 text-gray-500 mx-auto mb-2 opacity-50" />
             No fixtures scheduled for Gameweek {selectedGW} yet.
-            <div className="mt-1 text-[11px] text-gray-500">
-              You can add fixtures in the Developer Portal.
+            <div className="mt-3">
+              <button
+                onClick={() => setActiveTab('dev')}
+                className="px-3 py-1.5 rounded-lg bg-[#00ff87] text-[#37003c] font-black text-xs hover:opacity-90"
+              >
+                + Add Games in Dev Portal
+              </button>
             </div>
           </div>
         ) : (
           gwFixtures.map((fix) => {
-            const homeClub = CLUBS[fix.homeClubId] || { name: fix.homeClubId, primaryColor: '#555' };
-            const awayClub = CLUBS[fix.awayClubId] || { name: fix.awayClubId, primaryColor: '#555' };
+            const homeClub = clubs[fix.homeClubId] || CLUBS[fix.homeClubId] || { name: fix.homeClubId, primaryColor: '#555' };
+            const awayClub = clubs[fix.awayClubId] || CLUBS[fix.awayClubId] || { name: fix.awayClubId, primaryColor: '#555' };
 
             return (
               <div
