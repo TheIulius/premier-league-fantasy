@@ -29,20 +29,6 @@
       "isAvailable": true,
       "gwStats": {}
     },
-    "p_ciskara": {
-      "id": "p_ciskara",
-      "name": "Sandro Tsiskaradze",
-      "webName": "ciskara",
-      "clubId": "SCH_11_5",
-      "position": "MID",
-      "cost": 8.5,
-      "totalPoints": 0,
-      "gwPoints": 0,
-      "form": 5,
-      "selectedByPercent": 100,
-      "isAvailable": true,
-      "gwStats": {}
-    },
     "p_rati": {
       "id": "p_rati",
       "name": "Rati Tomadze",
@@ -1725,13 +1711,6 @@
         "managerName": "My Team Manager",
         "players": [
           {
-            "playerId": "p_ciskara",
-            "isStarter": false,
-            "benchOrder": 1,
-            "isCaptain": false,
-            "isViceCaptain": false
-          },
-          {
             "playerId": "p_giorguna",
             "isStarter": true,
             "benchOrder": 0,
@@ -1830,13 +1809,6 @@
             "isViceCaptain": false
           },
           {
-            "playerId": "p_ciskara",
-            "isStarter": true,
-            "benchOrder": 0,
-            "isCaptain": true,
-            "isViceCaptain": false
-          },
-          {
             "playerId": "p_9_6_gugoadze",
             "isStarter": true,
             "benchOrder": 0,
@@ -1883,6 +1855,26 @@
         }
       },
       "joinedAt": "2026-09-23T18:33:34.834Z"
+    },
+    "user_1789931275292": {
+      "id": "user_1789931275292",
+      "managerName": "My Team Manager",
+      "teamName": "Apex XI",
+      "squad": {
+        "teamName": "Apex XI",
+        "managerName": "My Team Manager",
+        "players": [],
+        "bank": 60,
+        "freeTransfers": 1,
+        "transfersMadeThisGW": 0,
+        "activeChip": null,
+        "usedChips": {
+          "triple_captain": false,
+          "bench_boost": false,
+          "free_hit": false
+        }
+      },
+      "joinedAt": "2026-09-23T20:14:59.585Z"
     }
   },
   "users": {
