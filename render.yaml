@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: premier-league-fantasy
+    name: komarovi-charity-league
     env: node
     plan: free
     buildCommand: npm install && npm run build
