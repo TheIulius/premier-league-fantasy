@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useFPL } from '../../context/FPLContext';
 import { Position, Player, PlayerStats, Fixture } from '../../types/fpl';
 import { CLUBS } from '../../data/clubs';
@@ -37,6 +37,8 @@ import {
   adminExportDbUrl,
   adminImportDbApi,
   adminSyncGithubApi,
+  adminGetSyncStatusApi,
+  adminSetServerTokenApi,
 } from '../../services/api';
 import confetti from 'canvas-confetti';
 
@@ -120,6 +122,34 @@ export const AdminPortal: React.FC = () => {
   const [isSyncingGithub, setIsSyncingGithub] = useState(false);
   const [lastCommitUrl, setLastCommitUrl] = useState<string | null>(null);
   const [isImportingDb, setIsImportingDb] = useState(false);
+  const [serverSyncStatus, setServerSyncStatus] = useState<{
+    hasServerToken: boolean;
+    owner: string;
+    repo: string;
+    branch: string;
+  } | null>(null);
+
+  useEffect(() => {
+    if (isDevAuthenticated) {
+      adminGetSyncStatusApi().then(setServerSyncStatus).catch(() => {});
+    }
+  }, [isDevAuthenticated]);
+
+  const handleSetServerToken = async () => {
+    if (!githubToken.trim()) {
+      alert('Please enter a GitHub Personal Access Token first.');
+      return;
+    }
+    try {
+      await adminSetServerTokenApi(githubToken.trim());
+      localStorage.setItem('fpl_admin_gh_token', githubToken.trim());
+      const status = await adminGetSyncStatusApi();
+      setServerSyncStatus(status);
+      showNotification('🟢 Token activated on server! Background auto-sync is now active.');
+    } catch (err: any) {
+      alert(err.message || 'Failed to activate token on server');
+    }
+  };
 
   const handleSyncToGithub = async () => {
     if (!githubToken.trim()) {
@@ -1463,9 +1493,40 @@ export const AdminPortal: React.FC = () => {
                 Prevents Price Reset
               </span>
             </div>
-            <p className="text-[11px] text-gray-300">
-              When hosting on cloud servers (like Render), changes made via the website can be overwritten whenever a new server version is pushed to GitHub. Committing your database directly to GitHub's <code className="text-[#00ff87] bg-black/40 px-1 py-0.5 rounded">data/db.json</code> makes your changes 100% permanent!
-            </p>
+            {/* Server Auto-Sync Status Indicator */}
+            {serverSyncStatus?.hasServerToken ? (
+              <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs flex items-start gap-2.5">
+                <div className="w-2.5 h-2.5 rounded-full bg-[#00ff87] shadow-glow-green animate-pulse flex-shrink-0 mt-0.5" />
+                <div className="space-y-0.5 flex-1 min-w-0">
+                  <div className="flex items-center justify-between">
+                    <strong className="text-[11px] font-black uppercase tracking-wider text-emerald-200">
+                      Automatic GitHub Sync is Active!
+                    </strong>
+                    <span className="text-[9px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-[#00ff87] font-bold">
+                      Zero Manual Steps
+                    </span>
+                  </div>
+                  <p className="text-[10px] text-emerald-200/80 leading-relaxed">
+                    Any change to footballer prices, squad rosters, matches, or game state is automatically committed to your repository (<strong className="text-white">{serverSyncStatus.owner}/{serverSyncStatus.repo}</strong>) in the background. Your data will never reset when Render restarts or redeploys!
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-200 text-xs space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <span className="font-black uppercase tracking-wider text-[11px] text-amber-300 flex items-center gap-1.5">
+                    <div className="w-2 h-2 rounded-full bg-amber-400" />
+                    How to Make Saving 100% Automatic
+                  </span>
+                  <span className="text-[9px] px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 font-bold">
+                    One-Time Setup
+                  </span>
+                </div>
+                <p className="text-[10px] text-amber-200/80 leading-relaxed">
+                  To never have to sync manually again, add <code className="text-[#00ff87] bg-black/40 px-1 py-0.5 rounded font-mono font-bold">GITHUB_TOKEN</code> to your Render Dashboard Environment Variables, or enter your token below and click <strong>"Activate Server Auto-Sync"</strong>.
+                </p>
+              </div>
+            )}
 
             <div className="space-y-1.5">
               <label className="text-[10px] uppercase font-bold text-gray-400 block">
@@ -1477,21 +1538,19 @@ export const AdminPortal: React.FC = () => {
                   value={githubToken}
                   onChange={(e) => setGithubToken(e.target.value)}
                   placeholder="ghp_xxxxxxxxxxxxxxxxxxxx"
-                  className="flex-1 bg-black/60 border border-white/15 focus:border-[#00ff87] text-white px-2.5 py-1.5 rounded-xl text-xs outline-none"
+                  className="flex-1 bg-black/60 border border-white/15 focus:border-[#00ff87] text-white px-2.5 py-1.5 rounded-xl text-xs outline-none font-mono"
                 />
                 <button
-                  onClick={() => {
-                    localStorage.setItem('fpl_admin_gh_token', githubToken.trim());
-                    showNotification('Token remembered locally!');
-                  }}
-                  className="px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white text-xs font-bold rounded-xl"
-                  title="Remember Token"
+                  onClick={handleSetServerToken}
+                  className="px-3 py-1.5 bg-[#00ff87]/20 hover:bg-[#00ff87]/30 text-[#00ff87] border border-[#00ff87]/40 text-xs font-bold rounded-xl flex items-center gap-1"
+                  title="Activate token on server for auto-sync"
                 >
                   <Save className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">Activate Auto-Sync</span>
                 </button>
               </div>
               <span className="text-[9px] text-gray-500 block">
-                Needs <strong>repo</strong> or <strong>Contents: read & write</strong> permission. Stored safely in your browser.
+                Requires <strong>Contents: read & write</strong> (or repo) permission.
               </span>
             </div>
 
@@ -1501,7 +1560,7 @@ export const AdminPortal: React.FC = () => {
               className="w-full py-2.5 rounded-xl font-black text-xs uppercase tracking-wider bg-gradient-to-r from-[#00ff87] to-[#04f5ff] text-[#111] shadow-glow-green hover:opacity-95 flex items-center justify-center gap-2 disabled:opacity-50"
             >
               <Database className="w-4 h-4" />
-              <span>{isSyncingGithub ? 'Committing to GitHub...' : 'Commit Live Database to GitHub'}</span>
+              <span>{isSyncingGithub ? 'Committing to GitHub...' : 'Force Manual Commit to GitHub'}</span>
             </button>
 
             {lastCommitUrl && (

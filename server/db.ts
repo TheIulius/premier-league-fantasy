@@ -167,7 +167,38 @@ class Database {
   }
 
   public reset(): void {
-    this.data = getDefaultData();
+    this.data.currentGW = 1;
+    if (Array.isArray(this.data.fixtures)) {
+      this.data.fixtures.forEach((f) => {
+        f.homeScore = null;
+        f.awayScore = null;
+        f.isFinished = false;
+        f.isLive = false;
+      });
+    }
+    if (this.data.players) {
+      Object.values(this.data.players).forEach((p) => {
+        p.totalPoints = 0;
+        p.gwPoints = 0;
+        p.gwStats = {};
+      });
+    }
+    if (this.data.managers) {
+      Object.values(this.data.managers).forEach((m) => {
+        if (m.squad) {
+          m.squad.bank = 60.0;
+          m.squad.players = [];
+          m.squad.transfersMadeThisGW = 0;
+          m.squad.freeTransfers = 1;
+          m.squad.activeChip = null;
+          m.squad.usedChips = {
+            triple_captain: false,
+            bench_boost: false,
+            free_hit: false,
+          };
+        }
+      });
+    }
     this.save();
   }
 }

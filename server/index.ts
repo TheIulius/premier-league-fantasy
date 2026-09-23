@@ -725,6 +725,7 @@ app.post('/api/admin/finalize', (req: Request, res: Response) => {
 
   data.currentGW += 1;
   db.save();
+  scheduleAutoSyncToGitHub(`Finalized GW ${currentGW} to GW ${data.currentGW}`);
 
   res.json({ success: true, nextGW: data.currentGW });
 });
@@ -748,6 +749,7 @@ app.post('/api/admin/player', (req: Request, res: Response) => {
     };
     data.players[id] = newP;
     db.save();
+    scheduleAutoSyncToGitHub(`Added footballer ${newP.webName}`);
     return res.json({ success: true, player: newP });
   }
 
@@ -756,11 +758,14 @@ app.post('/api/admin/player', (req: Request, res: Response) => {
     if (p) {
       Object.assign(p, updates);
       db.save();
+      const priceMsg = updates.cost !== undefined ? `price £${updates.cost}m` : 'details';
+      scheduleAutoSyncToGitHub(`Updated ${p.webName} (${priceMsg})`);
       return res.json({ success: true, player: p });
     }
   }
 
   if (action === 'delete' && playerId) {
+    const pName = data.players[playerId]?.webName || playerId;
     delete data.players[playerId];
     if (data.managers) {
       Object.values(data.managers).forEach((m) => {
@@ -770,6 +775,7 @@ app.post('/api/admin/player', (req: Request, res: Response) => {
       });
     }
     db.save();
+    scheduleAutoSyncToGitHub(`Deleted footballer ${pName}`);
     return res.json({ success: true, deleted: playerId });
   }
 
@@ -779,6 +785,7 @@ app.post('/api/admin/player', (req: Request, res: Response) => {
 // 11. Developer Admin: Reset database to factory defaults
 app.post('/api/admin/reset', (req: Request, res: Response) => {
   db.reset();
+  scheduleAutoSyncToGitHub('Reset game state to GW 1');
   res.json({ success: true });
 });
 
@@ -797,28 +804,29 @@ app.post('/api/admin/db/import', (req: Request, res: Response) => {
     return res.status(400).json({ error: 'Invalid database JSON format' });
   }
   db.setData(dbData);
+  scheduleAutoSyncToGitHub('Imported database JSON');
   res.json({ success: true, message: 'Database imported and saved successfully!' });
 });
 
-// 11c. Sync / Commit Database directly to GitHub
-app.post('/api/admin/db/sync-github', async (req: Request, res: Response) => {
-  const token = req.body.token || process.env.GITHUB_TOKEN;
-  const owner = req.body.owner || process.env.GITHUB_OWNER || 'TheIulius';
-  const repo = req.body.repo || process.env.GITHUB_REPO || 'premier-league-fantasy';
-  const branch = req.body.branch || 'main';
-  const message = req.body.message || 'Update database from Dev Portal';
+// In-memory runtime GitHub token (can be set via environment variable or admin portal)
+let runtimeGithubToken = process.env.GITHUB_TOKEN || '';
+let autoSyncTimer: NodeJS.Timeout | null = null;
+
+export async function commitDbToGitHub(message: string, explicitToken?: string) {
+  const token = explicitToken || runtimeGithubToken || process.env.GITHUB_TOKEN;
+  const owner = process.env.GITHUB_OWNER || 'TheIulius';
+  const repo = process.env.GITHUB_REPO || 'premier-league-fantasy';
+  const branch = process.env.GITHUB_BRANCH || 'main';
+  const filePath = 'data/db.json';
 
   if (!token) {
-    return res.status(400).json({
-      error: 'GitHub Personal Access Token required to commit directly to GitHub repository.',
-    });
+    return { success: false, error: 'No GitHub token configured' };
   }
 
   try {
     const data = db.getData();
     const contentStr = JSON.stringify(data, null, 2);
     const base64Content = Buffer.from(contentStr, 'utf-8').toString('base64');
-    const filePath = 'data/db.json';
 
     // 1. Fetch current file SHA
     const getRes = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${filePath}?ref=${branch}`, {
@@ -835,7 +843,8 @@ app.post('/api/admin/db/sync-github', async (req: Request, res: Response) => {
       sha = getJson.sha;
     }
 
-    // 2. Commit file directly to GitHub repo
+    // 2. Commit file directly to GitHub repo with [skip ci] to avoid build loops
+    const commitMsg = message.includes('[skip ci]') ? message : `${message} [skip ci]`;
     const putRes = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${filePath}`, {
       method: 'PUT',
       headers: {
@@ -845,7 +854,7 @@ app.post('/api/admin/db/sync-github', async (req: Request, res: Response) => {
         'User-Agent': 'Premier-League-Fantasy-App',
       },
       body: JSON.stringify({
-        message,
+        message: commitMsg,
         content: base64Content,
         sha,
         branch,
@@ -854,20 +863,76 @@ app.post('/api/admin/db/sync-github', async (req: Request, res: Response) => {
 
     const putJson: any = await putRes.json();
     if (!putRes.ok) {
-      return res.status(putRes.status).json({
-        error: putJson.message || 'Failed to commit to GitHub',
-        details: putJson,
-      });
+      console.warn('Auto-commit to GitHub failed:', putJson?.message || putJson);
+      return { success: false, error: putJson?.message || 'Failed to commit to GitHub' };
     }
 
-    return res.json({
-      success: true,
-      message: 'Successfully committed database to GitHub!',
-      commitUrl: putJson.commit?.html_url,
-    });
+    console.log(`Successfully committed database to GitHub: "${commitMsg}"`);
+    return { success: true, commitUrl: putJson.commit?.html_url };
   } catch (err: any) {
-    return res.status(500).json({ error: err.message || 'Failed to sync with GitHub' });
+    console.warn('GitHub auto-sync error:', err);
+    return { success: false, error: err?.message || 'Sync error' };
   }
+}
+
+export function scheduleAutoSyncToGitHub(reason: string) {
+  const token = runtimeGithubToken || process.env.GITHUB_TOKEN;
+  if (!token) return;
+  if (autoSyncTimer) clearTimeout(autoSyncTimer);
+  autoSyncTimer = setTimeout(async () => {
+    try {
+      await commitDbToGitHub(`Admin update: ${reason}`);
+    } catch (e) {
+      console.warn('Background auto-sync failed:', e);
+    }
+  }, 2500); // 2.5-second debounce for batch actions
+}
+
+// Check Server Auto-Sync Status
+app.get('/api/admin/db/sync-status', (req: Request, res: Response) => {
+  const hasToken = Boolean(runtimeGithubToken || process.env.GITHUB_TOKEN);
+  res.json({
+    hasServerToken: hasToken,
+    owner: process.env.GITHUB_OWNER || 'TheIulius',
+    repo: process.env.GITHUB_REPO || 'premier-league-fantasy',
+    branch: process.env.GITHUB_BRANCH || 'main',
+  });
+});
+
+// Set or Update Server Token in Memory
+app.post('/api/admin/db/set-token', (req: Request, res: Response) => {
+  const { token } = req.body;
+  if (token && typeof token === 'string' && token.trim().length > 0) {
+    runtimeGithubToken = token.trim();
+    return res.json({ success: true, message: 'Server GitHub token activated! Auto-sync is now active.' });
+  }
+  runtimeGithubToken = '';
+  res.json({ success: true, message: 'Server GitHub token cleared.' });
+});
+
+// 11c. Sync / Commit Database directly to GitHub
+app.post('/api/admin/db/sync-github', async (req: Request, res: Response) => {
+  const token = req.body.token || runtimeGithubToken || process.env.GITHUB_TOKEN;
+  if (req.body.token && !runtimeGithubToken) {
+    runtimeGithubToken = req.body.token;
+  }
+
+  if (!token) {
+    return res.status(400).json({
+      error: 'GitHub Personal Access Token required. Provide token or set GITHUB_TOKEN on server.',
+    });
+  }
+
+  const result = await commitDbToGitHub(req.body.message || 'Update database from Dev Portal', token);
+  if (!result.success) {
+    return res.status(500).json({ error: result.error });
+  }
+
+  return res.json({
+    success: true,
+    message: 'Successfully committed database to GitHub!',
+    commitUrl: result.commitUrl,
+  });
 });
 
 // 11b. Developer Admin: Add Game / Fixture
@@ -891,6 +956,7 @@ app.post('/api/admin/fixture/add', (req: Request, res: Response) => {
   };
   data.fixtures.push(newFixture);
   db.save();
+  scheduleAutoSyncToGitHub(`Added GW ${gameweek} match`);
   res.json({ success: true, fixture: newFixture, fixtures: data.fixtures });
 });
 
@@ -907,6 +973,7 @@ app.post('/api/admin/fixture/update', (req: Request, res: Response) => {
   }
   Object.assign(fix, updates);
   db.save();
+  scheduleAutoSyncToGitHub(`Updated match fixture ${id}`);
   res.json({ success: true, fixture: fix, fixtures: data.fixtures });
 });
 
@@ -919,6 +986,7 @@ app.post('/api/admin/fixture/delete', (req: Request, res: Response) => {
   const data = db.getData();
   data.fixtures = data.fixtures.filter((f) => f.id !== id);
   db.save();
+  scheduleAutoSyncToGitHub(`Deleted match fixture ${id}`);
   res.json({ success: true, fixtures: data.fixtures });
 });
 
@@ -941,8 +1009,11 @@ app.post('/api/admin/club/add', (req: Request, res: Response) => {
   };
   data.clubs[clubId] = newClub;
   db.save();
+  scheduleAutoSyncToGitHub(`Added team ${newClub.name}`);
   res.json({ success: true, club: newClub, clubs: data.clubs });
 });
+
+
 
 // 11d. Developer Admin: List Registered Users
 app.get('/api/admin/users', (req: Request, res: Response) => {

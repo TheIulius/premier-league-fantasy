@@ -310,4 +310,27 @@ export async function adminSyncGithubApi(params: {
   return data;
 }
 
+export async function adminGetSyncStatusApi(): Promise<{
+  hasServerToken: boolean;
+  owner: string;
+  repo: string;
+  branch: string;
+}> {
+  const res = await fetch(`${API_BASE}/api/admin/db/sync-status`);
+  if (!res.ok) throw new Error('Failed to get sync status');
+  return res.json();
+}
+
+export async function adminSetServerTokenApi(token: string) {
+  const res = await fetch(`${API_BASE}/api/admin/db/set-token`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ token }),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Failed to set token');
+  return data;
+}
+
+
 
