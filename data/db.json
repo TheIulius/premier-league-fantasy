@@ -476,50 +476,6 @@
   },
   "fixtures": [
     {
-      "id": "fix_gw1_1",
-      "gameweek": 1,
-      "homeClubId": "SCH_11_5",
-      "awayClubId": "SCH_11_2",
-      "homeScore": null,
-      "awayScore": null,
-      "isFinished": false,
-      "isLive": false,
-      "kickoffTime": "Fri 15:30"
-    },
-    {
-      "id": "fix_gw1_2",
-      "gameweek": 1,
-      "homeClubId": "SCH_11_1",
-      "awayClubId": "SCH_11_3",
-      "homeScore": null,
-      "awayScore": null,
-      "isFinished": false,
-      "isLive": false,
-      "kickoffTime": "Fri 16:30"
-    },
-    {
-      "id": "fix_gw1_3",
-      "gameweek": 1,
-      "homeClubId": "SCH_11_4",
-      "awayClubId": "SCH_11_6",
-      "homeScore": null,
-      "awayScore": null,
-      "isFinished": false,
-      "isLive": false,
-      "kickoffTime": "Sat 14:00"
-    },
-    {
-      "id": "fix_gw1_4",
-      "gameweek": 1,
-      "homeClubId": "SCH_10_1",
-      "awayClubId": "SCH_10_2",
-      "homeScore": null,
-      "awayScore": null,
-      "isFinished": false,
-      "isLive": false,
-      "kickoffTime": "Sat 15:30"
-    },
-    {
       "id": "fix_gw2_1",
       "gameweek": 2,
       "homeClubId": "SCH_11_5",
@@ -552,7 +508,7 @@
         "teamName": "Apex XI",
         "managerName": "Apex Manager",
         "players": [],
-        "bank": 60.0,
+        "bank": 60,
         "freeTransfers": 1,
         "transfersMadeThisGW": 0,
         "activeChip": null,
@@ -572,7 +528,7 @@
         "teamName": "Jack FC",
         "managerName": "Jack",
         "players": [],
-        "bank": 60.0,
+        "bank": 60,
         "freeTransfers": 1,
         "transfersMadeThisGW": 0,
         "activeChip": null,
@@ -583,6 +539,90 @@
         }
       },
       "joinedAt": "2026-09-20T18:46:38.559Z"
+    },
+    "user_1790177145368": {
+      "id": "user_1790177145368",
+      "managerName": "My Team Manager",
+      "teamName": "Apex XI",
+      "squad": {
+        "teamName": "Apex XI",
+        "managerName": "My Team Manager",
+        "players": [
+          {
+            "playerId": "p_ciskara",
+            "isStarter": false,
+            "benchOrder": 1,
+            "isCaptain": false,
+            "isViceCaptain": false
+          },
+          {
+            "playerId": "p_giorguna",
+            "isStarter": true,
+            "benchOrder": 0,
+            "isCaptain": false,
+            "isViceCaptain": false
+          },
+          {
+            "playerId": "p_custom_1790166342439",
+            "isStarter": true,
+            "benchOrder": 0,
+            "isCaptain": false,
+            "isViceCaptain": false
+          },
+          {
+            "playerId": "p_custom_1790166361242",
+            "isStarter": true,
+            "benchOrder": 0,
+            "isCaptain": false,
+            "isViceCaptain": false
+          },
+          {
+            "playerId": "p_zarno",
+            "isStarter": false,
+            "benchOrder": 2,
+            "isCaptain": false,
+            "isViceCaptain": false
+          },
+          {
+            "playerId": "p_dito",
+            "isStarter": true,
+            "benchOrder": 0,
+            "isCaptain": false,
+            "isViceCaptain": true
+          },
+          {
+            "playerId": "p_custom_1790166332280",
+            "isStarter": true,
+            "benchOrder": 0,
+            "isCaptain": false,
+            "isViceCaptain": false
+          },
+          {
+            "playerId": "p_qavtaradze",
+            "isStarter": true,
+            "benchOrder": 0,
+            "isCaptain": true,
+            "isViceCaptain": false
+          },
+          {
+            "playerId": "p_alexa",
+            "isStarter": false,
+            "benchOrder": 3,
+            "isCaptain": false,
+            "isViceCaptain": false
+          }
+        ],
+        "bank": 0.5,
+        "freeTransfers": 1,
+        "transfersMadeThisGW": 0,
+        "activeChip": null,
+        "usedChips": {
+          "triple_captain": false,
+          "bench_boost": false,
+          "free_hit": false
+        }
+      },
+      "joinedAt": "2026-09-23T16:19:27.106Z"
     }
   },
   "users": {
