@@ -1,55 +1,13 @@
 {
   "currentGW": 1,
   "players": {
-    "p_ika": {
-      "id": "p_ika",
-      "name": "Irakli Kakabadze",
-      "webName": "Ika",
-      "clubId": "SCH",
-      "position": "GKP",
-      "cost": 7.9,
-      "totalPoints": 0,
-      "gwPoints": 0,
-      "form": 5,
-      "selectedByPercent": 50,
-      "isAvailable": true,
-      "gwStats": {}
-    },
-    "p_futkara": {
-      "id": "p_futkara",
-      "name": "Aleksandre Phutkaradze",
-      "webName": "Futkara",
-      "clubId": "SCH",
-      "position": "GKP",
-      "cost": 8.9,
-      "totalPoints": 0,
-      "gwPoints": 0,
-      "form": 5,
-      "selectedByPercent": 50,
-      "isAvailable": true,
-      "gwStats": {}
-    },
-    "p_shinjo": {
-      "id": "p_shinjo",
-      "name": "Ilia Shinjiashvili",
-      "webName": "Shinjo",
-      "clubId": "SCH",
-      "position": "DEF",
-      "cost": 10,
-      "totalPoints": 0,
-      "gwPoints": 0,
-      "form": 5,
-      "selectedByPercent": 100,
-      "isAvailable": true,
-      "gwStats": {}
-    },
     "p_zarno": {
       "id": "p_zarno",
       "name": "Dachi Zarnadze",
       "webName": "Zarno",
       "clubId": "SCH",
       "position": "DEF",
-      "cost": 8.8,
+      "cost": 6.5,
       "totalPoints": 0,
       "gwPoints": 0,
       "form": 5,
@@ -63,21 +21,7 @@
       "webName": "Dito",
       "clubId": "SCH",
       "position": "DEF",
-      "cost": 8.3,
-      "totalPoints": 0,
-      "gwPoints": 0,
-      "form": 5,
-      "selectedByPercent": 100,
-      "isAvailable": true,
-      "gwStats": {}
-    },
-    "p_mandara": {
-      "id": "p_mandara",
-      "name": "Tsotne Mandaria",
-      "webName": "Mandara",
-      "clubId": "SCH",
-      "position": "DEF",
-      "cost": 8.2,
+      "cost": 7.5,
       "totalPoints": 0,
       "gwPoints": 0,
       "form": 5,
@@ -91,7 +35,7 @@
       "webName": "ciskara",
       "clubId": "SCH",
       "position": "MID",
-      "cost": 9.5,
+      "cost": 8.5,
       "totalPoints": 0,
       "gwPoints": 0,
       "form": 5,
@@ -105,21 +49,7 @@
       "webName": "Rati",
       "clubId": "SCH",
       "position": "MID",
-      "cost": 9.4,
-      "totalPoints": 0,
-      "gwPoints": 0,
-      "form": 5,
-      "selectedByPercent": 100,
-      "isAvailable": true,
-      "gwStats": {}
-    },
-    "p_vadzo": {
-      "id": "p_vadzo",
-      "name": "Vato Shekishvili",
-      "webName": "Vadzo",
-      "clubId": "SCH",
-      "position": "MID",
-      "cost": 8.3,
+      "cost": 10,
       "totalPoints": 0,
       "gwPoints": 0,
       "form": 5,
@@ -133,7 +63,7 @@
       "webName": "Chaga",
       "clubId": "SCH",
       "position": "FWD",
-      "cost": 9.1,
+      "cost": 9.5,
       "totalPoints": 0,
       "gwPoints": 0,
       "form": 5,
@@ -141,17 +71,59 @@
       "isAvailable": true,
       "gwStats": {}
     },
-    "p_tsotne": {
-      "id": "p_tsotne",
-      "name": "Tsotne Tsiskaradze",
-      "webName": "Tsotne",
+    "p_custom_1790166332280": {
+      "id": "p_custom_1790166332280",
+      "name": "Aleksandre Futkaradze",
+      "webName": "Futkara",
       "clubId": "SCH",
-      "position": "FWD",
-      "cost": 8.7,
+      "position": "GKP",
+      "cost": 6,
       "totalPoints": 0,
       "gwPoints": 0,
       "form": 5,
-      "selectedByPercent": 100,
+      "selectedByPercent": 5,
+      "isAvailable": true,
+      "gwStats": {}
+    },
+    "p_custom_1790166342439": {
+      "id": "p_custom_1790166342439",
+      "name": "Dachi Samadashvili",
+      "webName": "Samada",
+      "clubId": "SCH",
+      "position": "MID",
+      "cost": 7,
+      "totalPoints": 0,
+      "gwPoints": 0,
+      "form": 5,
+      "selectedByPercent": 5,
+      "isAvailable": true,
+      "gwStats": {}
+    },
+    "p_custom_1790166361242": {
+      "id": "p_custom_1790166361242",
+      "name": "Davit Bejanishvili",
+      "webName": "Bejana",
+      "clubId": "SCH",
+      "position": "FWD",
+      "cost": 7,
+      "totalPoints": 0,
+      "gwPoints": 0,
+      "form": 5,
+      "selectedByPercent": 5,
+      "isAvailable": true,
+      "gwStats": {}
+    },
+    "p_custom_1790166375573": {
+      "id": "p_custom_1790166375573",
+      "name": "Irakli Kakabadze",
+      "webName": "Kakabadze",
+      "clubId": "SCH",
+      "position": "GKP",
+      "cost": 4,
+      "totalPoints": 0,
+      "gwPoints": 0,
+      "form": 5,
+      "selectedByPercent": 5,
       "isAvailable": true,
       "gwStats": {}
     }
@@ -309,20 +281,6 @@
         "managerName": "Apex Manager",
         "players": [
           {
-            "playerId": "p_ika",
-            "isStarter": true,
-            "benchOrder": 0,
-            "isCaptain": false,
-            "isViceCaptain": false
-          },
-          {
-            "playerId": "p_shinjo",
-            "isStarter": true,
-            "benchOrder": 0,
-            "isCaptain": false,
-            "isViceCaptain": false
-          },
-          {
             "playerId": "p_zarno",
             "isStarter": true,
             "benchOrder": 0,
@@ -351,24 +309,10 @@
             "isViceCaptain": false
           },
           {
-            "playerId": "p_vadzo",
-            "isStarter": false,
-            "benchOrder": 2,
-            "isCaptain": false,
-            "isViceCaptain": false
-          },
-          {
             "playerId": "p_chaga",
             "isStarter": true,
             "benchOrder": 0,
             "isCaptain": true,
-            "isViceCaptain": false
-          },
-          {
-            "playerId": "p_tsotne",
-            "isStarter": false,
-            "benchOrder": 3,
-            "isCaptain": false,
             "isViceCaptain": false
           }
         ],
@@ -393,20 +337,6 @@
         "managerName": "Jack",
         "players": [
           {
-            "playerId": "p_ika",
-            "isStarter": true,
-            "benchOrder": 0,
-            "isCaptain": false,
-            "isViceCaptain": false
-          },
-          {
-            "playerId": "p_shinjo",
-            "isStarter": true,
-            "benchOrder": 0,
-            "isCaptain": false,
-            "isViceCaptain": false
-          },
-          {
             "playerId": "p_zarno",
             "isStarter": true,
             "benchOrder": 0,
@@ -438,20 +368,6 @@
             "playerId": "p_dito",
             "isStarter": false,
             "benchOrder": 1,
-            "isCaptain": false,
-            "isViceCaptain": false
-          },
-          {
-            "playerId": "p_vadzo",
-            "isStarter": false,
-            "benchOrder": 2,
-            "isCaptain": false,
-            "isViceCaptain": false
-          },
-          {
-            "playerId": "p_tsotne",
-            "isStarter": false,
-            "benchOrder": 3,
             "isCaptain": false,
             "isViceCaptain": false
           }
