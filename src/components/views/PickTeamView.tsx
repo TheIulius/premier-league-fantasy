@@ -67,7 +67,7 @@ export const PickTeamView: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col space-y-3 pb-24 md:pb-12 px-2 md:px-6 pt-2 md:pt-4 max-w-3xl lg:max-w-4xl mx-auto w-full">
+    <div className="flex flex-col space-y-3 pb-24 md:pb-12 px-2 md:px-6 pt-2 md:pt-4 max-w-4xl lg:max-w-5xl mx-auto w-full">
       {/* Empty Squad Builder Callout */}
       {squad.players.filter((sp) => Boolean(players[sp.playerId])).length === 0 && (
         <div className="mx-0 p-4 md:p-6 rounded-2xl bg-gradient-to-br from-[#2a002e] to-[#3a0042] border-2 border-[#00ff87]/50 shadow-2xl space-y-3 text-center">

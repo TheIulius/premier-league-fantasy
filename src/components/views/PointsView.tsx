@@ -21,7 +21,7 @@ export const PointsView: React.FC = () => {
   const topPerformer = squadPointsList[0];
 
   return (
-    <div className="flex flex-col space-y-3 pb-24 md:pb-12 px-2 md:px-6 pt-2 md:pt-4 max-w-3xl lg:max-w-4xl mx-auto w-full select-none">
+    <div className="flex flex-col space-y-3 pb-24 md:pb-12 px-2 md:px-6 pt-2 md:pt-4 max-w-4xl lg:max-w-5xl mx-auto w-full select-none">
       {/* Squad Composition Ineligibility Warning */}
       {!calculationResult.isValidSquadComposition && (
         <div className="mx-0 mt-2 p-3 md:p-4 rounded-2xl bg-red-950/80 border border-red-500/50 text-red-200 text-xs md:text-sm flex items-start gap-2.5 shadow-lg">

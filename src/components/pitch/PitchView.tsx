@@ -47,7 +47,7 @@ export const PitchView: React.FC<PitchViewProps> = ({ showPoints = false }) => {
       )}
 
       {/* Football Pitch Container */}
-      <div className="relative mx-2 md:mx-auto my-2 md:my-4 rounded-2xl md:rounded-3xl overflow-hidden shadow-2xl border-2 border-[#125c27] bg-[#14642c] md:max-w-2xl lg:max-w-3xl">
+      <div className="relative mx-2 md:mx-auto my-2 md:my-4 rounded-2xl md:rounded-3xl overflow-hidden shadow-2xl border-2 border-[#125c27] bg-[#14642c] md:max-w-3xl lg:max-w-4xl">
         {/* Grass Pattern & Stadium Markings */}
         <div className="absolute inset-0 pitch-stripes pointer-events-none opacity-95" />
 
@@ -113,7 +113,7 @@ export const PitchView: React.FC<PitchViewProps> = ({ showPoints = false }) => {
         </div>
 
         {/* Stadium Pitch Canvas with Dynamic Coordinates */}
-        <div className="relative z-10 w-full min-h-[440px] sm:min-h-[480px] md:min-h-[540px] lg:min-h-[580px] my-1">
+        <div className="relative z-10 w-full min-h-[440px] sm:min-h-[480px] md:min-h-[560px] lg:min-h-[620px] my-1">
           {starters.length === 0 ? (
             <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center space-y-3">
               <div className="p-3 bg-black/40 rounded-full border border-white/20">

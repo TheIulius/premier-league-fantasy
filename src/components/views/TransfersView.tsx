@@ -212,7 +212,7 @@ export const TransfersView: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col space-y-3 pb-24 md:pb-12 px-2 md:px-6 pt-2 md:pt-4 select-none max-w-4xl lg:max-w-5xl mx-auto w-full">
+    <div className="flex flex-col space-y-3 pb-24 md:pb-12 px-2 md:px-6 pt-2 md:pt-4 select-none max-w-5xl lg:max-w-6xl mx-auto w-full">
       {/* Transfer Metrics Bar */}
       <div className="p-2.5 md:p-4 rounded-xl bg-[#2a002e] border border-[#4d0c54] flex flex-col gap-2 text-xs md:text-sm">
         <div className="grid grid-cols-4 gap-1.5 md:gap-4 text-center">

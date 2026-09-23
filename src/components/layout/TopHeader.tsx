@@ -41,7 +41,7 @@ export const TopHeader: React.FC = () => {
   return (
     <header className="sticky top-0 z-40 bg-gradient-to-b from-[#2a002e] via-[#320037] to-[#250029] border-b border-[#4f0c57]/60 shadow-lg select-none">
       {/* Top branding line */}
-      <div className="px-3.5 md:px-6 pt-3 pb-2.5 flex items-center justify-between">
+      <div className="w-full max-w-6xl mx-auto px-3.5 md:px-6 pt-3 pb-2.5 flex items-center justify-between">
         <div className="flex items-center space-x-2.5 md:space-x-3.5">
           {/* Official KCL Logo */}
           <img
@@ -63,7 +63,7 @@ export const TopHeader: React.FC = () => {
                 onClick={() => setIsAuthModalOpen(true)}
                 className="text-[11px] md:text-xs font-medium text-gray-300 hover:text-[#00ff87] flex items-center gap-1 transition-colors text-left"
               >
-                <span className="truncate max-w-[95px] md:max-w-[200px]">{squad.teamName}</span>
+                <span className="truncate max-w-[95px] md:max-w-[320px]">{squad.teamName}</span>
                 <span className="text-[8px] md:text-[9px] bg-white/10 px-1 py-0.2 rounded text-gray-400">
                   {authUser ? `@${authUser.username}` : 'Login'}
                 </span>
@@ -109,70 +109,76 @@ export const TopHeader: React.FC = () => {
       </div>
 
       {/* Desktop Navigation Tabs Bar */}
-      <nav className="hidden md:flex items-center justify-center gap-2 px-6 py-2 bg-[#200024] border-t border-white/10 select-none">
-        {DESKTOP_TABS.map((tab) => {
-          const Icon = tab.icon;
-          const isActive = activeTab === tab.id;
-          const isDev = tab.id === 'dev';
+      <nav className="hidden md:flex items-center justify-center bg-[#200024] border-t border-white/10 select-none">
+        <div className="w-full max-w-6xl mx-auto flex items-center justify-center gap-2 px-6 py-2.5">
+          {DESKTOP_TABS.map((tab) => {
+            const Icon = tab.icon;
+            const isActive = activeTab === tab.id;
+            const isDev = tab.id === 'dev';
 
-          return (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all duration-150 border ${
-                isActive
-                  ? 'bg-[#00ff87]/20 text-[#00ff87] border-[#00ff87]/50 shadow-glow-green font-extrabold'
-                  : isDev && isDevAuthenticated
-                  ? 'bg-[#e90052]/15 text-[#e90052] border-[#e90052]/30 hover:bg-[#e90052]/25'
-                  : 'bg-white/5 text-gray-300 border-white/5 hover:bg-white/10 hover:text-white'
-              }`}
-            >
-              <Icon className={`w-4 h-4 ${isActive ? 'text-[#00ff87]' : ''}`} />
-              <span>{tab.label}</span>
-              {isDev && isDevAuthenticated && (
-                <span className="w-1.5 h-1.5 rounded-full bg-[#e90052]" />
-              )}
-            </button>
-          );
-        })}
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all duration-150 border ${
+                  isActive
+                    ? 'bg-[#00ff87]/20 text-[#00ff87] border-[#00ff87]/50 shadow-glow-green font-extrabold'
+                    : isDev && isDevAuthenticated
+                    ? 'bg-[#e90052]/15 text-[#e90052] border-[#e90052]/30 hover:bg-[#e90052]/25'
+                    : 'bg-white/5 text-gray-300 border-white/5 hover:bg-white/10 hover:text-white'
+                }`}
+              >
+                <Icon className={`w-4 h-4 ${isActive ? 'text-[#00ff87]' : ''}`} />
+                <span>{tab.label}</span>
+                {isDev && isDevAuthenticated && (
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#e90052]" />
+                )}
+              </button>
+            );
+          })}
+        </div>
       </nav>
 
       {/* Gameweek Quick Metric Bar */}
-      <div className="grid grid-cols-4 divide-x divide-white/10 bg-[#1f0022]/80 border-t border-white/5 py-1.5 md:py-2.5 px-1 md:px-6 text-center text-xs md:text-sm">
-        <div>
-          <span className="block text-[10px] md:text-xs text-gray-400 uppercase font-semibold">GW Points</span>
-          <span className="text-sm md:text-lg font-black text-[#00ff87]">
-            {calculationResult.totalPoints}
-          </span>
-        </div>
-        <div>
-          <span className="block text-[10px] md:text-xs text-gray-400 uppercase font-semibold">Total Pts</span>
-          <span className="text-sm md:text-lg font-black text-white">
-            {totalUserPoints}
-          </span>
-        </div>
-        <div>
-          <span className="block text-[10px] md:text-xs text-gray-400 uppercase font-semibold">Overall Rank</span>
-          <span className="text-sm md:text-lg font-black text-[#04f5ff]">
-            {overallRank}
-          </span>
-        </div>
-        <div>
-          <span className="block text-[10px] md:text-xs text-gray-400 uppercase font-semibold">In Bank</span>
-          <span className="text-sm md:text-lg font-bold text-gray-200">
-            £{squad.bank.toFixed(1)}m
-          </span>
+      <div className="w-full bg-[#1f0022]/80 border-t border-white/5 py-1.5 md:py-2.5 text-center text-xs md:text-sm">
+        <div className="max-w-6xl mx-auto grid grid-cols-4 divide-x divide-white/10 px-1 md:px-6">
+          <div>
+            <span className="block text-[10px] md:text-xs text-gray-400 uppercase font-semibold">GW Points</span>
+            <span className="text-sm md:text-lg font-black text-[#00ff87]">
+              {calculationResult.totalPoints}
+            </span>
+          </div>
+          <div>
+            <span className="block text-[10px] md:text-xs text-gray-400 uppercase font-semibold">Total Pts</span>
+            <span className="text-sm md:text-lg font-black text-white">
+              {totalUserPoints}
+            </span>
+          </div>
+          <div>
+            <span className="block text-[10px] md:text-xs text-gray-400 uppercase font-semibold">Overall Rank</span>
+            <span className="text-sm md:text-lg font-black text-[#04f5ff]">
+              {overallRank}
+            </span>
+          </div>
+          <div>
+            <span className="block text-[10px] md:text-xs text-gray-400 uppercase font-semibold">In Bank</span>
+            <span className="text-sm md:text-lg font-bold text-gray-200">
+              £{squad.bank.toFixed(1)}m
+            </span>
+          </div>
         </div>
       </div>
 
       {/* Chip active banner if any */}
       {squad.activeChip && (
-        <div className="bg-gradient-to-r from-[#e90052] to-[#7a002b] text-white text-[11px] md:text-xs font-bold py-1 px-3 md:px-6 flex items-center justify-between shadow-inner">
-          <span className="flex items-center gap-1.5">
-            <Sparkles className="w-3 h-3 md:w-3.5 md:h-3.5 text-[#00ff87]" />
-            CHIP ACTIVE: {squad.activeChip.replace('_', ' ').toUpperCase()}
-          </span>
-          <span className="text-[10px] md:text-xs bg-black/30 px-1.5 py-0.5 rounded">GW {currentGW}</span>
+        <div className="w-full bg-gradient-to-r from-[#e90052] to-[#7a002b] text-white text-[11px] md:text-xs font-bold py-1.5 shadow-inner">
+          <div className="max-w-6xl mx-auto px-3.5 md:px-6 flex items-center justify-between">
+            <span className="flex items-center gap-1.5">
+              <Sparkles className="w-3 h-3 md:w-3.5 md:h-3.5 text-[#00ff87]" />
+              CHIP ACTIVE: {squad.activeChip.replace('_', ' ').toUpperCase()}
+            </span>
+            <span className="text-[10px] md:text-xs bg-black/30 px-1.5 py-0.5 rounded">GW {currentGW}</span>
+          </div>
         </div>
       )}
     </header>
