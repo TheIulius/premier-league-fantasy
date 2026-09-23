@@ -292,7 +292,8 @@ export const AdminPortal: React.FC = () => {
     e.preventDefault();
     if (!newPlayerName.trim()) return;
 
-    const costNum = parseFloat(newPlayerCost) || 5.0;
+    const costVal = parseFloat(newPlayerCost);
+    const costNum = isNaN(costVal) ? 4.0 : Math.max(0.1, costVal);
     const added = addCustomPlayer({
       name: newPlayerName.trim(),
       webName: newPlayerWebName.trim() || newPlayerName.trim().split(' ').slice(-1)[0],
@@ -1207,8 +1208,8 @@ export const AdminPortal: React.FC = () => {
               <input
                 type="number"
                 step="0.1"
-                min="4.0"
-                max="16.0"
+                min="0.1"
+                max="25.0"
                 placeholder="Cost £m"
                 value={newPlayerCost}
                 onChange={(e) => setNewPlayerCost(e.target.value)}
@@ -1258,6 +1259,7 @@ export const AdminPortal: React.FC = () => {
                           <input
                             type="number"
                             step="0.1"
+                            min="0.1"
                             value={editCost}
                             onChange={(e) => setEditCost(e.target.value)}
                             className="w-14 bg-black border border-[#00ff87] text-white px-1 py-0.5 rounded text-xs"
