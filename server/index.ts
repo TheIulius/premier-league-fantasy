@@ -825,6 +825,63 @@ app.post('/api/admin/club/add', (req: Request, res: Response) => {
   res.json({ success: true, club: newClub, clubs: data.clubs });
 });
 
+// 11d. Developer Admin: List Registered Users
+app.get('/api/admin/users', (req: Request, res: Response) => {
+  const data = db.getData();
+  const usersList = Object.values(data.users || {}).map((u) => ({
+    id: u.id,
+    username: u.username,
+    email: u.email,
+    managerName: u.managerName,
+    teamName: u.teamName,
+    createdAt: u.createdAt,
+  }));
+  res.json({ success: true, users: usersList });
+});
+
+// 11e. Developer Admin: Reset User Password
+app.post('/api/admin/user/reset-password', (req: Request, res: Response) => {
+  const { username, newPassword } = req.body;
+  if (!username || !newPassword) {
+    return res.status(400).json({ error: 'Username and new password are required' });
+  }
+  if (newPassword.length < 4) {
+    return res.status(400).json({ error: 'Password must be at least 4 characters long' });
+  }
+
+  const data = db.getData();
+  if (!data.users) data.users = {};
+
+  const clean = username.trim().toLowerCase();
+  const user = Object.values(data.users).find(
+    (u) =>
+      u.username.toLowerCase() === clean ||
+      (u.email && u.email.toLowerCase() === clean) ||
+      u.id === username
+  );
+
+  if (!user) {
+    return res.status(404).json({ error: `User "${username}" not found in database` });
+  }
+
+  const pwd = hashPassword(newPassword);
+  user.passwordHash = pwd.hash;
+  user.salt = pwd.salt;
+  user.token = undefined; // Invalidate previous session token to require fresh login
+  db.save();
+
+  res.json({
+    success: true,
+    message: `Password for @${user.username} (${user.managerName}) was reset successfully!`,
+    user: {
+      id: user.id,
+      username: user.username,
+      managerName: user.managerName,
+      teamName: user.teamName,
+    },
+  });
+});
+
 // 12. Create / Join / Delete Mini-League
 app.post('/api/league/create', (req: Request, res: Response) => {
   const { name, managerId } = req.body;

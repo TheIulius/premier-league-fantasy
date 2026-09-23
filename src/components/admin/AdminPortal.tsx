@@ -22,7 +22,10 @@ import {
   Clock,
   Activity,
   Layers,
+  Key,
+  Users as UsersIcon,
 } from 'lucide-react';
+import { adminFetchUsersApi, adminResetPasswordApi } from '../../services/api';
 import confetti from 'canvas-confetti';
 
 export const AdminPortal: React.FC = () => {
@@ -50,7 +53,53 @@ export const AdminPortal: React.FC = () => {
 
   const [pinInput, setPinInput] = useState('');
   const [loginError, setLoginError] = useState(false);
-  const [adminTab, setAdminTab] = useState<'fixtures' | 'events' | 'players' | 'gw'>('fixtures');
+  const [adminTab, setAdminTab] = useState<'fixtures' | 'events' | 'players' | 'users' | 'gw'>('fixtures');
+
+  // Users & Password Management State
+  const [usersList, setUsersList] = useState<{
+    id: string;
+    username: string;
+    email?: string;
+    managerName: string;
+    teamName: string;
+    createdAt?: string;
+  }[]>([]);
+  const [isLoadingUsers, setIsLoadingUsers] = useState(false);
+  const [resetTargetUser, setResetTargetUser] = useState('');
+  const [newPasswordInput, setNewPasswordInput] = useState('');
+  const [isResetting, setIsResetting] = useState(false);
+
+  const loadUsers = async () => {
+    setIsLoadingUsers(true);
+    try {
+      const res = await adminFetchUsersApi();
+      if (res.users) {
+        setUsersList(res.users);
+      }
+    } catch {
+      showNotification('Failed to fetch registered users');
+    } finally {
+      setIsLoadingUsers(false);
+    }
+  };
+
+  const handleResetPassword = async (username: string, pass: string) => {
+    if (!pass || pass.length < 4) {
+      alert('Password must be at least 4 characters long.');
+      return;
+    }
+    setIsResetting(true);
+    try {
+      const res = await adminResetPasswordApi(username, pass);
+      showNotification(res.message || `Password for @${username} was reset successfully!`);
+      setNewPasswordInput('');
+      setResetTargetUser('');
+    } catch (err: any) {
+      alert(err?.message || 'Failed to reset password');
+    } finally {
+      setIsResetting(false);
+    }
+  };
 
   // Games & Fixtures Admin State
   const [selectedGWForFix, setSelectedGWForFix] = useState<number>(currentGW);
@@ -366,7 +415,7 @@ export const AdminPortal: React.FC = () => {
       )}
 
       {/* Sub-Panel Switcher */}
-      <div className="grid grid-cols-4 gap-1 bg-black/40 p-1 rounded-xl border border-white/10 text-xs font-bold">
+      <div className="grid grid-cols-5 gap-1 bg-black/40 p-1 rounded-xl border border-white/10 text-xs font-bold">
         <button
           onClick={() => setAdminTab('fixtures')}
           className={`py-1.5 rounded-lg transition-all ${
@@ -390,6 +439,17 @@ export const AdminPortal: React.FC = () => {
           }`}
         >
           👤 Squad
+        </button>
+        <button
+          onClick={() => {
+            setAdminTab('users');
+            loadUsers();
+          }}
+          className={`py-1.5 rounded-lg transition-all ${
+            adminTab === 'users' ? 'bg-[#00ff87] text-[#37003c]' : 'text-gray-400 hover:text-white'
+          }`}
+        >
+          🔑 Users
         </button>
         <button
           onClick={() => setAdminTab('gw')}
@@ -1133,6 +1193,136 @@ export const AdminPortal: React.FC = () => {
                 );
               })}
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* PANEL 4: USERS & PASSWORD RESET */}
+      {adminTab === 'users' && (
+        <div className="space-y-3">
+          {/* Header & Refresh */}
+          <div className="p-3.5 rounded-2xl bg-[#2a002e] border border-[#520d5a] flex items-center justify-between">
+            <div>
+              <span className="text-xs font-black text-white uppercase block">
+                Registered Fantasy Managers
+              </span>
+              <span className="text-[10px] text-gray-400">
+                Live database accounts registered on this website
+              </span>
+            </div>
+            <button
+              onClick={loadUsers}
+              disabled={isLoadingUsers}
+              className="px-2.5 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-xs font-bold text-gray-200 flex items-center gap-1.5"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 ${isLoadingUsers ? 'animate-spin' : ''}`} />
+              <span>Refresh</span>
+            </button>
+          </div>
+
+          {/* Quick Password Reset Form */}
+          <div className="p-3.5 rounded-2xl bg-gradient-to-r from-[#2c0032] via-[#35003c] to-[#250029] border border-[#00ff87]/30 space-y-2.5">
+            <span className="text-xs font-black text-[#00ff87] uppercase flex items-center gap-1.5">
+              <Key className="w-4 h-4" />
+              Reset A User's Password
+            </span>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <div>
+                <label className="text-[10px] text-gray-400 font-bold uppercase block mb-1">
+                  Username or Email
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. jack or apex"
+                  value={resetTargetUser}
+                  onChange={(e) => setResetTargetUser(e.target.value)}
+                  className="w-full px-2.5 py-2 rounded-xl bg-black/40 border border-white/10 text-xs text-white placeholder-gray-500 focus:outline-hidden focus:border-[#00ff87]"
+                />
+              </div>
+              <div>
+                <label className="text-[10px] text-gray-400 font-bold uppercase block mb-1">
+                  New Password
+                </label>
+                <input
+                  type="text"
+                  placeholder="Enter new password (min 4 chars)"
+                  value={newPasswordInput}
+                  onChange={(e) => setNewPasswordInput(e.target.value)}
+                  className="w-full px-2.5 py-2 rounded-xl bg-black/40 border border-white/10 text-xs text-white placeholder-gray-500 focus:outline-hidden focus:border-[#00ff87]"
+                />
+              </div>
+            </div>
+            <button
+              onClick={() => handleResetPassword(resetTargetUser, newPasswordInput)}
+              disabled={isResetting || !resetTargetUser || !newPasswordInput}
+              className="w-full py-2.5 rounded-xl font-black text-xs uppercase tracking-wider bg-gradient-to-r from-[#00ff87] to-[#00cc6a] text-[#37003c] shadow-glow-green hover:opacity-95 disabled:opacity-50 transition-all flex items-center justify-center gap-2"
+            >
+              {isResetting ? (
+                <>
+                  <RefreshCw className="w-4 h-4 animate-spin text-[#37003c]" />
+                  <span>Resetting Password...</span>
+                </>
+              ) : (
+                <>
+                  <Check className="w-4 h-4 text-[#37003c]" />
+                  <span>Reset Password Now</span>
+                </>
+              )}
+            </button>
+          </div>
+
+          {/* User List */}
+          <div className="space-y-2">
+            <span className="text-[11px] font-black uppercase tracking-wider text-gray-300 block px-1">
+              Registered Accounts ({usersList.length})
+            </span>
+
+            {isLoadingUsers ? (
+              <div className="p-8 text-center text-xs text-gray-400">Loading registered accounts...</div>
+            ) : usersList.length === 0 ? (
+              <div className="p-6 rounded-2xl bg-black/30 border border-white/10 text-center text-xs text-gray-400">
+                No users loaded yet. Click "Refresh" or load users above.
+              </div>
+            ) : (
+              usersList.map((u) => (
+                <div
+                  key={u.id}
+                  className="p-3 rounded-2xl bg-black/40 border border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5"
+                >
+                  <div className="space-y-0.5">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-black text-white">@{u.username}</span>
+                      <span className="text-[10px] px-1.5 py-0.2 rounded bg-[#00ff87]/20 text-[#00ff87] font-bold">
+                        {u.managerName}
+                      </span>
+                    </div>
+                    <div className="text-[10px] text-gray-400 flex items-center gap-2">
+                      <span>Team: <strong className="text-gray-200">{u.teamName}</strong></span>
+                      {u.email && (
+                        <>
+                          <span>•</span>
+                          <span>{u.email}</span>
+                        </>
+                      )}
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => {
+                      setResetTargetUser(u.username);
+                      const promptPass = prompt(`Enter new password for @${u.username}:`);
+                      if (promptPass) {
+                        handleResetPassword(u.username, promptPass);
+                      }
+                    }}
+                    className="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-[#00ff87] hover:text-[#37003c] text-xs font-bold text-gray-200 border border-white/10 transition-all flex items-center justify-center gap-1.5 self-start sm:self-auto"
+                  >
+                    <Key className="w-3.5 h-3.5" />
+                    <span>Reset Password</span>
+                  </button>
+                </div>
+              ))
+            )}
           </div>
         </div>
       )}

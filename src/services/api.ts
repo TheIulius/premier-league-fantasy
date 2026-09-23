@@ -256,3 +256,21 @@ export async function adminAddClubApi(club: {
   return data;
 }
 
+export async function adminFetchUsersApi() {
+  const res = await fetch(`${API_BASE}/api/admin/users`);
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Failed to fetch users');
+  return data;
+}
+
+export async function adminResetPasswordApi(username: string, newPassword: string) {
+  const res = await fetch(`${API_BASE}/api/admin/user/reset-password`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username, newPassword }),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Failed to reset password');
+  return data;
+}
+
