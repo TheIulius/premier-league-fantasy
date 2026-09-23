@@ -3,7 +3,7 @@ import { useFPL } from '../../context/FPLContext';
 import { getFormationLayout } from '../../engine/formations';
 import { PlayerCard } from './PlayerCard';
 import { PlayerActionSheet } from './PlayerActionSheet';
-import { X, Sparkles } from 'lucide-react';
+import { X, Sparkles, Shield, UserPlus } from 'lucide-react';
 
 interface PitchViewProps {
   showPoints?: boolean;
@@ -16,11 +16,16 @@ export const PitchView: React.FC<PitchViewProps> = ({ showPoints = false }) => {
     selectedPlayerForSwap,
     setSelectedPlayerForSwap,
     calculationResult,
+    setActiveTab,
   } = useFPL();
 
   const [activeSheetPlayerId, setActiveSheetPlayerId] = useState<string | null>(null);
 
   const layout = getFormationLayout(squad.players, players);
+  const starters = squad.players.filter((p) => p.isStarter);
+
+  // Bench slots (strictly 3 outfield reserves)
+  const benchSlots = [1, 2, 3];
 
   return (
     <div className="relative w-full overflow-hidden select-none pb-4">
@@ -34,6 +39,7 @@ export const PitchView: React.FC<PitchViewProps> = ({ showPoints = false }) => {
           <button
             onClick={() => setSelectedPlayerForSwap(null)}
             className="p-1 hover:bg-black/10 rounded-full"
+            title="Cancel substitution"
           >
             <X className="w-4 h-4" />
           </button>
@@ -73,9 +79,24 @@ export const PitchView: React.FC<PitchViewProps> = ({ showPoints = false }) => {
 
         {/* Formation Header Badge */}
         <div className="relative pt-2.5 md:pt-3.5 px-3 md:px-5 flex items-center justify-between z-10">
-          <span className="text-[10px] md:text-xs font-extrabold uppercase px-2 py-0.5 md:px-3 md:py-1 rounded-full bg-black/40 text-gray-200 backdrop-blur-xs border border-white/10">
-            Formation: {layout.formationString}
-          </span>
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] md:text-xs font-black uppercase px-2.5 py-0.5 md:px-3 md:py-1 rounded-full bg-black/50 text-[#00ff87] backdrop-blur-xs border border-[#00ff87]/30 flex items-center gap-1.5 shadow-md">
+              <Shield className="w-3 h-3 text-[#00ff87]" />
+              {layout.isValid ? (
+                <>Formation: {layout.formationString}</>
+              ) : starters.length === 6 ? (
+                <>Lineup: {layout.formationString}</>
+              ) : (
+                <>Starters: {starters.length}/6</>
+              )}
+            </span>
+            {layout.isValid && (
+              <span className="hidden sm:inline-block text-[9px] font-bold text-gray-300 uppercase tracking-wider bg-black/30 px-2 py-0.5 rounded-full border border-white/10">
+                1 GK • {layout.defs.length} DEF • {layout.mids.length} MID • {layout.fwds.length} FWD
+              </span>
+            )}
+          </div>
+
           {showPoints && (
             <span className="text-[10px] md:text-xs font-extrabold px-2 py-0.5 md:px-3 md:py-1 rounded-full bg-[#00ff87] text-[#37003c] shadow-glow-green">
               {calculationResult.totalPoints} PTS
@@ -83,97 +104,100 @@ export const PitchView: React.FC<PitchViewProps> = ({ showPoints = false }) => {
           )}
         </div>
 
-        {/* Pitch Rows */}
-        <div className="relative z-10 flex flex-col justify-around min-h-[460px] md:min-h-[560px] lg:min-h-[600px] py-3 md:py-6 px-1.5 md:px-6 space-y-3 md:space-y-4">
-          {/* Row 1: Goalkeeper */}
-          <div className="flex justify-center items-center">
-            {layout.gks.map((sp) => (
-              <PlayerCard
-                key={sp.playerId}
-                playerId={sp.playerId}
-                isStarter={sp.isStarter}
-                benchOrder={sp.benchOrder}
-                isCaptain={sp.isCaptain}
-                isViceCaptain={sp.isViceCaptain}
-                onCardClick={(id) => setActiveSheetPlayerId(id)}
-                showPoints={showPoints}
-              />
-            ))}
-          </div>
+        {/* Stadium Pitch Canvas with Dynamic Coordinates */}
+        <div className="relative z-10 w-full min-h-[440px] sm:min-h-[480px] md:min-h-[540px] lg:min-h-[580px] my-1">
+          {starters.length === 0 ? (
+            <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center space-y-3">
+              <div className="p-3 bg-black/40 rounded-full border border-white/20">
+                <UserPlus className="w-8 h-8 text-[#00ff87]" />
+              </div>
+              <div>
+                <p className="text-sm md:text-base font-black text-white">Your Starting 6 is Empty</p>
+                <p className="text-xs text-gray-300 mt-1 max-w-xs">
+                  Go to Transfers to buy 1 GK, 3 Defenders, 3 Midfielders, and 2 Forwards with your £60.0m budget!
+                </p>
+              </div>
+              <button
+                onClick={() => setActiveTab('transfers')}
+                className="px-4 py-2 bg-[#00ff87] text-[#37003c] font-black text-xs rounded-lg shadow-glow-green hover:bg-[#00dd75] transition-colors"
+              >
+                Go to Transfers
+              </button>
+            </div>
+          ) : (
+            layout.pitchPositions.map((pos) => {
+              const sp = squad.players.find((p) => p.playerId === pos.playerId);
+              if (!sp) return null;
 
-          {/* Row 2: Defenders */}
-          <div className="flex justify-around items-center px-1 md:px-4">
-            {layout.defs.map((sp) => (
-              <PlayerCard
-                key={sp.playerId}
-                playerId={sp.playerId}
-                isStarter={sp.isStarter}
-                benchOrder={sp.benchOrder}
-                isCaptain={sp.isCaptain}
-                isViceCaptain={sp.isViceCaptain}
-                onCardClick={(id) => setActiveSheetPlayerId(id)}
-                showPoints={showPoints}
-              />
-            ))}
-          </div>
-
-          {/* Row 3: Midfielders */}
-          <div className="flex justify-around items-center px-1 md:px-4">
-            {layout.mids.map((sp) => (
-              <PlayerCard
-                key={sp.playerId}
-                playerId={sp.playerId}
-                isStarter={sp.isStarter}
-                benchOrder={sp.benchOrder}
-                isCaptain={sp.isCaptain}
-                isViceCaptain={sp.isViceCaptain}
-                onCardClick={(id) => setActiveSheetPlayerId(id)}
-                showPoints={showPoints}
-              />
-            ))}
-          </div>
-
-          {/* Row 4: Forwards */}
-          <div className="flex justify-around items-center px-2 md:px-6">
-            {layout.fwds.map((sp) => (
-              <PlayerCard
-                key={sp.playerId}
-                playerId={sp.playerId}
-                isStarter={sp.isStarter}
-                benchOrder={sp.benchOrder}
-                isCaptain={sp.isCaptain}
-                isViceCaptain={sp.isViceCaptain}
-                onCardClick={(id) => setActiveSheetPlayerId(id)}
-                showPoints={showPoints}
-              />
-            ))}
-          </div>
+              return (
+                <div
+                  key={pos.playerId}
+                  className="absolute transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] flex flex-col items-center"
+                  style={{
+                    left: `${pos.x}%`,
+                    top: `${pos.y}%`,
+                    transform: 'translate(-50%, -50%)',
+                  }}
+                >
+                  <span className="text-[8px] md:text-[9px] font-black uppercase text-gray-200 bg-black/50 px-1 rounded mb-0.5 tracking-wider border border-white/10 shadow-xs">
+                    {pos.roleLabel}
+                  </span>
+                  <PlayerCard
+                    playerId={sp.playerId}
+                    isStarter={sp.isStarter}
+                    benchOrder={sp.benchOrder}
+                    isCaptain={sp.isCaptain}
+                    isViceCaptain={sp.isViceCaptain}
+                    onCardClick={(id) => setActiveSheetPlayerId(id)}
+                    showPoints={showPoints}
+                  />
+                </div>
+              );
+            })
+          )}
         </div>
 
-        {/* Bench Dugout Bar */}
-        <div className="relative z-10 bg-[#160018]/95 backdrop-blur-md border-t-2 border-[#3c0843] pt-2.5 md:pt-3.5 pb-3 md:pb-4 px-2 md:px-6">
-          <div className="flex items-center justify-between mb-1.5 px-1">
-            <span className="text-[10px] md:text-xs uppercase font-black tracking-wider text-gray-300">
-              Substitutes
+        {/* Bench Dugout Bar (Strictly 3 Reserves) */}
+        <div className="relative z-10 bg-[#160018]/95 backdrop-blur-md border-t-2 border-[#3c0843] pt-2.5 md:pt-3 pb-3 md:pb-4 px-2 md:px-6">
+          <div className="flex items-center justify-between mb-2 px-1">
+            <span className="text-[10px] md:text-xs uppercase font-black tracking-wider text-gray-200 flex items-center gap-1.5">
+              Substitutes ({layout.bench.length}/3 Reserves)
             </span>
-            <span className="text-[9px] md:text-[10px] font-medium text-gray-400">
-              Auto-subs apply in bench priority order (1-3)
+            <span className="text-[9px] md:text-[10px] font-semibold text-gray-400">
+              Auto-subs apply in priority order (Sub 1 → Sub 2 → Sub 3)
             </span>
           </div>
 
-          <div className="flex justify-around items-center">
-            {layout.bench.map((sp) => (
-              <PlayerCard
-                key={sp.playerId}
-                playerId={sp.playerId}
-                isStarter={sp.isStarter}
-                benchOrder={sp.benchOrder}
-                isCaptain={sp.isCaptain}
-                isViceCaptain={sp.isViceCaptain}
-                onCardClick={(id) => setActiveSheetPlayerId(id)}
-                showPoints={showPoints}
-              />
-            ))}
+          <div className="grid grid-cols-3 gap-2 md:gap-4 max-w-sm sm:max-w-md md:max-w-lg mx-auto">
+            {benchSlots.map((order) => {
+              const sp = layout.bench.find((b) => b.benchOrder === order) || layout.bench[order - 1];
+              if (sp) {
+                return (
+                  <div key={sp.playerId} className="flex justify-center">
+                    <PlayerCard
+                      playerId={sp.playerId}
+                      isStarter={sp.isStarter}
+                      benchOrder={order}
+                      isCaptain={sp.isCaptain}
+                      isViceCaptain={sp.isViceCaptain}
+                      onCardClick={(id) => setActiveSheetPlayerId(id)}
+                      showPoints={showPoints}
+                    />
+                  </div>
+                );
+              }
+
+              // Empty bench placeholder
+              return (
+                <div
+                  key={`empty-bench-${order}`}
+                  className="flex flex-col items-center justify-center p-2 rounded-lg border border-dashed border-white/20 bg-black/20 text-gray-500 min-h-[90px]"
+                >
+                  <span className="text-[10px] font-bold text-gray-400">Sub {order}</span>
+                  <span className="text-[8px] text-gray-500 mt-0.5">Empty Slot</span>
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>

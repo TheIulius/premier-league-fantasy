@@ -120,20 +120,6 @@ export const SEED_PLAYERS: Player[] = [
     gwStats: {},
   },
   {
-    id: 'p_rati',
-    name: 'Rati Tomadze',
-    webName: 'Rati',
-    clubId: 'SCH_11_5',
-    position: 'MID',
-    cost: 6.5,
-    totalPoints: 0,
-    gwPoints: 0,
-    form: 5.0,
-    selectedByPercent: 100.0,
-    isAvailable: true,
-    gwStats: {},
-  },
-  {
     id: 'p_vadzo',
     name: 'Vato Shekishvili',
     webName: 'Vadzo',
@@ -149,6 +135,20 @@ export const SEED_PLAYERS: Player[] = [
   },
 
   // FORWARDS
+  {
+    id: 'p_rati',
+    name: 'Rati Tomadze',
+    webName: 'Rati',
+    clubId: 'SCH_11_5',
+    position: 'FWD',
+    cost: 6.5,
+    totalPoints: 0,
+    gwPoints: 0,
+    form: 5.0,
+    selectedByPercent: 100.0,
+    isAvailable: true,
+    gwStats: {},
+  },
   {
     id: 'p_chaga',
     name: 'Nika Chagalidze',
@@ -279,23 +279,24 @@ export const SEED_PLAYERS: Player[] = [
   },
 ];
 
-// 6-a-side Fantasy Squad: 1 GK, 3 Defenders (mcveli), 3 Midfielders, 2 Forwards (9 total footballers)
+// 6-a-side Fantasy Squad: Exactly 1 GK, 3 Defenders (mcveli), 3 Midfielders, 2 Forwards (9 total footballers)
 // Total Budget = £60.0m
-// Starting 6 Cost: 5.0 (Ika) + 7.0 (Shinjo) + 6.5 (Zarno) + 7.0 (ciskara) + 6.5 (Rati) + 7.0 (Chaga) = £39.0m
-// Bench 3 Cost: 6.0 (Dito) + 6.0 (Vadzo) + 6.5 (Tsotne) = £18.5m
-// Bank = £2.5m (out of £60.0m budget)
+// Starting 6 Cost: 5.0 (Ika) + 7.0 (Shinjo) + 6.5 (Zarno) + 7.0 (ciskara) + 6.0 (Vadzo) + 7.0 (Chaga) = £38.5m
+// Bench 3 Cost: 6.0 (Dito) + 5.5 (Dadu) + 6.5 (Rati) = £18.0m
+// Bank = £3.5m (out of £60.0m budget)
 export const DEFAULT_SQUAD_PLAYER_IDS = [
   // 6 Starters on Pitch (1 GK, 2 DEF, 2 MID, 1 FWD - Formation: 2-2-1)
   { playerId: 'p_ika', isStarter: true, benchOrder: 0, isCaptain: false, isViceCaptain: false }, // GKP (1/1)
   { playerId: 'p_shinjo', isStarter: true, benchOrder: 0, isCaptain: false, isViceCaptain: false }, // DEF (1/3)
   { playerId: 'p_zarno', isStarter: true, benchOrder: 0, isCaptain: false, isViceCaptain: false }, // DEF (2/3)
   { playerId: 'p_ciskara', isStarter: true, benchOrder: 0, isCaptain: false, isViceCaptain: true }, // MID (1/3, VC)
-  { playerId: 'p_rati', isStarter: true, benchOrder: 0, isCaptain: false, isViceCaptain: false }, // MID (2/3)
+  { playerId: 'p_vadzo', isStarter: true, benchOrder: 0, isCaptain: false, isViceCaptain: false }, // MID (2/3)
   { playerId: 'p_chaga', isStarter: true, benchOrder: 0, isCaptain: true, isViceCaptain: false }, // FWD (1/2, C)
 
   // 3 Reserves on Bench (1 DEF, 1 MID, 1 FWD)
-  { playerId: 'p_dito', isStarter: false, benchOrder: 1, isCaptain: false, isViceCaptain: false }, // Sub DEF (3/3)
-  { playerId: 'p_vadzo', isStarter: false, benchOrder: 2, isCaptain: false, isViceCaptain: false }, // Sub MID (3/3)
-  { playerId: 'p_tsotne', isStarter: false, benchOrder: 3, isCaptain: false, isViceCaptain: false }, // Sub FWD (2/2)
+  { playerId: 'p_dito', isStarter: false, benchOrder: 1, isCaptain: false, isViceCaptain: false }, // Sub 1: DEF (3/3)
+  { playerId: 'p_dadu', isStarter: false, benchOrder: 2, isCaptain: false, isViceCaptain: false }, // Sub 2: MID (3/3)
+  { playerId: 'p_rati', isStarter: false, benchOrder: 3, isCaptain: false, isViceCaptain: false }, // Sub 3: FWD (2/2)
 ];
+
 

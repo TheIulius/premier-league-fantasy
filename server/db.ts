@@ -83,7 +83,7 @@ function getDefaultData(): DatabaseSchema {
       teamName: 'Apex XI',
       managerName: 'Apex Manager',
       players: DEFAULT_SQUAD_PLAYER_IDS,
-      bank: 5.3,
+      bank: 3.5,
       freeTransfers: 1,
       transfersMadeThisGW: 0,
       activeChip: null,
@@ -139,6 +139,11 @@ class Database {
         const hasLegacyFixtures = Array.isArray(this.data.fixtures) && this.data.fixtures.some((f) => legacyClubCodes.has(f.homeClubId) || legacyClubCodes.has(f.awayClubId));
         if (hasLegacyFixtures || !this.data.fixtures || this.data.fixtures.length === 0) {
           this.data.fixtures = [...SEED_FIXTURES];
+          this.save();
+        }
+        // Ensure Rati is always marked as FWD
+        if (this.data.players && this.data.players['p_rati'] && this.data.players['p_rati'].position !== 'FWD') {
+          this.data.players['p_rati'].position = 'FWD';
           this.save();
         }
       } catch (err) {

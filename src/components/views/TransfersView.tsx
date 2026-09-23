@@ -46,10 +46,8 @@ export const TransfersView: React.FC = () => {
   // Calculate potential bank after transfer
   const potentialBank = useMemo(() => {
     if (!outPlayer || !inPlayer) return squad.bank;
-    const isStarter = squad.players.find((sp) => sp.playerId === outPlayer.id)?.isStarter;
-    if (!isStarter) return squad.bank;
     return Math.round((squad.bank + outPlayer.cost - inPlayer.cost) * 10) / 10;
-  }, [outPlayer, inPlayer, squad.bank, squad.players]);
+  }, [outPlayer, inPlayer, squad.bank]);
 
   // Filter available players for transfer
   const squadPlayerIds = useMemo(() => new Set(squad.players.map((p) => p.playerId)), [squad.players]);
@@ -418,7 +416,7 @@ export const TransfersView: React.FC = () => {
                 const isSelected = inPlayerId === p.id;
                 const isStarterOut = outPlayer ? squad.players.find((sp) => sp.playerId === outPlayer.id)?.isStarter : true;
                 const affordable = outPlayer
-                  ? (isStarterOut ? squad.bank + outPlayer.cost >= p.cost : true)
+                  ? squad.bank + outPlayer.cost >= p.cost
                   : squad.bank >= p.cost;
 
                 const posLimitReached =
@@ -429,9 +427,9 @@ export const TransfersView: React.FC = () => {
 
                 const buyBlockReason =
                   posLimitReached
-                    ? `${p.position} Full`
+                    ? `${p.position === 'GKP' ? 'GK' : p.position} Full`
                     : squad.players.length >= 9
-                    ? 'Squad Full'
+                    ? 'Squad Full (9/9)'
                     : squad.bank < p.cost
                     ? 'No funds'
                     : null;

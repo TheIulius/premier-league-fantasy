@@ -38,8 +38,8 @@ app.get('/api/state', (req: Request, res: Response) => {
         squad: {
           teamName: user.teamName,
           managerName: user.managerName,
-          players: [...DEFAULT_SQUAD_PLAYER_IDS],
-          bank: 5.3,
+          players: [],
+          bank: 60.0,
           freeTransfers: 1,
           transfersMadeThisGW: 0,
           activeChip: null,
@@ -447,6 +447,20 @@ app.post('/api/squad/save', (req: Request, res: Response) => {
       });
     }
 
+    if (isComplete && req.body.validateComplete) {
+      const starters = players.filter((sp: any) => sp.isStarter);
+      const sGk = starters.filter((sp: any) => data.players[sp.playerId]?.position === 'GKP').length;
+      const sDef = starters.filter((sp: any) => data.players[sp.playerId]?.position === 'DEF').length;
+      const sMid = starters.filter((sp: any) => data.players[sp.playerId]?.position === 'MID').length;
+      const sFwd = starters.filter((sp: any) => data.players[sp.playerId]?.position === 'FWD').length;
+      const validFormations = ['1-2-2', '2-1-2', '2-2-1', '1-3-1', '3-1-1'];
+      if (starters.length !== 6 || sGk !== 1 || !validFormations.includes(`${sDef}-${sMid}-${sFwd}`)) {
+        return res.status(400).json({
+          error: `Invalid starting formation (${sDef}-${sMid}-${sFwd}). Must have exactly 6 starters forming 1-2-2, 2-1-2, 2-2-1, 1-3-1, or 3-1-1.`,
+        });
+      }
+    }
+
     manager.squad.players = players;
     if (typeof bank === 'number') {
       manager.squad.bank = Math.round(bank * 10) / 10;
@@ -481,8 +495,8 @@ app.post('/api/squad/chip', (req: Request, res: Response) => {
         squad: {
           teamName: user.teamName,
           managerName: user.managerName,
-          players: [...DEFAULT_SQUAD_PLAYER_IDS],
-          bank: 5.3,
+          players: [],
+          bank: 60.0,
           freeTransfers: 1,
           transfersMadeThisGW: 0,
           activeChip: null,
@@ -522,8 +536,8 @@ app.post('/api/squad/transfer', (req: Request, res: Response) => {
         squad: {
           teamName: user.teamName,
           managerName: user.managerName,
-          players: [...DEFAULT_SQUAD_PLAYER_IDS],
-          bank: 5.3,
+          players: [],
+          bank: 60.0,
           freeTransfers: 1,
           transfersMadeThisGW: 0,
           activeChip: null,
@@ -555,16 +569,12 @@ app.post('/api/squad/transfer', (req: Request, res: Response) => {
     return res.status(400).json({ error: `Max ${maxClubLimit} players from ${inP.clubId}` });
   }
 
-  const isStarterTransfer = manager.squad.players.find((sp) => sp.playerId === outPlayerId)?.isStarter;
-  const newBank = isStarterTransfer
-    ? manager.squad.bank + outP.cost - inP.cost
-    : manager.squad.bank;
-
-  if (isStarterTransfer && newBank < 0) {
+  const newBank = Math.round((manager.squad.bank + outP.cost - inP.cost) * 10) / 10;
+  if (newBank < 0) {
     return res.status(400).json({ error: 'Insufficient funds' });
   }
 
-  manager.squad.bank = Math.round(newBank * 10) / 10;
+  manager.squad.bank = newBank;
   manager.squad.transfersMadeThisGW += 1;
   manager.squad.players = manager.squad.players.map((sp) =>
     sp.playerId === outPlayerId ? { ...sp, playerId: inPlayerId } : sp

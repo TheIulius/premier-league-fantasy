@@ -112,7 +112,7 @@ export const PickTeamView: React.FC = () => {
       <div className="mx-0 p-2.5 md:p-3.5 rounded-xl bg-[#2a002e] border border-[#4d0c54] flex flex-col gap-2 text-xs md:text-sm">
         <div className="flex items-center justify-between">
           <div>
-            <span className="text-gray-400 block text-[10px] md:text-xs uppercase font-bold">Starting 6</span>
+            <span className="text-gray-400 block text-[10px] md:text-xs uppercase font-bold">Team Value</span>
             <span className="text-sm md:text-base font-black text-white">£{teamValue.toFixed(1)}m</span>
           </div>
           <div>
@@ -129,8 +129,8 @@ export const PickTeamView: React.FC = () => {
           </div>
         </div>
         <div className="flex items-center justify-between pt-1.5 border-t border-white/10 text-[10px] md:text-xs text-gray-400">
-          <span className="font-bold text-[#00ff87]">6 Starters • 3 Bench Reserves</span>
-          <span className="text-gray-300">Starting 6 budget limit: £60.0m</span>
+          <span className="font-bold text-[#00ff87]">6 Starters on Pitch • 3 Bench Reserves</span>
+          <span className="text-gray-300">Total Squad Budget: £60.0m</span>
         </div>
       </div>
 

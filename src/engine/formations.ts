@@ -1,15 +1,46 @@
 import { Position, SquadPlayer, Player } from '../types/fpl';
-import { isValidStartingXI } from './scoring';
+
+/**
+ * The 5 permitted outfield formations (DEF-MID-FWD) for 6-a-side starting lineups.
+ * Total outfield starters = 5 (+ 1 GK = 6 starters on pitch).
+ */
+export const VALID_FORMATIONS = [
+  '1-2-2',
+  '2-1-2',
+  '2-2-1',
+  '1-3-1',
+  '3-1-1',
+] as const;
+
+export type ValidFormation = typeof VALID_FORMATIONS[number];
+
+export function isValidFormation(defs: number, mids: number, fwds: number): boolean {
+  const formStr = `${defs}-${mids}-${fwds}`;
+  return VALID_FORMATIONS.includes(formStr as ValidFormation);
+}
+
+export interface PlayerPitchPosition {
+  playerId: string;
+  x: number; // Percentage 0 - 100
+  y: number; // Percentage 0 - 100
+  roleLabel: string;
+}
 
 export interface FormationLayout {
-  formationString: string; // e.g. "3-4-3"
+  formationString: string;
+  isValid: boolean;
   gks: SquadPlayer[];
   defs: SquadPlayer[];
   mids: SquadPlayer[];
   fwds: SquadPlayer[];
   bench: SquadPlayer[];
+  pitchPositions: PlayerPitchPosition[];
 }
 
+/**
+ * Computes exact stadium pitch coordinates (x%, y%) and tactical role labels
+ * based on formation structure so player cards smoothly animate to tactical positions.
+ */
 export function getFormationLayout(
   squadPlayers: SquadPlayer[],
   allPlayers: Record<string, Player>
@@ -34,19 +65,92 @@ export function getFormationLayout(
   });
 
   const formationString = `${defs.length}-${mids.length}-${fwds.length}`;
+  const isValid = gks.length === 1 && isValidFormation(defs.length, mids.length, fwds.length);
+
+  const pitchPositions: PlayerPitchPosition[] = [];
+
+  // 1. Goalkeeper Row (y: 11% - goal line / six yard box)
+  gks.forEach((sp, idx) => {
+    const xs = gks.length === 1 ? [50] : [35, 65];
+    pitchPositions.push({
+      playerId: sp.playerId,
+      x: xs[idx] ?? 50,
+      y: 11,
+      roleLabel: 'GK',
+    });
+  });
+
+  // Helper to space players evenly in a row
+  const getRowXs = (count: number): number[] => {
+    if (count <= 1) return [50];
+    if (count === 2) return [28, 72];
+    if (count === 3) return [18, 50, 82];
+    if (count === 4) return [14, 38, 62, 86];
+    return [50];
+  };
+
+  // 2. Defenders Row (y: 32% - defensive third)
+  const defXs = getRowXs(defs.length);
+  defs.forEach((sp, idx) => {
+    let roleLabel = 'DEF';
+    if (defs.length === 1) roleLabel = 'CB';
+    else if (defs.length === 2) roleLabel = idx === 0 ? 'LB' : 'RB';
+    else if (defs.length === 3) roleLabel = idx === 0 ? 'LB' : idx === 1 ? 'CB' : 'RB';
+
+    pitchPositions.push({
+      playerId: sp.playerId,
+      x: defXs[idx] ?? 50,
+      y: 32,
+      roleLabel,
+    });
+  });
+
+  // 3. Midfielders Row (y: 54% - midfield / center circle)
+  const midXs = getRowXs(mids.length);
+  mids.forEach((sp, idx) => {
+    let roleLabel = 'MID';
+    if (mids.length === 1) roleLabel = 'CM';
+    else if (mids.length === 2) roleLabel = idx === 0 ? 'LM' : 'RM';
+    else if (mids.length === 3) roleLabel = idx === 0 ? 'LM' : idx === 1 ? 'CM' : 'RM';
+
+    pitchPositions.push({
+      playerId: sp.playerId,
+      x: midXs[idx] ?? 50,
+      y: 54,
+      roleLabel,
+    });
+  });
+
+  // 4. Forwards Row (y: 77% - attacking penalty arc)
+  const fwdXs = fwds.length === 2 ? [30, 70] : getRowXs(fwds.length);
+  fwds.forEach((sp, idx) => {
+    let roleLabel = 'FWD';
+    if (fwds.length === 1) roleLabel = 'ST';
+    else if (fwds.length === 2) roleLabel = idx === 0 ? 'LF' : 'RF';
+
+    pitchPositions.push({
+      playerId: sp.playerId,
+      x: fwdXs[idx] ?? 50,
+      y: 77,
+      roleLabel,
+    });
+  });
 
   return {
     formationString,
+    isValid,
     gks,
     defs,
     mids,
     fwds,
     bench,
+    pitchPositions,
   };
 }
 
 /**
- * Checks if swapping playerA and playerB will leave the starting XI in a valid state.
+ * Checks if swapping playerA and playerB will leave the starting lineup in one of the
+ * 5 valid formations: 1-2-2, 2-1-2, 2-2-1, 1-3-1, 3-1-1.
  */
 export function canSwapPlayers(
   playerAId: string,
@@ -60,34 +164,134 @@ export function canSwapPlayers(
   const pB = allPlayers[playerBId];
 
   if (!spA || !spB || !pA || !pB) {
-    return { canSwap: false, reason: 'Player not found' };
+    return { canSwap: false, reason: 'Player not found in squad' };
   }
 
-  // If one is GKP, the other MUST also be GKP
-  if ((pA.position === 'GKP' || pB.position === 'GKP') && pA.position !== pB.position) {
-    return { canSwap: false, reason: 'Goalkeepers can only be swapped with Goalkeepers' };
+  // Goalkeeper rule: Exactly 1 GK in squad, always starts on pitch
+  if (pA.position === 'GKP' || pB.position === 'GKP') {
+    return { canSwap: false, reason: 'Goalkeeper must remain in goal' };
   }
 
-  // If both are starters or both are bench, order/positions don't invalidate XI formation
+  // Swapping two starters or two bench players preserves the exact formation
   if ((spA.isStarter && spB.isStarter) || (!spA.isStarter && !spB.isStarter)) {
     return { canSwap: true };
   }
 
-  // One is starter, one is bench: simulate swap
+  // One is a starter, one is on the bench: simulate substitution
   const starter = spA.isStarter ? spA : spB;
   const sub = spA.isStarter ? spB : spA;
+  const pStarter = allPlayers[starter.playerId];
+  const pSub = allPlayers[sub.playerId];
 
-  const currentStarterPositions = squadPlayers
-    .filter((p) => p.isStarter)
-    .map((p) => (p.playerId === starter.playerId ? allPlayers[sub.playerId]?.position : allPlayers[p.playerId]?.position))
-    .filter((pos): pos is Position => !!pos);
+  if (!pStarter || !pSub) {
+    return { canSwap: false, reason: 'Player position unknown' };
+  }
 
-  if (!isValidStartingXI(currentStarterPositions)) {
+  // If same position (e.g. DEF for DEF, MID for MID, FWD for FWD), formation doesn't change
+  if (pStarter.position === pSub.position) {
+    return { canSwap: true };
+  }
+
+  // Calculate current outfield starters
+  let defCount = 0;
+  let midCount = 0;
+  let fwdCount = 0;
+
+  squadPlayers.filter((p) => p.isStarter).forEach((sp) => {
+    const pos = allPlayers[sp.playerId]?.position;
+    if (pos === 'DEF') defCount++;
+    else if (pos === 'MID') midCount++;
+    else if (pos === 'FWD') fwdCount++;
+  });
+
+  // Apply simulated substitution
+  const newDef = defCount - (pStarter.position === 'DEF' ? 1 : 0) + (pSub.position === 'DEF' ? 1 : 0);
+  const newMid = midCount - (pStarter.position === 'MID' ? 1 : 0) + (pSub.position === 'MID' ? 1 : 0);
+  const newFwd = fwdCount - (pStarter.position === 'FWD' ? 1 : 0) + (pSub.position === 'FWD' ? 1 : 0);
+
+  if (!isValidFormation(newDef, newMid, newFwd)) {
     return {
       canSwap: false,
-      reason: 'This substitution violates 6-a-side formation rules (1 GKP, min 1 DEF, 1 MID, 1 FWD, max 6 starters)',
+      reason: `Formation ${newDef}-${newMid}-${newFwd} is invalid. Permitted formations: 1-2-2, 2-1-2, 2-2-1, 1-3-1, 3-1-1`,
     };
   }
 
   return { canSwap: true };
+}
+
+/**
+ * Normalizes a 9-player squad (1 GK, 3 DEF, 3 MID, 2 FWD) to guarantee exactly
+ * 6 starters in one of the 5 valid formations and exactly 3 bench substitutes (benchOrder 1, 2, 3).
+ */
+export function normalizeSquadLineup(
+  squadPlayers: SquadPlayer[],
+  allPlayers: Record<string, Player>
+): SquadPlayer[] {
+  if (squadPlayers.length !== 9) return squadPlayers;
+
+  const starters = squadPlayers.filter((p) => p.isStarter);
+  const bench = squadPlayers.filter((p) => !p.isStarter);
+
+  let defCount = 0;
+  let midCount = 0;
+  let fwdCount = 0;
+  let gkCount = 0;
+
+  starters.forEach((sp) => {
+    const pos = allPlayers[sp.playerId]?.position;
+    if (pos === 'GKP') gkCount++;
+    else if (pos === 'DEF') defCount++;
+    else if (pos === 'MID') midCount++;
+    else if (pos === 'FWD') fwdCount++;
+  });
+
+  // If already 6 starters with 1 GK and valid formation, just reindex bench
+  if (starters.length === 6 && gkCount === 1 && isValidFormation(defCount, midCount, fwdCount) && bench.length === 3) {
+    let bIdx = 1;
+    return squadPlayers.map((sp) => {
+      if (!sp.isStarter) {
+        return { ...sp, benchOrder: bIdx++ };
+      }
+      return { ...sp, benchOrder: 0 };
+    });
+  }
+
+  // Otherwise, reset to default valid 2-2-1 lineup:
+  // 1 GK, 2 DEF, 2 MID, 1 FWD start; 1 DEF, 1 MID, 1 FWD bench
+  const gks = squadPlayers.filter((sp) => allPlayers[sp.playerId]?.position === 'GKP');
+  const defs = squadPlayers.filter((sp) => allPlayers[sp.playerId]?.position === 'DEF');
+  const mids = squadPlayers.filter((sp) => allPlayers[sp.playerId]?.position === 'MID');
+  const fwds = squadPlayers.filter((sp) => allPlayers[sp.playerId]?.position === 'FWD');
+
+  if (gks.length !== 1 || defs.length !== 3 || mids.length !== 3 || fwds.length !== 2) {
+    return squadPlayers; // Not a complete 1-3-3-2 squad
+  }
+
+  const startingGk = { ...gks[0], isStarter: true, benchOrder: 0 };
+  const startingDefs = [
+    { ...defs[0], isStarter: true, benchOrder: 0 },
+    { ...defs[1], isStarter: true, benchOrder: 0 },
+  ];
+  const benchDef = { ...defs[2], isStarter: false, benchOrder: 1 };
+
+  const startingMids = [
+    { ...mids[0], isStarter: true, benchOrder: 0 },
+    { ...mids[1], isStarter: true, benchOrder: 0 },
+  ];
+  const benchMid = { ...mids[2], isStarter: false, benchOrder: 2 };
+
+  const startingFwd = { ...fwds[0], isStarter: true, benchOrder: 0, isCaptain: true, isViceCaptain: false };
+  const benchFwd = { ...fwds[1], isStarter: false, benchOrder: 3, isCaptain: false, isViceCaptain: false };
+
+  return [
+    startingGk,
+    startingDefs[0],
+    startingDefs[1],
+    startingMids[0],
+    startingMids[1],
+    startingFwd,
+    benchDef,
+    benchMid,
+    benchFwd,
+  ];
 }

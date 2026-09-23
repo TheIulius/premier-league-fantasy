@@ -19,7 +19,7 @@ import {
   GameweekCalculationResult,
   validateSquadComposition,
 } from '../engine/scoring';
-import { canSwapPlayers } from '../engine/formations';
+import { canSwapPlayers, normalizeSquadLineup, isValidFormation } from '../engine/formations';
 import * as api from '../services/api';
 
 export type TabType = 'team' | 'transfers' | 'points' | 'leagues' | 'fixtures' | 'dev';
@@ -269,15 +269,23 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             teamName: data.activeManager.teamName,
           });
           if (data.activeManager.squad) {
-            setSquad(data.activeManager.squad);
-            localStorage.setItem(STORAGE_KEY_SQUAD, JSON.stringify(data.activeManager.squad));
+            let activeSq = data.activeManager.squad;
+            if (activeSq.players && activeSq.players.length === 9 && (data.players || players)) {
+              const allP = data.players || players;
+              activeSq = {
+                ...activeSq,
+                players: normalizeSquadLineup(activeSq.players, allP),
+              };
+            }
+            setSquad(activeSq);
+            localStorage.setItem(STORAGE_KEY_SQUAD, JSON.stringify(activeSq));
           }
         }
       }
     } catch (err) {
       // Offline fallback: continue using local state
     }
-  }, [currentManagerId]);
+  }, [currentManagerId, players]);
 
   // Verify auth session on mount
   useEffect(() => {
@@ -289,13 +297,20 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           setCurrentManagerId(res.user.id);
           localStorage.setItem(STORAGE_KEY_MANAGER_ID, res.user.id);
           if (res.squad) {
-            setSquad(res.squad);
-            localStorage.setItem(STORAGE_KEY_SQUAD, JSON.stringify(res.squad));
+            let userSq = res.squad;
+            if (userSq.players && userSq.players.length === 9) {
+              userSq = {
+                ...userSq,
+                players: normalizeSquadLineup(userSq.players, players),
+              };
+            }
+            setSquad(userSq);
+            localStorage.setItem(STORAGE_KEY_SQUAD, JSON.stringify(userSq));
           }
         }
       }).catch(() => {});
     }
-  }, [authToken]);
+  }, [authToken, players]);
 
   // Hydrate from server on mount
   useEffect(() => {
@@ -575,13 +590,22 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
 
     // Determine starter vs bench
-    // GKP always starts
-    const currentStarters = squad.players.filter((sp) => sp.isStarter);
+    // Exactly 6 starters: 1 GK + 5 outfielders
     let shouldStart = false;
     if (p.position === 'GKP') {
       shouldStart = true;
-    } else if (currentStarters.length < 6) {
-      shouldStart = true;
+    } else {
+      const currentOutfieldStarters = squad.players.filter(
+        (sp) => sp.isStarter && players[sp.playerId]?.position !== 'GKP'
+      ).length;
+      const currentPosStarters = squad.players.filter(
+        (sp) => sp.isStarter && players[sp.playerId]?.position === p.position
+      ).length;
+      const maxStartersByPos: Record<Position, number> = { GKP: 1, DEF: 3, MID: 3, FWD: 2 };
+
+      if (currentOutfieldStarters < 5 && currentPosStarters < maxStartersByPos[p.position]) {
+        shouldStart = true;
+      }
     }
 
     const currentBench = squad.players.filter((sp) => !sp.isStarter);
@@ -600,8 +624,13 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       isViceCaptain,
     };
 
-    const newPlayers = [...squad.players, newSquadPlayer];
+    let newPlayers = [...squad.players, newSquadPlayer];
     const newBank = Math.max(0, Math.round((squad.bank - p.cost) * 10) / 10);
+
+    // If squad reached full 9 players, ensure starters and bench are normalized to a valid formation
+    if (newPlayers.length === 9) {
+      newPlayers = normalizeSquadLineup(newPlayers, { ...players, [p.id]: p });
+    }
 
     const updatedSquad: Squad = {
       ...squad,
@@ -677,7 +706,7 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       return { success: false, message: check.reason };
     }
 
-    const updatedPlayers = squad.players.map((sp) => {
+    let updatedPlayers = squad.players.map((sp) => {
       if (sp.playerId === playerAId) {
         const other = squad.players.find((p) => p.playerId === playerBId)!;
         return { ...sp, isStarter: other.isStarter, benchOrder: other.benchOrder };
@@ -689,30 +718,44 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       return sp;
     });
 
-    // Check budget of the 6 starters against the £60.0m budget
-    const newStartersCost = updatedPlayers
-      .filter((sp) => sp.isStarter)
-      .reduce((sum, sp) => sum + (players[sp.playerId]?.cost || 0), 0);
-    const roundedStartersCost = Math.round(newStartersCost * 10) / 10;
+    // Preserve captain / vice-captain if starter was swapped with bench
+    const spA = squad.players.find((p) => p.playerId === playerAId)!;
+    const spB = squad.players.find((p) => p.playerId === playerBId)!;
 
-    if (roundedStartersCost > 60.0) {
-      return {
-        success: false,
-        message: `Starting 6 would cost £${roundedStartersCost.toFixed(1)}m, exceeding the £60.0m budget!`,
-      };
+    if (spA.isStarter !== spB.isStarter) {
+      const outStarter = spA.isStarter ? spA : spB;
+      const inBench = spA.isStarter ? spB : spA;
+
+      if (outStarter.isCaptain) {
+        updatedPlayers = updatedPlayers.map((sp) =>
+          sp.playerId === inBench.playerId ? { ...sp, isCaptain: true, isViceCaptain: false } :
+          sp.playerId === outStarter.playerId ? { ...sp, isCaptain: false } : sp
+        );
+      } else if (outStarter.isViceCaptain) {
+        updatedPlayers = updatedPlayers.map((sp) =>
+          sp.playerId === inBench.playerId ? { ...sp, isViceCaptain: true, isCaptain: false } :
+          sp.playerId === outStarter.playerId ? { ...sp, isViceCaptain: false } : sp
+        );
+      }
     }
 
-    const newBank = Math.round((60.0 - roundedStartersCost) * 10) / 10;
+    // Re-index bench orders (1, 2, 3)
+    let bIdx = 1;
+    updatedPlayers = updatedPlayers.map((sp) => {
+      if (!sp.isStarter) {
+        return { ...sp, benchOrder: bIdx++ };
+      }
+      return { ...sp, benchOrder: 0 };
+    });
 
     const updatedSquad: Squad = {
       ...squad,
-      bank: newBank,
       players: updatedPlayers,
     };
 
     setSquad(updatedSquad);
     localStorage.setItem(STORAGE_KEY_SQUAD, JSON.stringify(updatedSquad));
-    api.saveSquadApi(currentManagerId, updatedPlayers, updatedSquad.teamName, newBank).catch((err) => {
+    api.saveSquadApi(currentManagerId, updatedPlayers, updatedSquad.teamName, updatedSquad.bank).catch((err) => {
       console.warn('Auto-save squad substitution failed:', err);
     });
     setSelectedPlayerForSwap(null);
@@ -790,15 +833,11 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       };
     }
 
-    const isStarterTransfer = squad.players.find((sp) => sp.playerId === outPlayerId)?.isStarter;
-    const newBank = isStarterTransfer
-      ? squad.bank + outPlayer.cost - inPlayer.cost
-      : squad.bank;
-
-    if (isStarterTransfer && newBank < 0) {
+    const newBank = Math.round((squad.bank + outPlayer.cost - inPlayer.cost) * 10) / 10;
+    if (newBank < 0) {
       return {
         success: false,
-        message: `Insufficient funds. Needed £${inPlayer.cost.toFixed(1)}m, bank is £${(squad.bank + outPlayer.cost).toFixed(1)}m`,
+        message: `Insufficient funds. Needed £${inPlayer.cost.toFixed(1)}m, but bank would be £${newBank.toFixed(1)}m`,
       };
     }
 

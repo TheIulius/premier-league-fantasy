@@ -158,38 +158,20 @@ export function validateSquadComposition(
  * Validates whether a set of players forms a legitimate 6-a-side starting lineup:
  * Exactly 1 GKP, 1-3 DEF, 1-3 MID, 1-2 FWD (Total 6 starters).
  */
-export function isValidStartingXI(positions: Position[]): boolean {
-  const gkCount = positions.filter((p) => p === 'GKP').length;
-  const defCount = positions.filter((p) => p === 'DEF').length;
-  const midCount = positions.filter((p) => p === 'MID').length;
-  const fwdCount = positions.filter((p) => p === 'FWD').length;
+export function isValidStartingXI(positions: (Position | undefined)[]): boolean {
+  const cleanPos = positions.filter((p): p is Position => !!p);
+  const gkCount = cleanPos.filter((p) => p === 'GKP').length;
+  const defCount = cleanPos.filter((p) => p === 'DEF').length;
+  const midCount = cleanPos.filter((p) => p === 'MID').length;
+  const fwdCount = cleanPos.filter((p) => p === 'FWD').length;
 
-  if (positions.length === 6) {
-    return (
-      gkCount === 1 &&
-      defCount >= 1 &&
-      defCount <= 3 &&
-      midCount >= 1 &&
-      midCount <= 3 &&
-      fwdCount >= 1 &&
-      fwdCount <= 2
-    );
+  if (cleanPos.length === 6) {
+    if (gkCount !== 1) return false;
+    const formStr = `${defCount}-${midCount}-${fwdCount}`;
+    return ['1-2-2', '2-1-2', '2-2-1', '1-3-1', '3-1-1'].includes(formStr);
   }
 
-  // Fallback for 11-a-side
-  if (positions.length === 11) {
-    return (
-      gkCount === 1 &&
-      defCount >= 3 &&
-      defCount <= 5 &&
-      midCount >= 2 &&
-      midCount <= 5 &&
-      fwdCount >= 1 &&
-      fwdCount <= 3
-    );
-  }
-
-  return gkCount === 1 && defCount >= 1 && midCount >= 1;
+  return false;
 }
 
 /**

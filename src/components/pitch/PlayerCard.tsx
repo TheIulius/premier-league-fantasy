@@ -74,14 +74,19 @@ export const PlayerCard: React.FC<PlayerCardProps> = ({
     onCardClick(playerId);
   };
 
+  const isDimmedDuringSwap =
+    selectedPlayerForSwap && !isSwapSource && !isSwapTargetEligible;
+
   return (
     <div
       onClick={handleClick}
-      className={`relative flex flex-col items-center justify-center cursor-pointer transition-all duration-200 select-none group max-w-[76px] sm:max-w-[85px] md:max-w-[96px] ${
+      className={`relative flex flex-col items-center justify-center cursor-pointer transition-all duration-300 select-none group max-w-[76px] sm:max-w-[85px] md:max-w-[96px] ${
         isSwapSource
-          ? 'scale-110 z-30'
+          ? 'scale-110 z-30 ring-2 ring-yellow-400 rounded-lg shadow-xl'
           : isSwapTargetEligible
-          ? 'scale-105 z-20 animate-pulse-sub'
+          ? 'scale-105 z-20 ring-2 ring-[#00ff87] rounded-lg animate-pulse-sub shadow-glow-green'
+          : isDimmedDuringSwap
+          ? 'opacity-40 grayscale-[30%] hover:opacity-70'
           : 'hover:scale-105 active:scale-95'
       }`}
     >
@@ -94,7 +99,7 @@ export const PlayerCard: React.FC<PlayerCardProps> = ({
       )}
 
       {isSwapTargetEligible && (
-        <div className="absolute -top-3.5 bg-[#00ff87] text-[#37003c] text-[9px] md:text-[10px] font-black px-2 py-0.5 rounded-full shadow-lg border border-[#37003c] flex items-center gap-1 z-30">
+        <div className="absolute -top-3.5 bg-[#00ff87] text-[#37003c] text-[9px] md:text-[10px] font-black px-2 py-0.5 rounded-full shadow-lg border border-[#37003c] flex items-center gap-1 z-30 animate-bounce">
           <Check className="w-2.5 h-2.5 md:w-3 md:h-3" />
           <span>TAP HERE</span>
         </div>
@@ -125,10 +130,10 @@ export const PlayerCard: React.FC<PlayerCardProps> = ({
           </div>
         )}
 
-        {/* Bench Order indicator if on bench */}
+        {/* Bench Order indicator if on bench (Sub 1, Sub 2, Sub 3) */}
         {!isStarter && (
-          <div className="absolute -bottom-1 -left-1 bg-black/80 text-white font-bold text-[8px] md:text-[9px] rounded px-1 border border-white/20">
-            {benchOrder === 1 ? 'GK' : `${benchOrder - 1}`}
+          <div className="absolute -bottom-1 -left-1 bg-black/90 text-[#00ff87] font-extrabold text-[8px] md:text-[9px] rounded px-1 border border-[#00ff87]/30 shadow-sm">
+            Sub {benchOrder}
           </div>
         )}
 
