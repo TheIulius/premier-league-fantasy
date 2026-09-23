@@ -16,13 +16,26 @@ import {
   Trash2,
   ShoppingBag,
   Sparkles,
+  X,
+  RotateCcw,
+  ArrowUpDown,
+  Coins,
 } from 'lucide-react';
 import { validateSquadComposition } from '../../engine/scoring';
 import confetti from 'canvas-confetti';
 
+export type SortOption =
+  | 'points_desc'
+  | 'cost_desc'
+  | 'cost_asc'
+  | 'form_desc'
+  | 'selected_desc'
+  | 'name_asc';
+
 export const TransfersView: React.FC = () => {
   const {
     players,
+    clubs,
     squad,
     transferPlayer,
     buyPlayer,
@@ -35,7 +48,8 @@ export const TransfersView: React.FC = () => {
   const [positionFilter, setPositionFilter] = useState<Position | 'ALL'>('ALL');
   const [clubFilter, setClubFilter] = useState<string>('ALL');
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [sortBy, setSortBy] = useState<'cost' | 'points' | 'selected'>('points');
+  const [sortBy, setSortBy] = useState<SortOption>('points_desc');
+  const [affordableOnly, setAffordableOnly] = useState<boolean>(false);
   const [transferMessage, setTransferMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   const comp = useMemo(() => validateSquadComposition(squad.players, players), [squad.players, players]);
@@ -52,6 +66,32 @@ export const TransfersView: React.FC = () => {
   // Filter available players for transfer
   const squadPlayerIds = useMemo(() => new Set(squad.players.map((p) => p.playerId)), [squad.players]);
 
+  // Available clubs that have players in the market
+  const availableClubs = useMemo(() => {
+    const clubIds = new Set<string>();
+    Object.values(players).forEach((p) => {
+      if (p.clubId) clubIds.add(p.clubId);
+    });
+    return Array.from(clubIds)
+      .map((cid) => ({
+        id: cid,
+        name: clubs?.[cid]?.name || CLUBS[cid]?.name || cid,
+        shortName: clubs?.[cid]?.shortName || CLUBS[cid]?.shortName || cid,
+      }))
+      .sort((a, b) => a.shortName.localeCompare(b.shortName));
+  }, [players, clubs]);
+
+  // Position counts in the market
+  const positionCounts = useMemo(() => {
+    const counts: Record<string, number> = { ALL: 0, GKP: 0, DEF: 0, MID: 0, FWD: 0 };
+    Object.values(players).forEach((p) => {
+      if (squadPlayerIds.has(p.id)) return;
+      counts.ALL++;
+      if (counts[p.position] !== undefined) counts[p.position]++;
+    });
+    return counts;
+  }, [players, squadPlayerIds]);
+
   const candidatePlayers = useMemo(() => {
     return Object.values(players)
       .filter((p) => !squadPlayerIds.has(p.id)) // Not currently in squad
@@ -62,15 +102,58 @@ export const TransfersView: React.FC = () => {
         return true;
       })
       .filter((p) => (clubFilter === 'ALL' ? true : p.clubId === clubFilter))
-      .filter((p) =>
-        searchQuery ? p.name.toLowerCase().includes(searchQuery.toLowerCase()) || p.webName.toLowerCase().includes(searchQuery.toLowerCase()) : true
-      )
+      .filter((p) => {
+        if (!affordableOnly) return true;
+        const maxSpend = outPlayer ? squad.bank + outPlayer.cost : squad.bank;
+        return p.cost <= maxSpend;
+      })
+      .filter((p) => {
+        if (!searchQuery.trim()) return true;
+        const q = searchQuery.toLowerCase().trim();
+        const nameMatch = p.name.toLowerCase().includes(q);
+        const webNameMatch = p.webName.toLowerCase().includes(q);
+        const clubObj = clubs?.[p.clubId] || CLUBS[p.clubId];
+        const clubMatch =
+          clubObj?.name.toLowerCase().includes(q) || clubObj?.shortName.toLowerCase().includes(q);
+        return nameMatch || webNameMatch || !!clubMatch;
+      })
       .sort((a, b) => {
-        if (sortBy === 'cost') return b.cost - a.cost;
-        if (sortBy === 'selected') return b.selectedByPercent - a.selectedByPercent;
-        return b.totalPoints - a.totalPoints;
+        if (sortBy === 'cost_desc') return b.cost - a.cost;
+        if (sortBy === 'cost_asc') return a.cost - b.cost;
+        if (sortBy === 'form_desc') return (b.form || 0) - (a.form || 0);
+        if (sortBy === 'selected_desc') return b.selectedByPercent - a.selectedByPercent;
+        if (sortBy === 'name_asc') return a.webName.localeCompare(b.webName);
+        // Default: points_desc
+        if (b.totalPoints !== a.totalPoints) return b.totalPoints - a.totalPoints;
+        return b.cost - a.cost;
       });
-  }, [players, squadPlayerIds, outPlayer, positionFilter, clubFilter, searchQuery, sortBy]);
+  }, [
+    players,
+    squadPlayerIds,
+    outPlayer,
+    positionFilter,
+    clubFilter,
+    affordableOnly,
+    searchQuery,
+    sortBy,
+    clubs,
+    squad.bank,
+  ]);
+
+  const hasActiveFilters =
+    searchQuery.trim().length > 0 ||
+    positionFilter !== 'ALL' ||
+    clubFilter !== 'ALL' ||
+    affordableOnly ||
+    sortBy !== 'points_desc';
+
+  const handleResetFilters = () => {
+    setSearchQuery('');
+    if (!outPlayer) setPositionFilter('ALL');
+    setClubFilter('ALL');
+    setAffordableOnly(false);
+    setSortBy('points_desc');
+  };
 
   const handleConfirmTransfer = () => {
     if (!outPlayerId || !inPlayerId) return;
@@ -357,59 +440,141 @@ export const TransfersView: React.FC = () => {
         {/* Step 2: Transfer In Replacement Market (Right 7 Cols on Desktop) */}
         <div className="md:col-span-7 rounded-xl bg-[#230026] border border-white/10 p-3 md:p-4">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs md:text-sm font-black uppercase text-gray-300 flex items-center gap-1.5">
+            <span className="text-xs md:text-sm font-black uppercase text-gray-200 flex items-center gap-1.5">
               <ArrowUpRight className="w-3.5 h-3.5 text-[#00ff87]" />
               2. Choose Replacement ({outPlayer ? outPlayer.position : 'Market'})
             </span>
-            <span className="text-[10px] md:text-xs text-gray-400">{candidatePlayers.length} available</span>
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] md:text-xs text-gray-400 font-bold">
+                {candidatePlayers.length} available
+              </span>
+              {hasActiveFilters && (
+                <button
+                  onClick={handleResetFilters}
+                  className="text-[10px] md:text-xs font-bold text-[#00ff87] hover:underline flex items-center gap-1 bg-[#00ff87]/10 px-2 py-0.5 rounded-full border border-[#00ff87]/20 transition-colors"
+                >
+                  <RotateCcw className="w-2.5 h-2.5" />
+                  Reset
+                </button>
+              )}
+            </div>
           </div>
 
-          {/* Filters & Search */}
-          <div className="space-y-2 mb-3">
+          {/* Filters, Search & Sorting Controls */}
+          <div className="space-y-2 mb-3 bg-black/30 p-2.5 rounded-xl border border-white/5">
+            {/* Search Bar with Instant Clear Button */}
             <div className="relative">
               <Search className="w-4 h-4 text-gray-400 absolute left-2.5 top-2.5" />
               <input
                 type="text"
-                placeholder="Search player name..."
+                placeholder="Search by player or team name (e.g. 11/1, Futkara)..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-black/40 border border-white/10 rounded-lg pl-8 pr-3 py-1.5 md:py-2 text-xs md:text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#00ff87]"
+                className="w-full bg-black/50 border border-white/10 rounded-lg pl-8 pr-8 py-1.5 md:py-2 text-xs md:text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#00ff87] transition-colors"
               />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-2.5 top-2.5 text-gray-400 hover:text-white"
+                  title="Clear search"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              )}
             </div>
 
-            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-[10px] md:text-xs font-bold">
-              {(['ALL', 'GKP', 'DEF', 'MID', 'FWD'] as const).map((pos) => (
+            {/* Position Filter Buttons */}
+            <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5 text-[10px] md:text-xs font-bold scrollbar-none">
+              {(
+                [
+                  { id: 'ALL', label: `ALL (${positionCounts.ALL})` },
+                  { id: 'GKP', label: `GK (${positionCounts.GKP})` },
+                  { id: 'DEF', label: `DEF (${positionCounts.DEF})` },
+                  { id: 'MID', label: `MID (${positionCounts.MID})` },
+                  { id: 'FWD', label: `FWD (${positionCounts.FWD})` },
+                ] as const
+              ).map((tab) => (
                 <button
-                  key={pos}
-                  disabled={!!outPlayer} // Locked to outPlayer position if selected
-                  onClick={() => setPositionFilter(pos)}
-                  className={`px-2 md:px-3 py-1 md:py-1.5 rounded-md transition-colors ${
-                    (outPlayer ? outPlayer.position === pos : positionFilter === pos)
-                      ? 'bg-[#00ff87] text-[#37003c]'
-                      : 'bg-white/5 text-gray-400 hover:bg-white/10'
+                  key={tab.id}
+                  disabled={!!outPlayer}
+                  onClick={() => setPositionFilter(tab.id as Position | 'ALL')}
+                  className={`px-2.5 py-1 md:py-1.5 rounded-md whitespace-nowrap transition-colors ${
+                    (outPlayer ? outPlayer.position === tab.id : positionFilter === tab.id)
+                      ? 'bg-[#00ff87] text-[#37003c] font-black shadow-glow-green'
+                      : 'bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white'
                   }`}
                 >
-                  {pos}
+                  {tab.label}
                 </button>
               ))}
+            </div>
 
-              <select
-                value={sortBy}
-                onChange={(e: any) => setSortBy(e.target.value)}
-                className="ml-auto bg-black/40 border border-white/10 text-gray-300 rounded-md px-1.5 md:px-2 py-1 text-[10px] md:text-xs focus:outline-none"
+            {/* Filtration & Sorting Row: Team Dropdown, Affordable Toggle, and Sort By */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-1.5 md:gap-2 pt-1 border-t border-white/10 text-[10px] md:text-xs">
+              {/* Team Filter */}
+              <div className="flex items-center gap-1 bg-black/40 border border-white/10 rounded-lg px-2 py-1">
+                <span className="text-gray-400 font-bold whitespace-nowrap">Team:</span>
+                <select
+                  value={clubFilter}
+                  onChange={(e) => setClubFilter(e.target.value)}
+                  className="bg-transparent text-white w-full focus:outline-none font-semibold cursor-pointer truncate"
+                >
+                  <option value="ALL" className="bg-[#1f0022] text-white">All Teams</option>
+                  {availableClubs.map((c) => (
+                    <option key={c.id} value={c.id} className="bg-[#1f0022] text-white">
+                      {c.shortName} - {c.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Affordable Only Toggle */}
+              <button
+                type="button"
+                onClick={() => setAffordableOnly(!affordableOnly)}
+                className={`flex items-center justify-center gap-1.5 px-2 py-1 rounded-lg border font-bold transition-all ${
+                  affordableOnly
+                    ? 'bg-[#00ff87]/20 border-[#00ff87] text-[#00ff87] shadow-xs'
+                    : 'bg-black/40 border-white/10 text-gray-400 hover:text-white hover:border-white/20'
+                }`}
               >
-                <option value="points">Total Pts</option>
-                <option value="cost">Price</option>
-                <option value="selected">Ownership</option>
-              </select>
+                <Coins className="w-3 h-3 text-[#00ff87]" />
+                <span>Affordable Only</span>
+                {affordableOnly && <Check className="w-3 h-3 text-[#00ff87]" />}
+              </button>
+
+              {/* Sort By Dropdown */}
+              <div className="flex items-center gap-1 bg-black/40 border border-white/10 rounded-lg px-2 py-1">
+                <ArrowUpDown className="w-3 h-3 text-gray-400 flex-shrink-0" />
+                <select
+                  value={sortBy}
+                  onChange={(e: any) => setSortBy(e.target.value)}
+                  className="bg-transparent text-white w-full focus:outline-none font-semibold cursor-pointer truncate"
+                >
+                  <option value="points_desc" className="bg-[#1f0022] text-white">Points: High to Low</option>
+                  <option value="cost_desc" className="bg-[#1f0022] text-white">Price: High to Low</option>
+                  <option value="cost_asc" className="bg-[#1f0022] text-white">Price: Low to High</option>
+                  <option value="form_desc" className="bg-[#1f0022] text-white">Form: High to Low</option>
+                  <option value="selected_desc" className="bg-[#1f0022] text-white">Ownership: High to Low</option>
+                  <option value="name_asc" className="bg-[#1f0022] text-white">Name: A to Z</option>
+                </select>
+              </div>
             </div>
           </div>
 
           {/* Candidate Players List */}
           <div className="space-y-1.5 max-h-64 md:max-h-[520px] overflow-y-auto pr-1">
             {candidatePlayers.length === 0 ? (
-              <div className="text-center py-8 text-xs md:text-sm text-gray-500">
-                No players found matching current filters.
+              <div className="text-center py-10 px-4 rounded-xl bg-black/20 border border-dashed border-white/10 space-y-2">
+                <p className="text-xs md:text-sm text-gray-400 font-bold">No players found matching your filters.</p>
+                {hasActiveFilters && (
+                  <button
+                    onClick={handleResetFilters}
+                    className="px-3 py-1.5 rounded-lg bg-[#00ff87] text-[#37003c] text-xs font-black shadow-glow-green hover:opacity-90"
+                  >
+                    Clear All Filters
+                  </button>
+                )}
               </div>
             ) : (
               candidatePlayers.map((p) => {
