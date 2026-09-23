@@ -1246,6 +1246,20 @@
       "selectedByPercent": 5,
       "isAvailable": true,
       "gwStats": {}
+    },
+    "p_custom_1790192273559": {
+      "id": "p_custom_1790192273559",
+      "name": "Giorgi Atunashvili",
+      "webName": "Atunashvili",
+      "clubId": "SCH_11_3",
+      "position": "MID",
+      "cost": 8.2,
+      "totalPoints": 0,
+      "gwPoints": 0,
+      "form": 5,
+      "selectedByPercent": 5,
+      "isAvailable": true,
+      "gwStats": {}
     }
   },
   "clubs": {
