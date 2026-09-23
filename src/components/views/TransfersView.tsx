@@ -358,7 +358,7 @@ export const TransfersView: React.FC = () => {
           <div className="flex items-center justify-between mb-2">
             <span className="text-xs md:text-sm font-black uppercase text-gray-300 flex items-center gap-1.5">
               <ShoppingBag className="w-3.5 h-3.5 text-[#00ff87]" />
-              1. My Squad ({squad.players.length}/9)
+              1. My Squad ({squad.players.filter((sp) => Boolean(players[sp.playerId])).length}/9)
             </span>
             {outPlayer && (
               <button
@@ -396,12 +396,12 @@ export const TransfersView: React.FC = () => {
                     >
                       <div
                         onClick={() => {
-                          if (squad.players.length === 9) {
+                          if (squad.players.filter((sp) => Boolean(players[sp.playerId])).length === 9) {
                             setOutPlayerId(p.id);
                             setInPlayerId(null);
                           }
                         }}
-                        className={`flex items-center gap-1.5 min-w-0 flex-1 ${squad.players.length === 9 ? 'cursor-pointer hover:opacity-80' : ''}`}
+                        className={`flex items-center gap-1.5 min-w-0 flex-1 ${squad.players.filter((sp) => Boolean(players[sp.playerId])).length === 9 ? 'cursor-pointer hover:opacity-80' : ''}`}
                       >
                         <KitJersey clubId={p.clubId} position={p.position} className="w-6 h-6 md:w-7 md:h-7 flex-shrink-0" />
                         <div className="min-w-0 flex-1">
@@ -428,9 +428,9 @@ export const TransfersView: React.FC = () => {
                 })}
               </div>
 
-              {squad.players.length < 9 && (
+              {squad.players.filter((sp) => Boolean(players[sp.playerId])).length < 9 && (
                 <div className="text-[10px] md:text-xs text-[#00ff87] text-center pt-1 border-t border-white/5 font-bold">
-                  {9 - squad.players.length} open slot(s) remaining • £{squad.bank.toFixed(1)}m in bank
+                  {9 - squad.players.filter((sp) => Boolean(players[sp.playerId])).length} open slot(s) remaining • £{squad.bank.toFixed(1)}m in bank
                 </div>
               )}
             </div>
@@ -593,7 +593,7 @@ export const TransfersView: React.FC = () => {
                 const buyBlockReason =
                   posLimitReached
                     ? `${p.position === 'GKP' ? 'GK' : p.position} Full`
-                    : squad.players.length >= 9
+                    : squad.players.filter((sp) => Boolean(players[sp.playerId])).length >= 9
                     ? 'Squad Full (9/9)'
                     : squad.bank < p.cost
                     ? 'No funds'

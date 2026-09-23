@@ -270,11 +270,20 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           });
           if (data.activeManager.squad) {
             let activeSq = data.activeManager.squad;
-            if (activeSq.players && activeSq.players.length === 9 && (data.players || players)) {
-              const allP = data.players || players;
+            const allP = data.players || players;
+            if (activeSq.players && allP && Object.keys(allP).length > 0) {
+              const validPlayers = activeSq.players.filter((sp: SquadPlayer) => Boolean(allP[sp.playerId]));
+              const hadGhost = validPlayers.length !== activeSq.players.length;
+              let bank = activeSq.bank;
+              if (hadGhost) {
+                const totalCost = validPlayers.reduce((sum: number, sp: SquadPlayer) => sum + (allP[sp.playerId]?.cost || 0), 0);
+                bank = Math.max(0, Math.round((60.0 - totalCost) * 10) / 10);
+              }
+              const normalized = normalizeSquadLineup(validPlayers, allP);
               activeSq = {
                 ...activeSq,
-                players: normalizeSquadLineup(activeSq.players, allP),
+                players: normalized,
+                bank,
               };
             }
             setSquad(activeSq);
@@ -298,10 +307,19 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           localStorage.setItem(STORAGE_KEY_MANAGER_ID, res.user.id);
           if (res.squad) {
             let userSq = res.squad;
-            if (userSq.players && userSq.players.length === 9) {
+            if (userSq.players && players && Object.keys(players).length > 0) {
+              const validPlayers = userSq.players.filter((sp: SquadPlayer) => Boolean(players[sp.playerId]));
+              const hadGhost = validPlayers.length !== userSq.players.length;
+              let bank = userSq.bank;
+              if (hadGhost) {
+                const totalCost = validPlayers.reduce((sum: number, sp: SquadPlayer) => sum + (players[sp.playerId]?.cost || 0), 0);
+                bank = Math.max(0, Math.round((60.0 - totalCost) * 10) / 10);
+              }
+              const normalized = normalizeSquadLineup(validPlayers, players);
               userSq = {
                 ...userSq,
-                players: normalizeSquadLineup(userSq.players, players),
+                players: normalized,
+                bank,
               };
             }
             setSquad(userSq);
@@ -311,6 +329,27 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       }).catch(() => {});
     }
   }, [authToken, players]);
+
+  // Auto-heal squad whenever players change (e.g. if an admin deleted/edited players)
+  useEffect(() => {
+    if (players && Object.keys(players).length > 0 && squad && Array.isArray(squad.players)) {
+      const validPlayers = squad.players.filter((sp: SquadPlayer) => Boolean(players[sp.playerId]));
+      const hadGhost = validPlayers.length !== squad.players.length;
+      if (hadGhost) {
+        const totalCost = validPlayers.reduce((sum: number, sp: SquadPlayer) => sum + (players[sp.playerId]?.cost || 0), 0);
+        const correctBank = Math.max(0, Math.round((60.0 - totalCost) * 10) / 10);
+        const normalized = normalizeSquadLineup(validPlayers, players);
+        const updatedSquad: Squad = {
+          ...squad,
+          players: normalized,
+          bank: correctBank,
+        };
+        setSquad(updatedSquad);
+        localStorage.setItem(STORAGE_KEY_SQUAD, JSON.stringify(updatedSquad));
+        api.saveSquadApi(currentManagerId, updatedSquad.players, updatedSquad.teamName, updatedSquad.bank).catch(() => {});
+      }
+    }
+  }, [players, currentManagerId]);
 
   // Hydrate from server on mount
   useEffect(() => {
@@ -542,16 +581,19 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const p = players[playerId];
     if (!p) return { success: false, message: 'Player not found' };
 
-    if (squad.players.some((sp) => sp.playerId === playerId)) {
+    // Only count players that actually exist in the game database
+    const validSquadPlayers = squad.players.filter((sp) => Boolean(players[sp.playerId]));
+
+    if (validSquadPlayers.some((sp) => sp.playerId === playerId)) {
       return { success: false, message: `${p.webName} is already in your squad!` };
     }
 
-    if (squad.players.length >= 9) {
+    if (validSquadPlayers.length >= 9) {
       return { success: false, message: 'Squad is full (9/9 players). Remove a player first.' };
     }
 
     // Position count limits: 1 GK, 3 DEF, 3 MID, 2 FWD
-    const currentPosCount = squad.players.filter(
+    const currentPosCount = validSquadPlayers.filter(
       (sp) => players[sp.playerId]?.position === p.position
     ).length;
 

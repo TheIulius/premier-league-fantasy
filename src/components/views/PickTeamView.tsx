@@ -69,7 +69,7 @@ export const PickTeamView: React.FC = () => {
   return (
     <div className="flex flex-col space-y-3 pb-24 md:pb-12 px-2 md:px-6 pt-2 md:pt-4 max-w-3xl lg:max-w-4xl mx-auto w-full">
       {/* Empty Squad Builder Callout */}
-      {squad.players.length === 0 && (
+      {squad.players.filter((sp) => Boolean(players[sp.playerId])).length === 0 && (
         <div className="mx-0 p-4 md:p-6 rounded-2xl bg-gradient-to-br from-[#2a002e] to-[#3a0042] border-2 border-[#00ff87]/50 shadow-2xl space-y-3 text-center">
           <div className="w-12 h-12 md:w-14 md:h-14 mx-auto rounded-full bg-[#00ff87]/20 flex items-center justify-center border border-[#00ff87]/40">
             <Sparkles className="w-6 h-6 md:w-7 md:h-7 text-[#00ff87]" />
@@ -90,11 +90,11 @@ export const PickTeamView: React.FC = () => {
       )}
 
       {/* In-Progress Squad Callout */}
-      {squad.players.length > 0 && squad.players.length < 9 && (
+      {squad.players.filter((sp) => Boolean(players[sp.playerId])).length > 0 && squad.players.filter((sp) => Boolean(players[sp.playerId])).length < 9 && (
         <div className="mx-0 p-3 md:p-4 rounded-xl bg-[#230026] border border-[#00ff87]/30 flex items-center justify-between">
           <div>
             <div className="text-xs md:text-sm font-black text-white">
-              Building Squad ({squad.players.length}/9 Players)
+              Building Squad ({squad.players.filter((sp) => Boolean(players[sp.playerId])).length}/9 Players)
             </div>
             <div className="text-[10px] md:text-xs text-gray-400">
               £{squad.bank.toFixed(1)}m remaining in bank

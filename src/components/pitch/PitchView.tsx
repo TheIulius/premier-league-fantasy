@@ -80,19 +80,27 @@ export const PitchView: React.FC<PitchViewProps> = ({ showPoints = false }) => {
         {/* Formation Header Badge */}
         <div className="relative pt-2.5 md:pt-3.5 px-3 md:px-5 flex items-center justify-between z-10">
           <div className="flex items-center gap-2">
-            <span className="text-[10px] md:text-xs font-black uppercase px-2.5 py-0.5 md:px-3 md:py-1 rounded-full bg-black/50 text-[#00ff87] backdrop-blur-xs border border-[#00ff87]/30 flex items-center gap-1.5 shadow-md">
-              <Shield className="w-3 h-3 text-[#00ff87]" />
+            <span
+              className={`text-[10px] md:text-xs font-black uppercase px-2.5 py-0.5 md:px-3 md:py-1 rounded-full backdrop-blur-xs border flex items-center gap-1.5 shadow-md ${
+                layout.isValid
+                  ? 'bg-black/50 text-[#00ff87] border-[#00ff87]/30'
+                  : 'bg-amber-950/80 text-amber-300 border-amber-500/40'
+              }`}
+            >
+              <Shield className={`w-3 h-3 ${layout.isValid ? 'text-[#00ff87]' : 'text-amber-400'}`} />
               {layout.isValid ? (
                 <>Formation: {layout.formationString}</>
-              ) : starters.length === 6 ? (
-                <>Lineup: {layout.formationString}</>
               ) : (
-                <>Starters: {starters.length}/6</>
+                <>Starters: {layout.pitchPositions.length}/6 (Incomplete)</>
               )}
             </span>
-            {layout.isValid && (
+            {layout.isValid ? (
               <span className="hidden sm:inline-block text-[9px] font-bold text-gray-300 uppercase tracking-wider bg-black/30 px-2 py-0.5 rounded-full border border-white/10">
                 1 GK • {layout.defs.length} DEF • {layout.mids.length} MID • {layout.fwds.length} FWD
+              </span>
+            ) : (
+              <span className="hidden sm:inline-block text-[9px] font-bold text-amber-300 uppercase tracking-wider bg-amber-950/40 px-2 py-0.5 rounded-full border border-amber-500/30">
+                {layout.gks.length === 0 ? 'Missing Goalkeeper • ' : ''}Needs 1 GK + 5 Outfielders
               </span>
             )}
           </div>

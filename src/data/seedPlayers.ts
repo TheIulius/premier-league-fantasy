@@ -1,4 +1,4 @@
-import { Player, PlayerStats } from '../types/fpl';
+import { Player, PlayerStats, SquadPlayer } from '../types/fpl';
 
 const emptyStats: PlayerStats = {
   minutes: 0,
@@ -280,23 +280,7 @@ export const SEED_PLAYERS: Player[] = [
 ];
 
 // 6-a-side Fantasy Squad: Exactly 1 GK, 3 Defenders (mcveli), 3 Midfielders, 2 Forwards (9 total footballers)
-// Total Budget = £60.0m
-// Starting 6 Cost: 5.0 (Ika) + 7.0 (Shinjo) + 6.5 (Zarno) + 7.0 (ciskara) + 6.0 (Vadzo) + 7.0 (Chaga) = £38.5m
-// Bench 3 Cost: 6.0 (Dito) + 5.5 (Dadu) + 6.5 (Rati) = £18.0m
-// Bank = £3.5m (out of £60.0m budget)
-export const DEFAULT_SQUAD_PLAYER_IDS = [
-  // 6 Starters on Pitch (1 GK, 2 DEF, 2 MID, 1 FWD - Formation: 2-2-1)
-  { playerId: 'p_ika', isStarter: true, benchOrder: 0, isCaptain: false, isViceCaptain: false }, // GKP (1/1)
-  { playerId: 'p_shinjo', isStarter: true, benchOrder: 0, isCaptain: false, isViceCaptain: false }, // DEF (1/3)
-  { playerId: 'p_zarno', isStarter: true, benchOrder: 0, isCaptain: false, isViceCaptain: false }, // DEF (2/3)
-  { playerId: 'p_ciskara', isStarter: true, benchOrder: 0, isCaptain: false, isViceCaptain: true }, // MID (1/3, VC)
-  { playerId: 'p_vadzo', isStarter: true, benchOrder: 0, isCaptain: false, isViceCaptain: false }, // MID (2/3)
-  { playerId: 'p_chaga', isStarter: true, benchOrder: 0, isCaptain: true, isViceCaptain: false }, // FWD (1/2, C)
-
-  // 3 Reserves on Bench (1 DEF, 1 MID, 1 FWD)
-  { playerId: 'p_dito', isStarter: false, benchOrder: 1, isCaptain: false, isViceCaptain: false }, // Sub 1: DEF (3/3)
-  { playerId: 'p_dadu', isStarter: false, benchOrder: 2, isCaptain: false, isViceCaptain: false }, // Sub 2: MID (3/3)
-  { playerId: 'p_rati', isStarter: false, benchOrder: 3, isCaptain: false, isViceCaptain: false }, // Sub 3: FWD (2/2)
-];
+// Total Budget = £60.0m. Managers start with an empty squad to build their own team with their £60.0m.
+export const DEFAULT_SQUAD_PLAYER_IDS: SquadPlayer[] = [];
 
 

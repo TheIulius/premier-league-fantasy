@@ -88,8 +88,8 @@ app.get('/api/manager/:id', (req: Request, res: Response) => {
         squad: {
           teamName: leagueMember.teamName,
           managerName: leagueMember.managerName,
-          players: DEFAULT_SQUAD_PLAYER_IDS,
-          bank: 5.3,
+          players: [],
+          bank: 60.0,
           freeTransfers: 1,
           transfersMadeThisGW: 0,
           activeChip: null,
@@ -408,8 +408,8 @@ app.post('/api/squad/save', (req: Request, res: Response) => {
       squad: {
         teamName: teamName || user?.teamName || 'My Squad XI',
         managerName: user?.managerName || 'My Team Manager',
-        players: players || [...DEFAULT_SQUAD_PLAYER_IDS],
-        bank: typeof bank === 'number' ? Math.round(bank * 10) / 10 : 5.3,
+        players: players || [],
+        bank: typeof bank === 'number' ? Math.round(bank * 10) / 10 : 60.0,
         freeTransfers: 1,
         transfersMadeThisGW: 0,
         activeChip: null,

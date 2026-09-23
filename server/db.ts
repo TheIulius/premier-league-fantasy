@@ -82,8 +82,8 @@ function getDefaultData(): DatabaseSchema {
     squad: {
       teamName: 'Apex XI',
       managerName: 'Apex Manager',
-      players: DEFAULT_SQUAD_PLAYER_IDS,
-      bank: 3.5,
+      players: [],
+      bank: 60.0,
       freeTransfers: 1,
       transfersMadeThisGW: 0,
       activeChip: null,
@@ -145,6 +145,24 @@ class Database {
         if (this.data.players && this.data.players['p_rati'] && this.data.players['p_rati'].position !== 'FWD') {
           this.data.players['p_rati'].position = 'FWD';
           this.save();
+        }
+        // Sanitize manager squads: auto-remove deleted ghost players and restore refund to bank
+        if (this.data.players && this.data.managers) {
+          let squadsChanged = false;
+          Object.values(this.data.managers).forEach((m) => {
+            if (m.squad && Array.isArray(m.squad.players)) {
+              const validPlayers = m.squad.players.filter((sp) => Boolean(this.data.players[sp.playerId]));
+              if (validPlayers.length !== m.squad.players.length) {
+                const totalCost = validPlayers.reduce((sum, sp) => sum + (this.data.players[sp.playerId]?.cost || 0), 0);
+                m.squad.bank = Math.max(0, Math.round((60.0 - totalCost) * 10) / 10);
+                m.squad.players = validPlayers;
+                squadsChanged = true;
+              }
+            }
+          });
+          if (squadsChanged) {
+            this.save();
+          }
         }
       } catch (err) {
         console.error('Error reading db.json, initializing with default data', err);

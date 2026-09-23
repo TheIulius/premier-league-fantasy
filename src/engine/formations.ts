@@ -45,8 +45,9 @@ export function getFormationLayout(
   squadPlayers: SquadPlayer[],
   allPlayers: Record<string, Player>
 ): FormationLayout {
-  const starters = squadPlayers.filter((p) => p.isStarter);
-  const bench = squadPlayers
+  const validPlayers = squadPlayers.filter((sp) => Boolean(allPlayers[sp.playerId]));
+  const starters = validPlayers.filter((p) => p.isStarter);
+  const bench = validPlayers
     .filter((p) => !p.isStarter)
     .sort((a, b) => a.benchOrder - b.benchOrder);
 
@@ -65,7 +66,7 @@ export function getFormationLayout(
   });
 
   const formationString = `${defs.length}-${mids.length}-${fwds.length}`;
-  const isValid = gks.length === 1 && isValidFormation(defs.length, mids.length, fwds.length);
+  const isValid = gks.length === 1 && starters.length === 6 && isValidFormation(defs.length, mids.length, fwds.length);
 
   const pitchPositions: PlayerPitchPosition[] = [];
 
@@ -227,7 +228,30 @@ export function normalizeSquadLineup(
   squadPlayers: SquadPlayer[],
   allPlayers: Record<string, Player>
 ): SquadPlayer[] {
-  if (squadPlayers.length !== 9) return squadPlayers;
+  // Prune any players that no longer exist in the game database
+  const validPlayers = squadPlayers.filter((sp) => Boolean(allPlayers[sp.playerId]));
+  if (validPlayers.length !== squadPlayers.length) {
+    squadPlayers = validPlayers;
+  }
+
+  // If squad does not have 9 players, ensure bench players aren't stranded if there are fewer than 6 starters
+  if (squadPlayers.length !== 9) {
+    const starters = squadPlayers.filter((p) => p.isStarter);
+    if (starters.length < 6 && squadPlayers.length > starters.length) {
+      let needed = Math.min(6 - starters.length, squadPlayers.length - starters.length);
+      let subIdx = 1;
+      return squadPlayers.map((sp) => {
+        if (!sp.isStarter && needed > 0) {
+          needed--;
+          return { ...sp, isStarter: true, benchOrder: 0 };
+        } else if (!sp.isStarter) {
+          return { ...sp, benchOrder: subIdx++ };
+        }
+        return sp;
+      });
+    }
+    return squadPlayers;
+  }
 
   const starters = squadPlayers.filter((p) => p.isStarter);
   const bench = squadPlayers.filter((p) => !p.isStarter);
