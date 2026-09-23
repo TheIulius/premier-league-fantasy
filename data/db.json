@@ -1232,6 +1232,20 @@
       "selectedByPercent": 5,
       "isAvailable": true,
       "gwStats": {}
+    },
+    "p_custom_1790192251639": {
+      "id": "p_custom_1790192251639",
+      "name": "Mate Kurtsikidze",
+      "webName": "Kurtsikidze",
+      "clubId": "SCH_11_3",
+      "position": "FWD",
+      "cost": 8.5,
+      "totalPoints": 0,
+      "gwPoints": 0,
+      "form": 5,
+      "selectedByPercent": 5,
+      "isAvailable": true,
+      "gwStats": {}
     }
   },
   "clubs": {
