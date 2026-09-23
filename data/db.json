@@ -127,20 +127,6 @@
       "isAvailable": true,
       "gwStats": {}
     },
-    "p_custom_1790171253425": {
-      "id": "p_custom_1790171253425",
-      "name": "egaris",
-      "webName": "damatebulia",
-      "clubId": "SCH_11_5",
-      "position": "MID",
-      "cost": 67,
-      "totalPoints": 0,
-      "gwPoints": 0,
-      "form": 5,
-      "selectedByPercent": 5,
-      "isAvailable": true,
-      "gwStats": {}
-    },
     "p_giorguna": {
       "id": "p_giorguna",
       "name": "Giorgi Modebadze",
