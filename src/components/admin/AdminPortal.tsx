@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useFPL } from '../../context/FPLContext';
 import { Position, Player, PlayerStats, Fixture } from '../../types/fpl';
-import { CLUBS } from '../../data/clubs';
+import { CLUBS, getSortedSchoolClubs } from '../../data/clubs';
 import { KitJersey } from '../pitch/KitJersey';
 import {
   Wrench,
@@ -209,7 +209,7 @@ export const AdminPortal: React.FC = () => {
   // Games & Fixtures Admin State
   const [selectedGWForFix, setSelectedGWForFix] = useState<number>(currentGW);
   const [isAddingFixture, setIsAddingFixture] = useState<boolean>(false);
-  const [newFixHome, setNewFixHome] = useState<string>('SCH');
+  const [newFixHome, setNewFixHome] = useState<string>('SCH_11_5');
   const [newFixAway, setNewFixAway] = useState<string>('SCH_11_2');
   const [newFixKickoff, setNewFixKickoff] = useState<string>('Fri 15:30');
   const [newFixStatus, setNewFixStatus] = useState<'upcoming' | 'live' | 'finished'>('upcoming');
@@ -232,7 +232,7 @@ export const AdminPortal: React.FC = () => {
   // New Player Form State
   const [newPlayerName, setNewPlayerName] = useState('');
   const [newPlayerWebName, setNewPlayerWebName] = useState('');
-  const [newPlayerClub, setNewPlayerClub] = useState('SCH');
+  const [newPlayerClub, setNewPlayerClub] = useState('SCH_11_5');
   const [newPlayerPos, setNewPlayerPos] = useState<Position>('MID');
   const [newPlayerCost, setNewPlayerCost] = useState('8.0');
 
@@ -671,9 +671,9 @@ export const AdminPortal: React.FC = () => {
                       onChange={(e) => setNewFixHome(e.target.value)}
                       className="w-full bg-black/60 border border-white/10 rounded-lg px-2 py-1.5 text-xs text-white focus:outline-none focus:border-[#00ff87]"
                     >
-                      {Object.values(clubs).map((c) => (
+                      {getSortedSchoolClubs(clubs).map((c) => (
                         <option key={c.id} value={c.id}>
-                          {c.name}
+                          {c.shortName} - {c.name}
                         </option>
                       ))}
                     </select>
@@ -685,9 +685,9 @@ export const AdminPortal: React.FC = () => {
                       onChange={(e) => setNewFixAway(e.target.value)}
                       className="w-full bg-black/60 border border-white/10 rounded-lg px-2 py-1.5 text-xs text-white focus:outline-none focus:border-[#00ff87]"
                     >
-                      {Object.values(clubs).map((c) => (
+                      {getSortedSchoolClubs(clubs).map((c) => (
                         <option key={c.id} value={c.id}>
-                          {c.name}
+                          {c.shortName} - {c.name}
                         </option>
                       ))}
                     </select>
@@ -1184,7 +1184,7 @@ export const AdminPortal: React.FC = () => {
                 onChange={(e) => setNewPlayerClub(e.target.value)}
                 className="bg-black/40 border border-white/10 rounded-lg px-2 py-1.5 text-xs text-white focus:outline-none"
               >
-                {Object.values(clubs).map((c) => (
+                {getSortedSchoolClubs(clubs).map((c) => (
                   <option key={c.id} value={c.id}>
                     {c.shortName} - {c.name}
                   </option>

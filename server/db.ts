@@ -126,13 +126,18 @@ class Database {
         if (!this.data.users) {
           this.data.users = {};
         }
-        if (!this.data.clubs || Object.keys(this.data.clubs).some((k) => k === 'ARS' || k === 'CHE' || k === 'WOL')) {
+        if (
+          !this.data.clubs ||
+          Object.keys(this.data.clubs).some((k) => k === 'ARS' || k === 'CHE' || k === 'WOL' || k === 'SCH_10' || k === 'SCH_TCH') ||
+          !('SCH_9_1' in this.data.clubs)
+        ) {
           this.data.clubs = { ...CLUBS };
+          this.save();
         }
-        // Cleanse any legacy Premier League fixtures
-        const plClubCodes = new Set(['ARS', 'AVL', 'BOU', 'BRE', 'BHA', 'CHE', 'CRY', 'EVE', 'FUL', 'IPS', 'LEI', 'LIV', 'MCI', 'MUN', 'NEW', 'NFO', 'SOU', 'TOT', 'WHU', 'WOL']);
-        const hasPLFixtures = Array.isArray(this.data.fixtures) && this.data.fixtures.some((f) => plClubCodes.has(f.homeClubId) || plClubCodes.has(f.awayClubId));
-        if (hasPLFixtures || !this.data.fixtures || this.data.fixtures.length === 0) {
+        // Cleanse any legacy Premier League fixtures or random teacher/10th grade fixtures
+        const legacyClubCodes = new Set(['ARS', 'AVL', 'BOU', 'BRE', 'BHA', 'CHE', 'CRY', 'EVE', 'FUL', 'IPS', 'LEI', 'LIV', 'MCI', 'MUN', 'NEW', 'NFO', 'SOU', 'TOT', 'WHU', 'WOL', 'SCH_10', 'SCH_12', 'SCH_TCH']);
+        const hasLegacyFixtures = Array.isArray(this.data.fixtures) && this.data.fixtures.some((f) => legacyClubCodes.has(f.homeClubId) || legacyClubCodes.has(f.awayClubId));
+        if (hasLegacyFixtures || !this.data.fixtures || this.data.fixtures.length === 0) {
           this.data.fixtures = [...SEED_FIXTURES];
           this.save();
         }

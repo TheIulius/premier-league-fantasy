@@ -5,7 +5,7 @@ export const SEED_FIXTURES: Fixture[] = [
   {
     id: 'fix_gw1_1',
     gameweek: 1,
-    homeClubId: 'SCH',
+    homeClubId: 'SCH_11_5',
     awayClubId: 'SCH_11_2',
     homeScore: null,
     awayScore: null,
@@ -38,8 +38,8 @@ export const SEED_FIXTURES: Fixture[] = [
   {
     id: 'fix_gw1_4',
     gameweek: 1,
-    homeClubId: 'SCH_10',
-    awayClubId: 'SCH_TCH',
+    homeClubId: 'SCH_10_1',
+    awayClubId: 'SCH_10_2',
     homeScore: null,
     awayScore: null,
     isFinished: false,
@@ -51,7 +51,7 @@ export const SEED_FIXTURES: Fixture[] = [
   {
     id: 'fix_gw2_1',
     gameweek: 2,
-    homeClubId: 'SCH',
+    homeClubId: 'SCH_11_5',
     awayClubId: 'SCH_11_1',
     homeScore: null,
     awayScore: null,

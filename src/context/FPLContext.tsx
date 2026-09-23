@@ -163,7 +163,14 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        if (parsed && typeof parsed === 'object' && !('ARS' in parsed)) {
+        if (
+          parsed &&
+          typeof parsed === 'object' &&
+          !('ARS' in parsed) &&
+          !('SCH_10' in parsed) &&
+          !('SCH_TCH' in parsed) &&
+          ('SCH_9_1' in parsed)
+        ) {
           return parsed;
         }
       } catch (e) {}
@@ -547,11 +554,11 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       };
     }
 
-    // Club limits (max 3 per club, or 15 for school club SCH)
+    // Club limits (max 3 per club, or 15 for school clubs SCH / SCH_...)
     const currentClubCount = squad.players.filter(
       (sp) => players[sp.playerId]?.clubId === p.clubId
     ).length;
-    const maxClubLimit = p.clubId === 'SCH' ? 15 : 3;
+    const maxClubLimit = (p.clubId === 'SCH' || p.clubId.startsWith('SCH_')) ? 15 : 3;
     if (currentClubCount >= maxClubLimit) {
       return {
         success: false,
@@ -775,7 +782,7 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       return players[sp.playerId]?.clubId === inPlayer.clubId;
     }).length;
 
-    const maxClubLimit = inPlayer.clubId === 'SCH' ? 15 : 3;
+    const maxClubLimit = (inPlayer.clubId === 'SCH' || inPlayer.clubId.startsWith('SCH_')) ? 15 : 3;
     if (currentClubCount >= maxClubLimit) {
       return {
         success: false,
