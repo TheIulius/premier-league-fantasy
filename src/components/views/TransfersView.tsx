@@ -236,10 +236,20 @@ export const TransfersView: React.FC = () => {
           </div>
         </div>
         <div className="flex items-center justify-between pt-1.5 border-t border-white/10 text-[10px] md:text-xs text-gray-400">
-          <span className="font-bold text-[#00ff87]">6 Starters • 3 Bench Reserves</span>
+          <span className="font-bold text-[#00ff87]">6 Starters • 3 Bench Reserves • Max 2 per Class</span>
           <span className="text-gray-300">Bank is governed by Starting 6</span>
         </div>
       </div>
+
+      {/* Class Limit Violation Banner if any */}
+      {comp.exceededClubs && comp.exceededClubs.length > 0 && (
+        <div className="p-3 rounded-xl bg-red-950/80 border border-red-500/50 text-red-200 text-xs flex items-center gap-2">
+          <AlertCircle className="w-4 h-4 text-red-400 flex-shrink-0" />
+          <span>
+            <strong>Class Limit Violation:</strong> Maximum 2 players allowed from the same class. Exceeded in: {comp.exceededClubs.map((ec) => `${ec.clubId.replace('SCH_', '')} (${ec.count}/2)`).join(', ')}. Sell excess players to fix.
+          </span>
+        </div>
+      )}
 
       {/* Position Requirements Bar */}
       <div className="p-2.5 md:p-4 rounded-xl bg-[#230026] border border-[#520d5a] flex flex-col gap-1.5 text-xs md:text-sm">
@@ -590,9 +600,20 @@ export const TransfersView: React.FC = () => {
                   (p.position === 'MID' && comp.midCount >= 3) ||
                   (p.position === 'FWD' && comp.fwdCount >= 2);
 
+                const normClub = (c: string) => (c === 'SCH' ? 'SCH_11_5' : c);
+                const targetClub = normClub(p.clubId);
+                const currentClubCount = squad.players.filter((sp) => {
+                  if (outPlayer && sp.playerId === outPlayer.id) return false;
+                  const spP = players[sp.playerId];
+                  return spP && normClub(spP.clubId) === targetClub;
+                }).length;
+                const classLimitReached = currentClubCount >= 2;
+
                 const buyBlockReason =
                   posLimitReached
                     ? `${p.position === 'GKP' ? 'GK' : p.position} Full`
+                    : classLimitReached
+                    ? 'Class Limit (2/2)'
                     : squad.players.filter((sp) => Boolean(players[sp.playerId])).length >= 9
                     ? 'Squad Full (9/9)'
                     : squad.bank < p.cost
@@ -605,10 +626,10 @@ export const TransfersView: React.FC = () => {
                   <div
                     key={p.id}
                     onClick={() => {
-                      if (outPlayer) setInPlayerId(p.id);
+                      if (outPlayer && !classLimitReached && affordable) setInPlayerId(p.id);
                     }}
                     className={`p-2 md:p-2.5 rounded-lg border flex items-center justify-between transition-all ${
-                      outPlayer ? 'cursor-pointer' : ''
+                      outPlayer ? (classLimitReached || !affordable ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:border-[#00ff87]/50') : ''
                     } ${
                       isSelected
                         ? 'bg-[#00ff87]/20 border-[#00ff87] ring-1 ring-[#00ff87]'
@@ -641,9 +662,13 @@ export const TransfersView: React.FC = () => {
                       </span>
 
                       {outPlayer ? (
-                        isSelected && (
+                        isSelected ? (
                           <span className="text-[9px] md:text-xs font-black text-[#00ff87] uppercase">Selected</span>
-                        )
+                        ) : classLimitReached ? (
+                          <span className="text-[9px] md:text-xs font-bold text-yellow-400 uppercase">Max 2 / Class</span>
+                        ) : !affordable ? (
+                          <span className="text-[9px] md:text-xs font-bold text-red-400 uppercase">No funds</span>
+                        ) : null
                       ) : (
                         <button
                           disabled={!canBuyDirect}

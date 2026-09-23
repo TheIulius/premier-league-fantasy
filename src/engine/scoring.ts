@@ -101,16 +101,19 @@ export interface SquadCompositionValidation {
   midCount: number;
   fwdCount: number;
   totalCount: number;
+  clubCounts?: Record<string, number>;
+  exceededClubs?: { clubId: string; count: number }[];
   message?: string;
 }
 
 /**
- * Validates that each fantasy team has bought exactly:
- * 1 Goalkeeper (GK)
- * 3 Defenders (mcveli)
- * 3 Midfielders
- * 2 Forwards
- * (Total: 9 players). A team cannot play without these exact counts.
+ * Validates that each fantasy team has:
+ * - Exactly 1 Goalkeeper (GK)
+ * - Exactly 3 Defenders (mcveli)
+ * - Exactly 3 Midfielders
+ * - Exactly 2 Forwards
+ * - Maximum 2 players from the same class (e.g. 11/1, 9/2)
+ * (Total: 9 players). A team cannot play without these exact rules.
  */
 export function validateSquadComposition(
   squadPlayers: SquadPlayer[],
@@ -120,6 +123,7 @@ export function validateSquadComposition(
   let defCount = 0;
   let midCount = 0;
   let fwdCount = 0;
+  const clubCounts: Record<string, number> = {};
 
   for (const sp of squadPlayers) {
     const p = allPlayers[sp.playerId];
@@ -128,19 +132,36 @@ export function validateSquadComposition(
     else if (p.position === 'DEF') defCount++;
     else if (p.position === 'MID') midCount++;
     else if (p.position === 'FWD') fwdCount++;
+
+    const normClub = p.clubId === 'SCH' ? 'SCH_11_5' : p.clubId;
+    clubCounts[normClub] = (clubCounts[normClub] || 0) + 1;
+  }
+
+  const exceededClubs: { clubId: string; count: number }[] = [];
+  for (const [cId, count] of Object.entries(clubCounts)) {
+    if (count > 2) {
+      exceededClubs.push({ clubId: cId, count });
+    }
   }
 
   const totalCount = gkCount + defCount + midCount + fwdCount;
-  const isValid = gkCount === 1 && defCount === 3 && midCount === 3 && fwdCount === 2;
+  const isPosValid = gkCount === 1 && defCount === 3 && midCount === 3 && fwdCount === 2;
+  const isClubValid = exceededClubs.length === 0;
+  const isValid = isPosValid && isClubValid;
 
   let message: string | undefined;
-  if (!isValid) {
+  if (!isPosValid) {
     const parts: string[] = [];
     if (gkCount !== 1) parts.push(`${gkCount}/1 GK`);
     if (defCount !== 3) parts.push(`${defCount}/3 Defenders (mcveli)`);
     if (midCount !== 3) parts.push(`${midCount}/3 Midfielders`);
     if (fwdCount !== 2) parts.push(`${fwdCount}/2 Forwards`);
     message = `Required: 1 GK, 3 Defenders (mcveli), 3 Midfielders, 2 Forwards. Current: ${parts.join(', ')}`;
+  } else if (!isClubValid) {
+    const clubNames = exceededClubs
+      .map((ec) => `${ec.clubId.replace('SCH_', '')} (${ec.count}/2)`)
+      .join(', ');
+    message = `Class limit exceeded: Max 2 players allowed from the same class. Violating: ${clubNames}`;
   }
 
   return {
@@ -150,6 +171,8 @@ export function validateSquadComposition(
     midCount,
     fwdCount,
     totalCount,
+    clubCounts,
+    exceededClubs,
     message,
   };
 }

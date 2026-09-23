@@ -129,10 +129,28 @@ export const PickTeamView: React.FC = () => {
           </div>
         </div>
         <div className="flex items-center justify-between pt-1.5 border-t border-white/10 text-[10px] md:text-xs text-gray-400">
-          <span className="font-bold text-[#00ff87]">6 Starters on Pitch • 3 Bench Reserves</span>
+          <span className="font-bold text-[#00ff87]">6 Starters on Pitch • 3 Bench Reserves • Max 2 per Class</span>
           <span className="text-gray-300">Total Squad Budget: £60.0m</span>
         </div>
       </div>
+
+      {/* Class Limit Exceeded Alert */}
+      {comp.exceededClubs && comp.exceededClubs.length > 0 && (
+        <div className="mx-0 p-3 md:p-3.5 rounded-xl bg-red-950/80 border border-red-500/50 text-red-200 text-xs flex items-center justify-between gap-2 shadow-lg">
+          <div className="flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 text-red-400 flex-shrink-0" />
+            <span>
+              <strong>Class Limit Exceeded:</strong> Max 2 players from the same class. Exceeded in: {comp.exceededClubs.map((ec) => `${ec.clubId.replace('SCH_', '')} (${ec.count}/2)`).join(', ')}.
+            </span>
+          </div>
+          <button
+            onClick={() => setActiveTab('transfers')}
+            className="px-2.5 py-1 bg-red-500 text-white font-bold rounded text-[11px] flex-shrink-0 hover:bg-red-600"
+          >
+            Fix in Transfers
+          </button>
+        </div>
+      )}
 
       {/* Position Requirements Bar */}
       <div className="mx-0 p-2.5 md:p-3.5 rounded-xl bg-[#230026] border border-[#520d5a] flex flex-col gap-1.5 text-xs md:text-sm">

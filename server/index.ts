@@ -439,6 +439,22 @@ app.post('/api/squad/save', (req: Request, res: Response) => {
       });
     }
 
+    // Check class limits: max 2 players from the same class / club
+    const clubCounts: Record<string, number> = {};
+    for (const sp of players) {
+      const p = data.players[sp.playerId];
+      if (p) {
+        const clubKey = p.clubId === 'SCH' ? 'SCH_11_5' : p.clubId;
+        clubCounts[clubKey] = (clubCounts[clubKey] || 0) + 1;
+        if (clubCounts[clubKey] > 2 && req.body.validateComplete) {
+          const clubName = data.clubs[p.clubId]?.name || data.clubs[clubKey]?.name || p.clubId;
+          return res.status(400).json({
+            error: `Class limit exceeded! You cannot choose more than 2 players from the same class (${clubName}).`,
+          });
+        }
+      }
+    }
+
     // If explicit complete squad validation requested (e.g. finalizing match lineup)
     const isComplete = gkCount === 1 && defCount === 3 && midCount === 3 && fwdCount === 2;
     if (req.body.validateComplete && !isComplete) {
@@ -559,14 +575,18 @@ app.post('/api/squad/transfer', (req: Request, res: Response) => {
     return res.status(400).json({ error: 'Must swap players in the same position' });
   }
 
-  // Club limit check (allow up to 15 for SCH/Team 11/5)
-  const clubCount = manager.squad.players.filter(
-    (sp) => sp.playerId !== outPlayerId && data.players[sp.playerId]?.clubId === inP.clubId
-  ).length;
+  // Class limit check: max 2 players from the same class / club
+  const normalizeClub = (c: string) => (c === 'SCH' ? 'SCH_11_5' : c);
+  const targetClub = normalizeClub(inP.clubId);
+  const clubCount = manager.squad.players.filter((sp) => {
+    if (sp.playerId === outPlayerId) return false;
+    const p = data.players[sp.playerId];
+    return p && normalizeClub(p.clubId) === targetClub;
+  }).length;
 
-  const maxClubLimit = inP.clubId === 'SCH' ? 15 : 3;
-  if (clubCount >= maxClubLimit) {
-    return res.status(400).json({ error: `Max ${maxClubLimit} players from ${inP.clubId}` });
+  if (clubCount >= 2) {
+    const clubName = data.clubs[inP.clubId]?.shortName || data.clubs[targetClub]?.shortName || inP.clubId;
+    return res.status(400).json({ error: `Class limit reached! You cannot choose more than 2 players from the same class (${clubName}).` });
   }
 
   const newBank = Math.round((manager.squad.bank + outP.cost - inP.cost) * 10) / 10;

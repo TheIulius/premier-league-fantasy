@@ -611,15 +611,19 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       };
     }
 
-    // Club limits (max 3 per club, or 15 for school clubs SCH / SCH_...)
-    const currentClubCount = squad.players.filter(
-      (sp) => players[sp.playerId]?.clubId === p.clubId
-    ).length;
-    const maxClubLimit = (p.clubId === 'SCH' || p.clubId.startsWith('SCH_')) ? 15 : 3;
-    if (currentClubCount >= maxClubLimit) {
+    // Class limits: max 2 players from the same class / team (e.g. 11/1, 9/2)
+    const normalizeClub = (c: string) => (c === 'SCH' ? 'SCH_11_5' : c);
+    const targetClub = normalizeClub(p.clubId);
+    const currentClubCount = validSquadPlayers.filter((sp) => {
+      const spPlayer = players[sp.playerId];
+      return spPlayer && normalizeClub(spPlayer.clubId) === targetClub;
+    }).length;
+
+    const clubName = CLUBS[p.clubId]?.shortName || CLUBS[targetClub]?.shortName || CLUBS[p.clubId]?.name || p.clubId;
+    if (currentClubCount >= 2) {
       return {
         success: false,
-        message: `Maximum ${maxClubLimit} players allowed from ${CLUBS[p.clubId]?.name || p.clubId}`,
+        message: `Class limit reached! You cannot choose more than 2 players from the same class (${clubName}).`,
       };
     }
 
@@ -862,16 +866,20 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       return { success: false, message: 'Must replace with a player in the same position' };
     }
 
+    // Class limits: max 2 players from the same class / team (e.g. 11/1, 9/2)
+    const normalizeClub = (c: string) => (c === 'SCH' ? 'SCH_11_5' : c);
+    const targetClub = normalizeClub(inPlayer.clubId);
     const currentClubCount = squad.players.filter((sp) => {
       if (sp.playerId === outPlayerId) return false;
-      return players[sp.playerId]?.clubId === inPlayer.clubId;
+      const spPlayer = players[sp.playerId];
+      return spPlayer && normalizeClub(spPlayer.clubId) === targetClub;
     }).length;
 
-    const maxClubLimit = (inPlayer.clubId === 'SCH' || inPlayer.clubId.startsWith('SCH_')) ? 15 : 3;
-    if (currentClubCount >= maxClubLimit) {
+    const clubName = CLUBS[inPlayer.clubId]?.shortName || CLUBS[targetClub]?.shortName || CLUBS[inPlayer.clubId]?.name || inPlayer.clubId;
+    if (currentClubCount >= 2) {
       return {
         success: false,
-        message: `Maximum ${maxClubLimit} players allowed from ${CLUBS[inPlayer.clubId]?.name || inPlayer.clubId}`,
+        message: `Class limit reached! You cannot choose more than 2 players from the same class (${clubName}).`,
       };
     }
 
