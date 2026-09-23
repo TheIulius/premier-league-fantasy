@@ -1383,9 +1383,9 @@
       "id": "SCH_11_5",
       "name": "Team 11/5",
       "shortName": "11/5",
-      "primaryColor": "#37003c",
-      "secondaryColor": "#00ff87",
-      "textColor": "#FFFFFF"
+      "primaryColor": "#FFFFFF",
+      "secondaryColor": "#F59E0B",
+      "textColor": "#000000"
     },
     "SCH_11_6": {
       "id": "SCH_11_6",
@@ -1463,9 +1463,9 @@
       "id": "SCH_11_5",
       "name": "Team 11/5",
       "shortName": "11/5",
-      "primaryColor": "#37003c",
-      "secondaryColor": "#00ff87",
-      "textColor": "#FFFFFF"
+      "primaryColor": "#FFFFFF",
+      "secondaryColor": "#F59E0B",
+      "textColor": "#000000"
     }
   },
   "fixtures": [

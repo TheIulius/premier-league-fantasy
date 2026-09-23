@@ -24,7 +24,7 @@ export const CLUBS: Record<string, Club> = {
   SCH_11_2: { id: 'SCH_11_2', name: 'Team 11/2', shortName: '11/2', primaryColor: '#E90052', secondaryColor: '#FFFFFF', textColor: '#FFFFFF' },
   SCH_11_3: { id: 'SCH_11_3', name: 'Team 11/3', shortName: '11/3', primaryColor: '#00C2FF', secondaryColor: '#111111', textColor: '#FFFFFF' },
   SCH_11_4: { id: 'SCH_11_4', name: 'Team 11/4', shortName: '11/4', primaryColor: '#FFB703', secondaryColor: '#023047', textColor: '#000000' },
-  SCH_11_5: { id: 'SCH_11_5', name: 'Team 11/5', shortName: '11/5', primaryColor: '#37003c', secondaryColor: '#00ff87', textColor: '#FFFFFF' },
+  SCH_11_5: { id: 'SCH_11_5', name: 'Team 11/5', shortName: '11/5', primaryColor: '#FFFFFF', secondaryColor: '#F59E0B', textColor: '#000000' },
   SCH_11_6: { id: 'SCH_11_6', name: 'Team 11/6', shortName: '11/6', primaryColor: '#7209B7', secondaryColor: '#4CC9F0', textColor: '#FFFFFF' },
   SCH_11_7: { id: 'SCH_11_7', name: 'Team 11/7', shortName: '11/7', primaryColor: '#9333EA', secondaryColor: '#FBBF24', textColor: '#FFFFFF' },
 
@@ -38,7 +38,7 @@ export const CLUBS: Record<string, Club> = {
   SCH_12_7: { id: 'SCH_12_7', name: 'Team 12/7', shortName: '12/7', primaryColor: '#BE123C', secondaryColor: '#FCD34D', textColor: '#FFFFFF' },
 
   // Compatibility alias for 11/5
-  SCH: { id: 'SCH_11_5', name: 'Team 11/5', shortName: '11/5', primaryColor: '#37003c', secondaryColor: '#00ff87', textColor: '#FFFFFF' },
+  SCH: { id: 'SCH_11_5', name: 'Team 11/5', shortName: '11/5', primaryColor: '#FFFFFF', secondaryColor: '#F59E0B', textColor: '#000000' },
 };
 
 /**
