@@ -1288,6 +1288,20 @@
       "selectedByPercent": 5,
       "isAvailable": true,
       "gwStats": {}
+    },
+    "p_custom_1790193269423": {
+      "id": "p_custom_1790193269423",
+      "name": "Davit Gogaladze",
+      "webName": "Gogala",
+      "clubId": "SCH_11_3",
+      "position": "DEF",
+      "cost": 3.5,
+      "totalPoints": 0,
+      "gwPoints": 0,
+      "form": 5,
+      "selectedByPercent": 5,
+      "isAvailable": true,
+      "gwStats": {}
     }
   },
   "clubs": {
