@@ -437,17 +437,17 @@ export const AdminPortal: React.FC = () => {
   if (!isDevAuthenticated) {
     return (
       <div className="flex flex-col items-center justify-center p-4 min-h-[70vh] select-none">
-        <div className="w-full max-w-sm p-6 rounded-3xl bg-gradient-to-b from-[#2e0033] to-[#1a001d] border border-[#5d0e68] shadow-2xl text-center">
-          <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-[#00ff87] to-[#04f5ff] p-[2px] mx-auto mb-4 shadow-glow-green flex items-center justify-center">
+        <div className="w-full max-w-sm md:max-w-md p-6 md:p-8 rounded-3xl bg-gradient-to-b from-[#2e0033] to-[#1a001d] border border-[#5d0e68] shadow-2xl text-center">
+          <div className="w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-gradient-to-tr from-[#00ff87] to-[#04f5ff] p-[2px] mx-auto mb-4 shadow-glow-green flex items-center justify-center">
             <div className="w-full h-full rounded-2xl bg-[#37003c] flex items-center justify-center">
-              <Lock className="w-7 h-7 text-[#00ff87]" />
+              <Lock className="w-7 h-7 md:w-8 md:h-8 text-[#00ff87]" />
             </div>
           </div>
 
-          <h2 className="text-lg font-black text-white uppercase tracking-tight">
+          <h2 className="text-lg md:text-xl font-black text-white uppercase tracking-tight">
             Developer Login
           </h2>
-          <p className="text-xs text-gray-400 mt-1 mb-5">
+          <p className="text-xs md:text-sm text-gray-400 mt-1 mb-5">
             Admin access to enter goals, assists, player stats, and manage fixtures.
           </p>
 
@@ -461,20 +461,20 @@ export const AdminPortal: React.FC = () => {
                   setPinInput(e.target.value);
                   setLoginError(false);
                 }}
-                className="w-full bg-black/40 border border-white/15 rounded-xl px-4 py-2.5 text-center text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#00ff87]"
+                className="w-full bg-black/40 border border-white/15 rounded-xl px-4 py-2.5 md:py-3 text-center text-sm md:text-base text-white placeholder-gray-500 focus:outline-none focus:border-[#00ff87]"
                 autoFocus
               />
             </div>
 
             {loginError && (
-              <div className="text-[11px] font-bold text-[#e90052] flex items-center justify-center gap-1">
+              <div className="text-[11px] md:text-xs font-bold text-[#e90052] flex items-center justify-center gap-1">
                 <AlertCircle className="w-3.5 h-3.5" /> Incorrect password. Access denied.
               </div>
             )}
 
             <button
               type="submit"
-              className="w-full py-2.5 rounded-xl font-black text-xs uppercase tracking-wider bg-gradient-to-r from-[#00ff87] to-[#00cc6a] text-[#37003c] shadow-glow-green hover:opacity-90"
+              className="w-full py-2.5 md:py-3 rounded-xl font-black text-xs md:text-sm uppercase tracking-wider bg-gradient-to-r from-[#00ff87] to-[#00cc6a] text-[#37003c] shadow-glow-green hover:opacity-90 transition-opacity"
             >
               Sign In to Dev Portal
             </button>
@@ -486,18 +486,18 @@ export const AdminPortal: React.FC = () => {
 
   // AUTHENTICATED DASHBOARD
   return (
-    <div className="flex flex-col space-y-3 pb-24 px-2 pt-2 select-none">
+    <div className="flex flex-col space-y-3 pb-24 md:pb-12 px-2 md:px-6 pt-2 md:pt-4 select-none max-w-4xl lg:max-w-5xl mx-auto w-full">
       {/* Dev Header */}
-      <div className="p-3 rounded-2xl bg-gradient-to-r from-[#320037] via-[#43004a] to-[#250029] border border-[#00ff87]/30 flex items-center justify-between">
+      <div className="p-3 md:p-4 rounded-2xl bg-gradient-to-r from-[#320037] via-[#43004a] to-[#250029] border border-[#00ff87]/30 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <div className="p-1.5 rounded-lg bg-[#00ff87]/20 text-[#00ff87]">
-            <Wrench className="w-4 h-4" />
+          <div className="p-1.5 md:p-2 rounded-lg bg-[#00ff87]/20 text-[#00ff87]">
+            <Wrench className="w-4 h-4 md:w-5 md:h-5" />
           </div>
           <div>
-            <span className="text-xs font-black text-white uppercase tracking-tight block">
+            <span className="text-xs md:text-sm font-black text-white uppercase tracking-tight block">
               Developer Portal
             </span>
-            <span className="text-[10px] text-[#00ff87] font-semibold">
+            <span className="text-[10px] md:text-xs text-[#00ff87] font-semibold">
               Live Data & Match Admin Active
             </span>
           </div>
@@ -505,7 +505,7 @@ export const AdminPortal: React.FC = () => {
 
         <button
           onClick={devLogout}
-          className="px-2.5 py-1 rounded-lg text-xs font-bold bg-white/10 hover:bg-white/20 text-gray-300"
+          className="px-2.5 md:px-3 py-1 md:py-1.5 rounded-lg text-xs md:text-sm font-bold bg-white/10 hover:bg-white/20 text-gray-300 transition-colors"
         >
           Sign Out
         </button>
@@ -513,17 +513,17 @@ export const AdminPortal: React.FC = () => {
 
       {/* Notification Toast */}
       {bannerNotice && (
-        <div className="p-2 rounded-xl bg-[#00ff87]/20 border border-[#00ff87]/50 text-xs font-bold text-[#00ff87] flex items-center gap-1.5 animate-fadeIn">
-          <Check className="w-4 h-4" />
+        <div className="p-2 md:p-3 rounded-xl bg-[#00ff87]/20 border border-[#00ff87]/50 text-xs md:text-sm font-bold text-[#00ff87] flex items-center gap-1.5 animate-fadeIn">
+          <Check className="w-4 h-4 md:w-5 md:h-5" />
           <span>{bannerNotice}</span>
         </div>
       )}
 
       {/* Sub-Panel Switcher */}
-      <div className="grid grid-cols-5 gap-1 bg-black/40 p-1 rounded-xl border border-white/10 text-xs font-bold">
+      <div className="grid grid-cols-5 gap-1 md:gap-2 bg-black/40 p-1 md:p-1.5 rounded-xl border border-white/10 text-xs md:text-sm font-bold">
         <button
           onClick={() => setAdminTab('fixtures')}
-          className={`py-1.5 rounded-lg transition-all ${
+          className={`py-1.5 md:py-2 rounded-lg transition-all ${
             adminTab === 'fixtures' ? 'bg-[#00ff87] text-[#37003c]' : 'text-gray-400 hover:text-white'
           }`}
         >
@@ -531,7 +531,7 @@ export const AdminPortal: React.FC = () => {
         </button>
         <button
           onClick={() => setAdminTab('events')}
-          className={`py-1.5 rounded-lg transition-all ${
+          className={`py-1.5 md:py-2 rounded-lg transition-all ${
             adminTab === 'events' ? 'bg-[#00ff87] text-[#37003c]' : 'text-gray-400 hover:text-white'
           }`}
         >
@@ -539,7 +539,7 @@ export const AdminPortal: React.FC = () => {
         </button>
         <button
           onClick={() => setAdminTab('players')}
-          className={`py-1.5 rounded-lg transition-all ${
+          className={`py-1.5 md:py-2 rounded-lg transition-all ${
             adminTab === 'players' ? 'bg-[#00ff87] text-[#37003c]' : 'text-gray-400 hover:text-white'
           }`}
         >
@@ -550,7 +550,7 @@ export const AdminPortal: React.FC = () => {
             setAdminTab('users');
             loadUsers();
           }}
-          className={`py-1.5 rounded-lg transition-all ${
+          className={`py-1.5 md:py-2 rounded-lg transition-all ${
             adminTab === 'users' ? 'bg-[#00ff87] text-[#37003c]' : 'text-gray-400 hover:text-white'
           }`}
         >
@@ -558,7 +558,7 @@ export const AdminPortal: React.FC = () => {
         </button>
         <button
           onClick={() => setAdminTab('gw')}
-          className={`py-1.5 rounded-lg transition-all ${
+          className={`py-1.5 md:py-2 rounded-lg transition-all ${
             adminTab === 'gw' ? 'bg-[#00ff87] text-[#37003c]' : 'text-gray-400 hover:text-white'
           }`}
         >

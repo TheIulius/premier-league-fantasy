@@ -74,26 +74,26 @@ export const LeaguesView: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col space-y-3 pb-24 px-2 pt-2 select-none">
+    <div className="flex flex-col space-y-3 pb-24 md:pb-12 px-2 md:px-6 pt-2 md:pt-4 select-none max-w-4xl lg:max-w-5xl mx-auto w-full">
       {/* Leagues Selector & Actions */}
-      <div className="p-3 rounded-2xl bg-[#28002d] border border-[#4d0c54] space-y-2.5">
+      <div className="p-3 md:p-4 rounded-2xl bg-[#28002d] border border-[#4d0c54] space-y-2.5">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Trophy className="w-5 h-5 text-yellow-400" />
-            <h2 className="text-sm font-black text-white uppercase tracking-tight">
+            <h2 className="text-sm md:text-base font-black text-white uppercase tracking-tight">
               Leagues & Standings
             </h2>
           </div>
 
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1.5 md:gap-2">
             <button
               onClick={() => {
                 setShowJoinModal(true);
                 setShowCreateModal(false);
               }}
-              className="px-2 py-1 rounded-lg text-[10px] font-bold bg-white/10 hover:bg-white/20 text-white flex items-center gap-1"
+              className="px-2.5 md:px-3 py-1 md:py-1.5 rounded-lg text-[10px] md:text-xs font-bold bg-white/10 hover:bg-white/20 text-white flex items-center gap-1 transition-colors"
             >
-              <Key className="w-3 h-3" />
+              <Key className="w-3 h-3 md:w-3.5 md:h-3.5" />
               Join
             </button>
             <button
@@ -101,9 +101,9 @@ export const LeaguesView: React.FC = () => {
                 setShowCreateModal(true);
                 setShowJoinModal(false);
               }}
-              className="px-2 py-1 rounded-lg text-[10px] font-bold bg-[#00ff87] text-[#37003c] flex items-center gap-1 shadow-glow-green"
+              className="px-2.5 md:px-3 py-1 md:py-1.5 rounded-lg text-[10px] md:text-xs font-bold bg-[#00ff87] text-[#37003c] flex items-center gap-1 shadow-glow-green hover:opacity-90 transition-opacity"
             >
-              <Plus className="w-3 h-3" />
+              <Plus className="w-3 h-3 md:w-3.5 md:h-3.5" />
               Create
             </button>
           </div>
@@ -116,7 +116,7 @@ export const LeaguesView: React.FC = () => {
               <button
                 key={l.id}
                 onClick={() => setSelectedLeagueId(l.id)}
-                className={`px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all ${
+                className={`px-3 md:px-4 py-1.5 md:py-2 rounded-full text-xs md:text-sm font-bold whitespace-nowrap transition-all ${
                   activeLeague?.id === l.id
                     ? 'bg-[#00ff87] text-[#37003c] shadow-glow-green'
                     : 'bg-white/5 text-gray-300 hover:bg-white/10'
@@ -262,10 +262,10 @@ export const LeaguesView: React.FC = () => {
       {/* Active League Info & Code */}
       {activeLeague && (
         <div className="rounded-2xl bg-[#200024] border border-white/10 overflow-hidden shadow-lg">
-          <div className="px-3.5 py-2.5 bg-[#2a0030] border-b border-white/5 flex items-center justify-between text-xs">
+          <div className="px-3.5 md:px-5 py-2.5 md:py-3.5 bg-[#2a0030] border-b border-white/5 flex items-center justify-between text-xs md:text-sm">
             <div className="flex items-center gap-2">
-              <span className="font-black text-white text-sm">{activeLeague.name}</span>
-              <span className="text-[9px] bg-[#00ff87]/15 text-[#00ff87] px-1.5 py-0.5 rounded font-bold border border-[#00ff87]/30">
+              <span className="font-black text-white text-sm md:text-base">{activeLeague.name}</span>
+              <span className="text-[9px] md:text-[10px] bg-[#00ff87]/15 text-[#00ff87] px-1.5 py-0.5 rounded font-bold border border-[#00ff87]/30">
                 {activeLeague.members.length} {activeLeague.members.length === 1 ? 'Manager' : 'Managers'}
               </span>
             </div>
@@ -273,7 +273,7 @@ export const LeaguesView: React.FC = () => {
             <div className="flex items-center gap-2">
               <button
                 onClick={() => copyCodeToClipboard(activeLeague.code)}
-                className="flex items-center gap-1 text-[11px] font-bold text-[#00ff87] hover:underline bg-[#00ff87]/10 px-2 py-1 rounded-lg border border-[#00ff87]/20"
+                className="flex items-center gap-1 text-[11px] md:text-xs font-bold text-[#00ff87] hover:underline bg-[#00ff87]/10 px-2 py-1 rounded-lg border border-[#00ff87]/20"
                 title="Click to copy invite code"
               >
                 {copiedCode ? <Check className="w-3 h-3 text-[#00ff87]" /> : <Copy className="w-3 h-3 text-[#00ff87]" />}
@@ -292,21 +292,21 @@ export const LeaguesView: React.FC = () => {
 
           {/* Standings Table or Empty State */}
           {activeLeague.members.length === 0 ? (
-            <div className="p-8 text-center space-y-2">
-              <p className="text-xs text-gray-300">
+            <div className="p-8 md:p-12 text-center space-y-2">
+              <p className="text-xs md:text-sm text-gray-300">
                 No managers in this league yet.
               </p>
-              <p className="text-[11px] text-[#00ff87]">
+              <p className="text-[11px] md:text-xs text-[#00ff87]">
                 Share code <span className="font-mono font-bold bg-black/40 px-2 py-0.5 rounded">{activeLeague.code}</span> with friends to compete!
               </p>
             </div>
           ) : (
             <div className="divide-y divide-white/5">
-              <div className="grid grid-cols-12 px-3 py-2 text-[10px] font-black uppercase text-gray-400 bg-black/30 items-center">
+              <div className="grid grid-cols-12 px-3 md:px-5 py-2 md:py-2.5 text-[10px] md:text-xs font-black uppercase text-gray-400 bg-black/30 items-center">
                 <span className="col-span-2">Rank</span>
                 <span className="col-span-5">
                   Team & Manager
-                  <span className="hidden sm:inline-block text-[8px] text-[#00ff87] font-semibold lowercase ml-1">(tap to view)</span>
+                  <span className="hidden sm:inline-block text-[8px] md:text-[9px] text-[#00ff87] font-semibold lowercase ml-1">(tap to view)</span>
                 </span>
                 <span className="col-span-2 text-center">GW</span>
                 <span className="col-span-3 text-right">Total</span>
@@ -324,7 +324,7 @@ export const LeaguesView: React.FC = () => {
                     key={member.id}
                     onClick={() => setInspectedManagerId(member.id)}
                     title={`View ${member.managerName}'s squad & live points`}
-                    className={`grid grid-cols-12 px-3 py-2.5 items-center text-xs transition-all cursor-pointer group hover:bg-white/10 active:scale-[0.99] ${
+                    className={`grid grid-cols-12 px-3 md:px-5 py-2.5 md:py-3.5 items-center text-xs md:text-sm transition-all cursor-pointer group hover:bg-white/10 active:scale-[0.99] ${
                       isUser
                         ? 'bg-[#37003c]/60 border-l-4 border-[#00ff87] font-bold text-white'
                         : 'text-gray-200 hover:bg-white/5'
@@ -332,7 +332,7 @@ export const LeaguesView: React.FC = () => {
                   >
                     {/* Rank Column */}
                     <div className="col-span-2 flex items-center gap-1">
-                      <span className="font-black text-sm">{member.rank}</span>
+                      <span className="font-black text-sm md:text-base">{member.rank}</span>
                       {rankDiff > 0 ? (
                         <ArrowUp className="w-3 h-3 text-[#00ff87]" />
                       ) : rankDiff < 0 ? (
@@ -348,7 +348,7 @@ export const LeaguesView: React.FC = () => {
                         <span className="truncate">{member.teamName}</span>
                         {isUser && <span className="text-[8px] bg-[#00ff87]/20 text-[#00ff87] px-1 py-0.2 rounded font-bold">YOU</span>}
                       </div>
-                      <div className="text-[10px] text-gray-400 truncate">
+                      <div className="text-[10px] md:text-xs text-gray-400 truncate">
                         {member.managerName}
                       </div>
                     </div>

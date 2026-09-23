@@ -21,7 +21,7 @@ export const BottomNav: React.FC = () => {
   const { activeTab, setActiveTab, isDevAuthenticated } = useFPL();
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-40 bg-[#250029]/95 backdrop-blur-md border-t border-[#4a0951] max-w-[480px] mx-auto select-none safe-bottom">
+    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#250029]/95 backdrop-blur-md border-t border-[#4a0951] max-w-[480px] mx-auto select-none safe-bottom">
       <div className="flex items-center justify-around px-1 py-1.5">
         {TABS.map((tab) => {
           const Icon = tab.icon;

@@ -40,7 +40,7 @@ export const ManagerModal: React.FC<ManagerModalProps> = ({ isOpen, onClose }) =
       onClick={onClose}
     >
       <div
-        className="w-full max-w-sm rounded-3xl bg-gradient-to-b from-[#300035] to-[#1a001d] border border-[#5d0e68] p-5 shadow-2xl space-y-4"
+        className="w-full max-w-sm md:max-w-md rounded-3xl bg-gradient-to-b from-[#300035] to-[#1a001d] border border-[#5d0e68] p-5 md:p-6 shadow-2xl space-y-4"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between pb-2 border-b border-white/10">

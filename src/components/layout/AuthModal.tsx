@@ -86,7 +86,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
       onClick={onClose}
     >
       <div
-        className="w-full max-w-sm rounded-3xl bg-gradient-to-b from-[#2f0034] to-[#18001b] border border-[#610e6d] p-5 shadow-2xl space-y-4"
+        className="w-full max-w-sm md:max-w-md rounded-3xl bg-gradient-to-b from-[#2f0034] to-[#18001b] border border-[#610e6d] p-5 md:p-6 shadow-2xl space-y-4"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}

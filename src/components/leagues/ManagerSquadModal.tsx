@@ -73,7 +73,7 @@ export const ManagerSquadModal: React.FC<ManagerSquadModalProps> = ({ managerId,
       onClick={onClose}
     >
       <div
-        className="w-full max-w-[460px] h-full sm:h-[92vh] sm:max-h-[860px] bg-[#1a001d] sm:rounded-3xl border border-[#4d0c54] shadow-2xl flex flex-col overflow-hidden"
+        className="w-full max-w-[460px] md:max-w-2xl h-full sm:h-[92vh] sm:max-h-[860px] bg-[#1a001d] sm:rounded-3xl border border-[#4d0c54] shadow-2xl flex flex-col overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Modal Navigation Header */}
@@ -323,14 +323,15 @@ export const ManagerSquadModal: React.FC<ManagerSquadModalProps> = ({ managerId,
         {/* Player Match Stats Popup Sheet */}
         {sheetPlayer && (
           <div
-            className="fixed inset-0 z-60 flex items-end justify-center bg-black/60 backdrop-blur-xs animate-fade-in"
+            className="fixed inset-0 z-60 flex items-end md:items-center justify-center bg-black/70 backdrop-blur-xs animate-fade-in md:p-4"
             onClick={() => setSelectedPlayerForSheet(null)}
           >
             <div
-              className="w-full max-w-[460px] bg-gradient-to-b from-[#320037] to-[#1e0022] rounded-t-3xl border-t border-x border-[#590c63] p-4 shadow-2xl animate-slide-up select-none safe-bottom"
+              className="w-full max-w-[460px] md:max-w-md bg-gradient-to-b from-[#320037] to-[#1e0022] rounded-t-3xl md:rounded-2xl border-t md:border border-x border-[#590c63] p-4 md:p-6 shadow-2xl animate-slide-up select-none safe-bottom"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="w-12 h-1 bg-white/20 rounded-full mx-auto mb-3" />
+              {/* Drag handle (mobile only) */}
+              <div className="w-12 h-1 bg-white/20 rounded-full mx-auto mb-3 md:hidden" />
 
               {/* Player Header */}
               <div className="flex items-start justify-between pb-3 border-b border-white/10">

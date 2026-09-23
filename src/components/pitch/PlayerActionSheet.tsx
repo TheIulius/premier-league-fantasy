@@ -58,15 +58,15 @@ export const PlayerActionSheet: React.FC<PlayerActionSheetProps> = ({ playerId, 
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-xs animate-fade-in"
+      className="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-black/70 backdrop-blur-xs animate-fade-in md:p-4"
       onClick={onClose}
     >
       <div
-        className="w-full max-w-[480px] bg-gradient-to-b from-[#320037] to-[#1e0022] rounded-t-2xl border-t border-x border-[#590c63] p-4 shadow-2xl animate-slide-up select-none safe-bottom"
+        className="w-full max-w-[480px] md:max-w-md bg-gradient-to-b from-[#320037] to-[#1e0022] rounded-t-3xl md:rounded-3xl border-t md:border border-x border-[#590c63] p-4 md:p-6 shadow-2xl animate-slide-up select-none safe-bottom"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Drag handle */}
-        <div className="w-12 h-1 bg-white/20 rounded-full mx-auto mb-3" />
+        {/* Drag handle (mobile only) */}
+        <div className="w-12 h-1 bg-white/20 rounded-full mx-auto mb-3 md:hidden" />
 
         {/* Player Header */}
         <div className="flex items-start justify-between pb-3 border-b border-white/10">

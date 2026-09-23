@@ -41,7 +41,7 @@ export const PitchView: React.FC<PitchViewProps> = ({ showPoints = false }) => {
       )}
 
       {/* Football Pitch Container */}
-      <div className="relative mx-2 my-2 rounded-2xl overflow-hidden shadow-2xl border-2 border-[#125c27] bg-[#14642c]">
+      <div className="relative mx-2 md:mx-auto my-2 md:my-4 rounded-2xl md:rounded-3xl overflow-hidden shadow-2xl border-2 border-[#125c27] bg-[#14642c] md:max-w-2xl lg:max-w-3xl">
         {/* Grass Pattern & Stadium Markings */}
         <div className="absolute inset-0 pitch-stripes pointer-events-none opacity-95" />
 
@@ -72,19 +72,19 @@ export const PitchView: React.FC<PitchViewProps> = ({ showPoints = false }) => {
         </svg>
 
         {/* Formation Header Badge */}
-        <div className="relative pt-2.5 px-3 flex items-center justify-between z-10">
-          <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-black/40 text-gray-200 backdrop-blur-xs border border-white/10">
+        <div className="relative pt-2.5 md:pt-3.5 px-3 md:px-5 flex items-center justify-between z-10">
+          <span className="text-[10px] md:text-xs font-extrabold uppercase px-2 py-0.5 md:px-3 md:py-1 rounded-full bg-black/40 text-gray-200 backdrop-blur-xs border border-white/10">
             Formation: {layout.formationString}
           </span>
           {showPoints && (
-            <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-[#00ff87] text-[#37003c] shadow-glow-green">
+            <span className="text-[10px] md:text-xs font-extrabold px-2 py-0.5 md:px-3 md:py-1 rounded-full bg-[#00ff87] text-[#37003c] shadow-glow-green">
               {calculationResult.totalPoints} PTS
             </span>
           )}
         </div>
 
         {/* Pitch Rows */}
-        <div className="relative z-10 flex flex-col justify-around min-h-[460px] py-3 px-1.5 space-y-3">
+        <div className="relative z-10 flex flex-col justify-around min-h-[460px] md:min-h-[560px] lg:min-h-[600px] py-3 md:py-6 px-1.5 md:px-6 space-y-3 md:space-y-4">
           {/* Row 1: Goalkeeper */}
           <div className="flex justify-center items-center">
             {layout.gks.map((sp) => (
@@ -102,7 +102,7 @@ export const PitchView: React.FC<PitchViewProps> = ({ showPoints = false }) => {
           </div>
 
           {/* Row 2: Defenders */}
-          <div className="flex justify-around items-center px-1">
+          <div className="flex justify-around items-center px-1 md:px-4">
             {layout.defs.map((sp) => (
               <PlayerCard
                 key={sp.playerId}
@@ -118,7 +118,7 @@ export const PitchView: React.FC<PitchViewProps> = ({ showPoints = false }) => {
           </div>
 
           {/* Row 3: Midfielders */}
-          <div className="flex justify-around items-center px-1">
+          <div className="flex justify-around items-center px-1 md:px-4">
             {layout.mids.map((sp) => (
               <PlayerCard
                 key={sp.playerId}
@@ -134,7 +134,7 @@ export const PitchView: React.FC<PitchViewProps> = ({ showPoints = false }) => {
           </div>
 
           {/* Row 4: Forwards */}
-          <div className="flex justify-around items-center px-2">
+          <div className="flex justify-around items-center px-2 md:px-6">
             {layout.fwds.map((sp) => (
               <PlayerCard
                 key={sp.playerId}
@@ -151,12 +151,12 @@ export const PitchView: React.FC<PitchViewProps> = ({ showPoints = false }) => {
         </div>
 
         {/* Bench Dugout Bar */}
-        <div className="relative z-10 bg-[#160018]/95 backdrop-blur-md border-t-2 border-[#3c0843] pt-2.5 pb-3 px-2">
-          <div className="flex items-center justify-between mb-1 px-1">
-            <span className="text-[10px] uppercase font-black tracking-wider text-gray-300">
+        <div className="relative z-10 bg-[#160018]/95 backdrop-blur-md border-t-2 border-[#3c0843] pt-2.5 md:pt-3.5 pb-3 md:pb-4 px-2 md:px-6">
+          <div className="flex items-center justify-between mb-1.5 px-1">
+            <span className="text-[10px] md:text-xs uppercase font-black tracking-wider text-gray-300">
               Substitutes
             </span>
-            <span className="text-[9px] font-medium text-gray-400">
+            <span className="text-[9px] md:text-[10px] font-medium text-gray-400">
               Auto-subs apply in bench priority order (1-3)
             </span>
           </div>
