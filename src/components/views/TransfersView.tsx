@@ -3,7 +3,8 @@ import { useFPL } from '../../context/FPLContext';
 import { Position, Player } from '../../types/fpl';
 import { CLUBS } from '../../data/clubs';
 import { KitJersey } from '../pitch/KitJersey';
-import { ArrowLeftRight, Search, Check, AlertCircle, ArrowUpRight, ArrowDownRight } from 'lucide-react';
+import { ArrowLeftRight, Search, Check, AlertCircle, ArrowUpRight, ArrowDownRight, Shield, CheckCircle } from 'lucide-react';
+import { validateSquadComposition } from '../../engine/scoring';
 import confetti from 'canvas-confetti';
 
 export const TransfersView: React.FC = () => {
@@ -21,6 +22,8 @@ export const TransfersView: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [sortBy, setSortBy] = useState<'cost' | 'points' | 'selected'>('points');
   const [transferMessage, setTransferMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+  const comp = useMemo(() => validateSquadComposition(squad.players, players), [squad.players, players]);
 
   const outPlayer = outPlayerId ? players[outPlayerId] : null;
   const inPlayer = inPlayerId ? players[inPlayerId] : null;
@@ -105,6 +108,51 @@ export const TransfersView: React.FC = () => {
           <span className="font-bold text-[#00ff87]">6 Starters • 3 Bench Reserves</span>
           <span className="text-gray-300">Bank is governed by Starting 6</span>
         </div>
+      </div>
+
+      {/* Position Requirements Bar */}
+      <div className="p-2.5 rounded-xl bg-[#230026] border border-[#520d5a] flex flex-col gap-1.5 text-xs">
+        <div className="flex items-center justify-between">
+          <span className="text-[10px] font-black uppercase text-gray-300 flex items-center gap-1.5">
+            <Shield className="w-3.5 h-3.5 text-[#00ff87]" />
+            Squad Composition Requirements
+          </span>
+          {comp.isValid ? (
+            <span className="text-[10px] font-extrabold text-[#00ff87] flex items-center gap-1 bg-[#00ff87]/15 px-2 py-0.5 rounded-full border border-[#00ff87]/30">
+              <CheckCircle className="w-3 h-3" /> 100% Complete
+            </span>
+          ) : (
+            <span className="text-[10px] font-extrabold text-[#e90052] flex items-center gap-1 bg-[#e90052]/15 px-2 py-0.5 rounded-full border border-[#e90052]/30">
+              <AlertCircle className="w-3 h-3" /> Incomplete
+            </span>
+          )}
+        </div>
+
+        <div className="grid grid-cols-4 gap-1.5 text-center pt-1 border-t border-white/5">
+          <div className={`p-1.5 rounded-lg border ${comp.gkCount === 1 ? 'bg-[#00ff87]/10 border-[#00ff87]/40 text-[#00ff87]' : 'bg-red-500/10 border-red-500/40 text-red-400'}`}>
+            <span className="text-[9px] uppercase font-bold block">1 GK</span>
+            <span className="text-xs font-black">{comp.gkCount}/1</span>
+          </div>
+          <div className={`p-1.5 rounded-lg border ${comp.defCount === 3 ? 'bg-[#00ff87]/10 border-[#00ff87]/40 text-[#00ff87]' : 'bg-red-500/10 border-red-500/40 text-red-400'}`}>
+            <span className="text-[9px] uppercase font-bold block">3 DEF (mcveli)</span>
+            <span className="text-xs font-black">{comp.defCount}/3</span>
+          </div>
+          <div className={`p-1.5 rounded-lg border ${comp.midCount === 3 ? 'bg-[#00ff87]/10 border-[#00ff87]/40 text-[#00ff87]' : 'bg-red-500/10 border-red-500/40 text-red-400'}`}>
+            <span className="text-[9px] uppercase font-bold block">3 MID</span>
+            <span className="text-xs font-black">{comp.midCount}/3</span>
+          </div>
+          <div className={`p-1.5 rounded-lg border ${comp.fwdCount === 2 ? 'bg-[#00ff87]/10 border-[#00ff87]/40 text-[#00ff87]' : 'bg-red-500/10 border-red-500/40 text-red-400'}`}>
+            <span className="text-[9px] uppercase font-bold block">2 FWD</span>
+            <span className="text-xs font-black">{comp.fwdCount}/2</span>
+          </div>
+        </div>
+
+        {!comp.isValid && (
+          <div className="p-2 rounded-lg bg-[#e90052]/20 border border-[#e90052]/40 text-[#e90052] text-[10px] font-bold flex items-center gap-1.5 mt-0.5">
+            <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
+            <span>You can't play! Must have exact counts: 1 GK, 3 Defenders (mcveli), 3 Midfielders, and 2 Forwards bought.</span>
+          </div>
+        )}
       </div>
 
       {/* Transfer Notification banner */}

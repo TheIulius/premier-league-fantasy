@@ -421,6 +421,17 @@ app.post('/api/squad/save', (req: Request, res: Response) => {
   }
 
   if (players && Array.isArray(players)) {
+    const gkCount = players.filter((sp: any) => data.players[sp.playerId]?.position === 'GKP').length;
+    const defCount = players.filter((sp: any) => data.players[sp.playerId]?.position === 'DEF').length;
+    const midCount = players.filter((sp: any) => data.players[sp.playerId]?.position === 'MID').length;
+    const fwdCount = players.filter((sp: any) => data.players[sp.playerId]?.position === 'FWD').length;
+
+    if (gkCount !== 1 || defCount !== 3 || midCount !== 3 || fwdCount !== 2) {
+      return res.status(400).json({
+        error: `Cannot play! Squad must have exactly 1 GK, 3 Defenders (mcveli), 3 Midfielders, and 2 Forwards. (Current: ${gkCount} GK, ${defCount} DEF, ${midCount} MID, ${fwdCount} FWD)`,
+      });
+    }
+
     manager.squad.players = players;
     if (typeof bank === 'number') {
       manager.squad.bank = Math.round(bank * 10) / 10;

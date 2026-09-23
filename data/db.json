@@ -312,7 +312,7 @@
             "playerId": "p_ika",
             "isStarter": true,
             "benchOrder": 0,
-            "isCaptain": true,
+            "isCaptain": false,
             "isViceCaptain": false
           },
           {
@@ -320,7 +320,7 @@
             "isStarter": true,
             "benchOrder": 0,
             "isCaptain": false,
-            "isViceCaptain": true
+            "isViceCaptain": false
           },
           {
             "playerId": "p_zarno",
@@ -330,11 +330,18 @@
             "isViceCaptain": false
           },
           {
+            "playerId": "p_dito",
+            "isStarter": false,
+            "benchOrder": 1,
+            "isCaptain": false,
+            "isViceCaptain": false
+          },
+          {
             "playerId": "p_ciskara",
             "isStarter": true,
             "benchOrder": 0,
             "isCaptain": false,
-            "isViceCaptain": false
+            "isViceCaptain": true
           },
           {
             "playerId": "p_rati",
@@ -344,28 +351,21 @@
             "isViceCaptain": false
           },
           {
-            "playerId": "p_chaga",
-            "isStarter": true,
-            "benchOrder": 0,
-            "isCaptain": false,
-            "isViceCaptain": false
-          },
-          {
-            "playerId": "p_futkara",
-            "isStarter": false,
-            "benchOrder": 1,
-            "isCaptain": false,
-            "isViceCaptain": false
-          },
-          {
-            "playerId": "p_dito",
+            "playerId": "p_vadzo",
             "isStarter": false,
             "benchOrder": 2,
             "isCaptain": false,
             "isViceCaptain": false
           },
           {
-            "playerId": "p_vadzo",
+            "playerId": "p_chaga",
+            "isStarter": true,
+            "benchOrder": 0,
+            "isCaptain": true,
+            "isViceCaptain": false
+          },
+          {
+            "playerId": "p_tsotne",
             "isStarter": false,
             "benchOrder": 3,
             "isCaptain": false,
@@ -435,21 +435,21 @@
             "isViceCaptain": false
           },
           {
-            "playerId": "p_futkara",
+            "playerId": "p_dito",
             "isStarter": false,
             "benchOrder": 1,
             "isCaptain": false,
             "isViceCaptain": false
           },
           {
-            "playerId": "p_dito",
+            "playerId": "p_vadzo",
             "isStarter": false,
             "benchOrder": 2,
             "isCaptain": false,
             "isViceCaptain": false
           },
           {
-            "playerId": "p_vadzo",
+            "playerId": "p_tsotne",
             "isStarter": false,
             "benchOrder": 3,
             "isCaptain": false,

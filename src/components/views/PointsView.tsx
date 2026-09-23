@@ -22,6 +22,20 @@ export const PointsView: React.FC = () => {
 
   return (
     <div className="flex flex-col space-y-3 pb-24 select-none">
+      {/* Squad Composition Ineligibility Warning */}
+      {!calculationResult.isValidSquadComposition && (
+        <div className="mx-2 mt-2 p-3 rounded-2xl bg-red-950/80 border border-red-500/50 text-red-200 text-xs flex items-start gap-2.5 shadow-lg">
+          <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
+          <div>
+            <div className="font-black text-white text-sm">Cannot Play / Ineligible Team</div>
+            <div className="text-[11px] text-red-300 mt-0.5">
+              {calculationResult.invalidSquadReason ||
+                'You must buy exactly 1 GK, 3 Defenders (mcveli), 3 Midfielders, and 2 Forwards to participate and score points.'}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* GW Summary Bar */}
       <div className="mx-2 mt-2 p-3 rounded-2xl bg-gradient-to-r from-[#2c0032] via-[#3d0046] to-[#250029] border border-[#5d0e68] shadow-lg">
         <div className="flex items-center justify-between">

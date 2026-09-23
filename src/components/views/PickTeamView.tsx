@@ -3,13 +3,16 @@ import { useFPL } from '../../context/FPLContext';
 import { PitchView } from '../pitch/PitchView';
 import { ChipType } from '../../types/fpl';
 import { Sparkles, Shield, Zap, RefreshCw, CheckCircle, Loader2, AlertCircle } from 'lucide-react';
+import { validateSquadComposition } from '../../engine/scoring';
 import confetti from 'canvas-confetti';
 
 export const PickTeamView: React.FC = () => {
-  const { squad, activateChip, teamValue, freeTransfersRemaining, saveSquad } = useFPL();
+  const { squad, players, activateChip, teamValue, freeTransfersRemaining, saveSquad } = useFPL();
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  const comp = validateSquadComposition(squad.players, players);
 
   const chips: { id: ChipType; label: string; desc: string; icon: any }[] = [
     {
@@ -33,6 +36,11 @@ export const PickTeamView: React.FC = () => {
   ];
 
   const handleSaveTeam = async () => {
+    if (!comp.isValid) {
+      setErrorMessage(comp.message || 'Cannot play: Must have 1 GK, 3 DEF, 3 MID, and 2 FWD!');
+      setTimeout(() => setErrorMessage(null), 4000);
+      return;
+    }
     setIsSaving(true);
     setErrorMessage(null);
     try {
@@ -84,6 +92,51 @@ export const PickTeamView: React.FC = () => {
           <span className="font-bold text-[#00ff87]">6 Starters • 3 Bench Reserves</span>
           <span className="text-gray-300">Starting 6 budget limit: £60.0m</span>
         </div>
+      </div>
+
+      {/* Position Requirements Bar */}
+      <div className="mx-2 p-2.5 rounded-xl bg-[#230026] border border-[#520d5a] flex flex-col gap-1.5 text-xs">
+        <div className="flex items-center justify-between">
+          <span className="text-[10px] font-black uppercase text-gray-300 flex items-center gap-1.5">
+            <Shield className="w-3.5 h-3.5 text-[#00ff87]" />
+            Squad Composition Requirements
+          </span>
+          {comp.isValid ? (
+            <span className="text-[10px] font-extrabold text-[#00ff87] flex items-center gap-1 bg-[#00ff87]/15 px-2 py-0.5 rounded-full border border-[#00ff87]/30">
+              <CheckCircle className="w-3 h-3" /> Ready to Play
+            </span>
+          ) : (
+            <span className="text-[10px] font-extrabold text-[#e90052] flex items-center gap-1 bg-[#e90052]/15 px-2 py-0.5 rounded-full border border-[#e90052]/30">
+              <AlertCircle className="w-3 h-3" /> Ineligible to Play
+            </span>
+          )}
+        </div>
+
+        <div className="grid grid-cols-4 gap-1.5 text-center pt-1 border-t border-white/5">
+          <div className={`p-1.5 rounded-lg border ${comp.gkCount === 1 ? 'bg-[#00ff87]/10 border-[#00ff87]/40 text-[#00ff87]' : 'bg-red-500/10 border-red-500/40 text-red-400'}`}>
+            <span className="text-[9px] uppercase font-bold block">1 GK</span>
+            <span className="text-xs font-black">{comp.gkCount}/1</span>
+          </div>
+          <div className={`p-1.5 rounded-lg border ${comp.defCount === 3 ? 'bg-[#00ff87]/10 border-[#00ff87]/40 text-[#00ff87]' : 'bg-red-500/10 border-red-500/40 text-red-400'}`}>
+            <span className="text-[9px] uppercase font-bold block">3 DEF (mcveli)</span>
+            <span className="text-xs font-black">{comp.defCount}/3</span>
+          </div>
+          <div className={`p-1.5 rounded-lg border ${comp.midCount === 3 ? 'bg-[#00ff87]/10 border-[#00ff87]/40 text-[#00ff87]' : 'bg-red-500/10 border-red-500/40 text-red-400'}`}>
+            <span className="text-[9px] uppercase font-bold block">3 MID</span>
+            <span className="text-xs font-black">{comp.midCount}/3</span>
+          </div>
+          <div className={`p-1.5 rounded-lg border ${comp.fwdCount === 2 ? 'bg-[#00ff87]/10 border-[#00ff87]/40 text-[#00ff87]' : 'bg-red-500/10 border-red-500/40 text-red-400'}`}>
+            <span className="text-[9px] uppercase font-bold block">2 FWD</span>
+            <span className="text-xs font-black">{comp.fwdCount}/2</span>
+          </div>
+        </div>
+
+        {!comp.isValid && (
+          <div className="p-2 rounded-lg bg-[#e90052]/20 border border-[#e90052]/40 text-[#e90052] text-[10px] font-bold flex items-center gap-1.5 mt-0.5">
+            <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
+            <span>You can't play! Must have exact counts: 1 GK, 3 Defenders (mcveli), 3 Midfielders, and 2 Forwards bought.</span>
+          </div>
+        )}
       </div>
 
       {/* Chips Selector Bar */}
@@ -141,13 +194,22 @@ export const PickTeamView: React.FC = () => {
         )}
         <button
           onClick={handleSaveTeam}
-          disabled={isSaving}
-          className="w-full py-3.5 px-4 rounded-xl font-black text-sm uppercase tracking-wider bg-gradient-to-r from-[#00ff87] to-[#00cc6a] text-[#37003c] shadow-glow-green hover:opacity-95 active:scale-98 disabled:opacity-75 transition-all flex items-center justify-center gap-2"
+          disabled={isSaving || !comp.isValid}
+          className={`w-full py-3.5 px-4 rounded-xl font-black text-sm uppercase tracking-wider transition-all flex items-center justify-center gap-2 ${
+            !comp.isValid
+              ? 'bg-red-950/60 border border-red-500/50 text-red-300 opacity-80 cursor-not-allowed'
+              : 'bg-gradient-to-r from-[#00ff87] to-[#00cc6a] text-[#37003c] shadow-glow-green hover:opacity-95 active:scale-98 disabled:opacity-75'
+          }`}
         >
           {isSaving ? (
             <>
               <Loader2 className="w-5 h-5 text-[#37003c] animate-spin" />
               <span>Saving Lineup to Database...</span>
+            </>
+          ) : !comp.isValid ? (
+            <>
+              <AlertCircle className="w-5 h-5 text-red-400" />
+              <span>Cannot Play - Need 1 GK, 3 DEF, 3 MID, 2 FWD</span>
             </>
           ) : saveSuccess ? (
             <>

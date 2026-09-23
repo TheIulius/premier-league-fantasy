@@ -78,6 +78,8 @@ export interface GameweekCalculationResult {
   effectiveCaptainId: string;
   isTripleCaptain: boolean;
   isBenchBoost: boolean;
+  isValidSquadComposition: boolean;
+  invalidSquadReason?: string;
   autoSubstitutions: {
     outPlayerId: string;
     inPlayerId: string;
@@ -90,6 +92,66 @@ export interface GameweekCalculationResult {
     isAutoSubIn: boolean;
     isAutoSubOut: boolean;
   }>;
+}
+
+export interface SquadCompositionValidation {
+  isValid: boolean;
+  gkCount: number;
+  defCount: number;
+  midCount: number;
+  fwdCount: number;
+  totalCount: number;
+  message?: string;
+}
+
+/**
+ * Validates that each fantasy team has bought exactly:
+ * 1 Goalkeeper (GK)
+ * 3 Defenders (mcveli)
+ * 3 Midfielders
+ * 2 Forwards
+ * (Total: 9 players). A team cannot play without these exact counts.
+ */
+export function validateSquadComposition(
+  squadPlayers: SquadPlayer[],
+  allPlayers: Record<string, Player>
+): SquadCompositionValidation {
+  let gkCount = 0;
+  let defCount = 0;
+  let midCount = 0;
+  let fwdCount = 0;
+
+  for (const sp of squadPlayers) {
+    const p = allPlayers[sp.playerId];
+    if (!p) continue;
+    if (p.position === 'GKP') gkCount++;
+    else if (p.position === 'DEF') defCount++;
+    else if (p.position === 'MID') midCount++;
+    else if (p.position === 'FWD') fwdCount++;
+  }
+
+  const totalCount = gkCount + defCount + midCount + fwdCount;
+  const isValid = gkCount === 1 && defCount === 3 && midCount === 3 && fwdCount === 2;
+
+  let message: string | undefined;
+  if (!isValid) {
+    const parts: string[] = [];
+    if (gkCount !== 1) parts.push(`${gkCount}/1 GK`);
+    if (defCount !== 3) parts.push(`${defCount}/3 Defenders (mcveli)`);
+    if (midCount !== 3) parts.push(`${midCount}/3 Midfielders`);
+    if (fwdCount !== 2) parts.push(`${fwdCount}/2 Forwards`);
+    message = `Required: 1 GK, 3 Defenders (mcveli), 3 Midfielders, 2 Forwards. Current: ${parts.join(', ')}`;
+  }
+
+  return {
+    isValid,
+    gkCount,
+    defCount,
+    midCount,
+    fwdCount,
+    totalCount,
+    message,
+  };
 }
 
 /**
@@ -132,6 +194,7 @@ export function isValidStartingXI(positions: Position[]): boolean {
 
 /**
  * Full gameweek score calculator for a user's squad:
+ * - Validates squad has exact 1 GK, 3 DEF, 3 MID, 2 FWD (cannot play otherwise)
  * - Computes raw points for each player
  * - Applies auto-subs for 0-minute starters using bench order
  * - Applies captain (2x / 3x) and vice-captain failover
@@ -146,11 +209,41 @@ export function calculateGameweekSquadPoints(
   transfersMadeThisGW: number,
   freeTransfers: number
 ): GameweekCalculationResult {
+  const compValidation = validateSquadComposition(squadPlayers, allPlayers);
+
+  // If squad does not meet the exact 1 GK, 3 DEF, 3 MID, 2 FWD requirements, they cannot play (0 points)
+  if (!compValidation.isValid) {
+    const emptyBreakdown: Record<string, any> = {};
+    squadPlayers.forEach((sp) => {
+      emptyBreakdown[sp.playerId] = {
+        rawPoints: 0,
+        multiplier: 0,
+        finalPoints: 0,
+        isPlayed: false,
+        isAutoSubIn: false,
+        isAutoSubOut: false,
+      };
+    });
+
+    return {
+      totalPoints: 0,
+      grossPoints: 0,
+      transferCost: 0,
+      effectiveCaptainId: '',
+      isTripleCaptain: false,
+      isBenchBoost: false,
+      isValidSquadComposition: false,
+      invalidSquadReason: compValidation.message,
+      autoSubstitutions: [],
+      playerPointsBreakdown: emptyBreakdown,
+    };
+  }
+
   const isTripleCaptain = activeChip === 'triple_captain';
   const isBenchBoost = activeChip === 'bench_boost';
   const isFreeHit = activeChip === 'free_hit';
 
-  // Calculate raw points for all 15 players
+  // Calculate raw points for all 9 players
   const rawPointsMap: Record<string, number> = {};
   const minutesMap: Record<string, number> = {};
 
@@ -295,6 +388,7 @@ export function calculateGameweekSquadPoints(
     effectiveCaptainId,
     isTripleCaptain,
     isBenchBoost,
+    isValidSquadComposition: true,
     autoSubstitutions,
     playerPointsBreakdown,
   };

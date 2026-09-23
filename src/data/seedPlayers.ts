@@ -179,21 +179,21 @@ export const SEED_PLAYERS: Player[] = [
   },
 ];
 
-// 6-a-side Fantasy Squad: 6 Starters + 3 Reserves (9 total footballers)
+// 6-a-side Fantasy Squad: 1 GK, 3 Defenders (mcveli), 3 Midfielders, 2 Forwards (9 total footballers)
 // Total Budget = £60.0m
 // Starting 6 Cost: 7.9 (Ika) + 10.0 (Shinjo) + 8.8 (Zarno) + 9.5 (ciskara) + 9.4 (Rati) + 9.1 (Chaga) = £54.7m
 // Bank = £5.3m (out of £60.0m budget)
 export const DEFAULT_SQUAD_PLAYER_IDS = [
-  // 6 Starters on Pitch (Formation: 2-2-1)
-  { playerId: 'p_ika', isStarter: true, benchOrder: 0, isCaptain: false, isViceCaptain: false }, // GKP
-  { playerId: 'p_shinjo', isStarter: true, benchOrder: 0, isCaptain: false, isViceCaptain: false }, // DEF
-  { playerId: 'p_zarno', isStarter: true, benchOrder: 0, isCaptain: false, isViceCaptain: false }, // DEF
-  { playerId: 'p_ciskara', isStarter: true, benchOrder: 0, isCaptain: false, isViceCaptain: true }, // MID (VC)
-  { playerId: 'p_rati', isStarter: true, benchOrder: 0, isCaptain: false, isViceCaptain: false }, // MID
-  { playerId: 'p_chaga', isStarter: true, benchOrder: 0, isCaptain: true, isViceCaptain: false }, // FWD (C)
+  // 6 Starters on Pitch (1 GK, 2 DEF, 2 MID, 1 FWD - Formation: 2-2-1)
+  { playerId: 'p_ika', isStarter: true, benchOrder: 0, isCaptain: false, isViceCaptain: false }, // GKP (1/1)
+  { playerId: 'p_shinjo', isStarter: true, benchOrder: 0, isCaptain: false, isViceCaptain: false }, // DEF (1/3)
+  { playerId: 'p_zarno', isStarter: true, benchOrder: 0, isCaptain: false, isViceCaptain: false }, // DEF (2/3)
+  { playerId: 'p_ciskara', isStarter: true, benchOrder: 0, isCaptain: false, isViceCaptain: true }, // MID (1/3, VC)
+  { playerId: 'p_rati', isStarter: true, benchOrder: 0, isCaptain: false, isViceCaptain: false }, // MID (2/3)
+  { playerId: 'p_chaga', isStarter: true, benchOrder: 0, isCaptain: true, isViceCaptain: false }, // FWD (1/2, C)
 
-  // 3 Reserves on Bench
-  { playerId: 'p_futkara', isStarter: false, benchOrder: 1, isCaptain: false, isViceCaptain: false }, // Sub GKP
-  { playerId: 'p_dito', isStarter: false, benchOrder: 2, isCaptain: false, isViceCaptain: false }, // Sub DEF
-  { playerId: 'p_vadzo', isStarter: false, benchOrder: 3, isCaptain: false, isViceCaptain: false }, // Sub MID
+  // 3 Reserves on Bench (1 DEF, 1 MID, 1 FWD)
+  { playerId: 'p_dito', isStarter: false, benchOrder: 1, isCaptain: false, isViceCaptain: false }, // Sub DEF (3/3)
+  { playerId: 'p_vadzo', isStarter: false, benchOrder: 2, isCaptain: false, isViceCaptain: false }, // Sub MID (3/3)
+  { playerId: 'p_tsotne', isStarter: false, benchOrder: 3, isCaptain: false, isViceCaptain: false }, // Sub FWD (2/2)
 ];

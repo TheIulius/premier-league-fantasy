@@ -17,6 +17,7 @@ import {
   calculateGameweekSquadPoints,
   calculatePlayerPoints,
   GameweekCalculationResult,
+  validateSquadComposition,
 } from '../engine/scoring';
 import { canSwapPlayers } from '../engine/formations';
 import * as api from '../services/api';
@@ -189,7 +190,19 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           parsed.players.length === 9 &&
           parsed.players.filter((p: any) => p.isStarter).length === 6
         ) {
-          return parsed;
+          const playersLookup: Record<string, Player> = {};
+          SEED_PLAYERS.forEach((p) => { playersLookup[p.id] = p; });
+          const savedPlayersRaw = localStorage.getItem(STORAGE_KEY_PLAYERS);
+          if (savedPlayersRaw) {
+            try {
+              const parsedPlayers = JSON.parse(savedPlayersRaw);
+              Object.assign(playersLookup, parsedPlayers);
+            } catch (e) {}
+          }
+          const comp = validateSquadComposition(parsed.players, playersLookup);
+          if (comp.isValid) {
+            return parsed;
+          }
         }
       } catch (e) { /* fallback */ }
     }
@@ -473,6 +486,14 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const saveSquad = async (customPlayers?: SquadPlayer[]): Promise<{ success: boolean; message?: string }> => {
     try {
       const targetPlayers = customPlayers || squad.players;
+
+      const compValidation = validateSquadComposition(targetPlayers, players);
+      if (!compValidation.isValid) {
+        return {
+          success: false,
+          message: compValidation.message || 'Cannot save squad: You must have 1 GK, 3 Defenders, 3 Midfielders, and 2 Forwards.',
+        };
+      }
 
       const startersCost = targetPlayers
         .filter((sp) => sp.isStarter)
