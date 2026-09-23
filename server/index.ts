@@ -738,6 +738,13 @@ app.post('/api/admin/player', (req: Request, res: Response) => {
 
   if (action === 'delete' && playerId) {
     delete data.players[playerId];
+    if (data.managers) {
+      Object.values(data.managers).forEach((m) => {
+        if (m.squad && Array.isArray(m.squad.players)) {
+          m.squad.players = m.squad.players.filter((sp: any) => sp.playerId !== playerId);
+        }
+      });
+    }
     db.save();
     return res.json({ success: true, deleted: playerId });
   }

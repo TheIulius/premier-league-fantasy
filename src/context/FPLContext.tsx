@@ -755,17 +755,24 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     api.adminPlayerApi({ action: 'edit', playerId, updates: data }).catch(() => {});
   };
 
-  // Developer: Delete player
+  // Developer: Delete player (freely removes player from game and cleans squad)
   const deletePlayer = (playerId: string) => {
-    if (squad.players.some((sp) => sp.playerId === playerId)) {
-      alert('Cannot delete a player currently in your fantasy squad! Transfer them out first.');
-      return;
-    }
     setPlayers((prev) => {
       const copy = { ...prev };
       delete copy[playerId];
       return copy;
     });
+
+    setSquad((prev) => {
+      if (prev.players.some((sp) => sp.playerId === playerId)) {
+        const filtered = prev.players.filter((sp) => sp.playerId !== playerId);
+        const updated = { ...prev, players: filtered };
+        localStorage.setItem(STORAGE_KEY_SQUAD, JSON.stringify(updated));
+        return updated;
+      }
+      return prev;
+    });
+
     api.adminPlayerApi({ action: 'delete', playerId }).catch(() => {});
   };
 

@@ -485,11 +485,10 @@
       "id": "user_1789929998559",
       "username": "jack",
       "email": "jack@gmail.com",
-      "passwordHash": "2927bfefcc66d73a3ff1f73fd21eeb1738e04e858c8300c83df1c0291be37348a8e417116b93fa78635fb467f937407d608ad78684a3c71760343c9df5ac2547",
-      "salt": "77264466ec921d3a725d4a0d42930128",
+      "passwordHash": "be4e5488b03269937403e84c015b5f4a0aeb581bef246156c8ab145c0960aa588f8254b0d1108202fb95554b8cb146fab298b2c06f71cdbd3e857f56a78d7eae",
+      "salt": "324cf7988d16f71ed6877c17f659cc37",
       "managerName": "Jack",
       "teamName": "Jack FC",
-      "token": "aeba18b6488d521611175709dd21dfe4c8f1e957b248fcff1a7462f3f7d15d29",
       "createdAt": "2026-09-20T18:46:38.559Z"
     }
   }
