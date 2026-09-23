@@ -69,7 +69,7 @@ export const TopHeader: React.FC = () => {
                 </span>
               </button>
               <span className="text-[9px] md:text-[10px] text-gray-400/80 font-normal">
-                (Created By TheIulius)
+                (Created By Theiulius and Chaga)
               </span>
             </div>
           </div>
