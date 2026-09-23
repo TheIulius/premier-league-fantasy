@@ -1400,6 +1400,20 @@
       "selectedByPercent": 5,
       "isAvailable": true,
       "gwStats": {}
+    },
+    "p_custom_1790194618189": {
+      "id": "p_custom_1790194618189",
+      "name": "Sandro Tsiskaradze",
+      "webName": "Tsiskara",
+      "clubId": "SCH_11_5",
+      "position": "MID",
+      "cost": 8.5,
+      "totalPoints": 0,
+      "gwPoints": 0,
+      "form": 5,
+      "selectedByPercent": 5,
+      "isAvailable": true,
+      "gwStats": {}
     }
   },
   "clubs": {
