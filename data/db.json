@@ -1247,13 +1247,13 @@
       "isAvailable": true,
       "gwStats": {}
     },
-    "p_custom_1790192273559": {
-      "id": "p_custom_1790192273559",
-      "name": "Giorgi Atunashvili",
-      "webName": "Atunashvili",
+    "p_custom_1790192301338": {
+      "id": "p_custom_1790192301338",
+      "name": "Mate Kalandarishvili",
+      "webName": "Kalandarishvili",
       "clubId": "SCH_11_3",
-      "position": "MID",
-      "cost": 8.2,
+      "position": "FWD",
+      "cost": 4.7,
       "totalPoints": 0,
       "gwPoints": 0,
       "form": 5,
