@@ -1736,6 +1736,20 @@
       "selectedByPercent": 5,
       "isAvailable": true,
       "gwStats": {}
+    },
+    "p_custom_1790194825803": {
+      "id": "p_custom_1790194825803",
+      "name": "Tsotne Tsiskaradze",
+      "webName": "Tsiskara Jr.",
+      "clubId": "SCH_9_5",
+      "position": "MID",
+      "cost": 6.5,
+      "totalPoints": 0,
+      "gwPoints": 0,
+      "form": 5,
+      "selectedByPercent": 5,
+      "isAvailable": true,
+      "gwStats": {}
     }
   },
   "clubs": {
