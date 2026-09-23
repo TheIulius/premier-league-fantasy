@@ -83,11 +83,17 @@ export async function loginManagerApi(managerName: string, teamName: string) {
   return res.json();
 }
 
-export async function saveSquadApi(managerId: string, players: SquadPlayer[], teamName?: string, bank?: number) {
+export async function saveSquadApi(
+  managerId: string,
+  players: SquadPlayer[],
+  teamName?: string,
+  bank?: number,
+  validateComplete?: boolean
+) {
   const res = await fetch(`${API_BASE}/api/squad/save`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ managerId, players, teamName, bank }),
+    body: JSON.stringify({ managerId, players, teamName, bank, validateComplete }),
   });
   const data = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(data.error || 'Failed to save squad');

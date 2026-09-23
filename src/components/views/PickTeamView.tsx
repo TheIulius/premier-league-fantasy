@@ -7,7 +7,7 @@ import { validateSquadComposition } from '../../engine/scoring';
 import confetti from 'canvas-confetti';
 
 export const PickTeamView: React.FC = () => {
-  const { squad, players, activateChip, teamValue, freeTransfersRemaining, saveSquad } = useFPL();
+  const { squad, players, activateChip, teamValue, freeTransfersRemaining, saveSquad, setActiveTab } = useFPL();
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -44,7 +44,7 @@ export const PickTeamView: React.FC = () => {
     setIsSaving(true);
     setErrorMessage(null);
     try {
-      const res = await saveSquad();
+      const res = await saveSquad(undefined, true);
       if (res.success) {
         setSaveSuccess(true);
         confetti({
@@ -68,6 +68,46 @@ export const PickTeamView: React.FC = () => {
 
   return (
     <div className="flex flex-col space-y-3 pb-24">
+      {/* Empty Squad Builder Callout */}
+      {squad.players.length === 0 && (
+        <div className="mx-2 mt-2 p-4 rounded-2xl bg-gradient-to-br from-[#2a002e] to-[#3a0042] border-2 border-[#00ff87]/50 shadow-2xl space-y-3 text-center">
+          <div className="w-12 h-12 mx-auto rounded-full bg-[#00ff87]/20 flex items-center justify-center border border-[#00ff87]/40">
+            <Sparkles className="w-6 h-6 text-[#00ff87]" />
+          </div>
+          <div>
+            <h3 className="text-base font-black text-white">Create Your Fantasy Squad</h3>
+            <p className="text-xs text-gray-300 mt-1 max-w-sm mx-auto">
+              You have a budget of <strong className="text-[#00ff87]">£60.0m</strong> to buy 9 footballers: 1 GK, 3 Defenders, 3 Midfielders, and 2 Forwards.
+            </p>
+          </div>
+          <button
+            onClick={() => setActiveTab('transfers')}
+            className="w-full py-2.5 rounded-xl font-black text-xs uppercase tracking-wider bg-gradient-to-r from-[#00ff87] to-[#04f5ff] text-[#111] shadow-glow-green hover:opacity-95"
+          >
+            Start Buying Players (£60.0m Budget)
+          </button>
+        </div>
+      )}
+
+      {/* In-Progress Squad Callout */}
+      {squad.players.length > 0 && squad.players.length < 9 && (
+        <div className="mx-2 mt-2 p-3 rounded-xl bg-[#230026] border border-[#00ff87]/30 flex items-center justify-between">
+          <div>
+            <div className="text-xs font-black text-white">
+              Building Squad ({squad.players.length}/9 Players)
+            </div>
+            <div className="text-[10px] text-gray-400">
+              £{squad.bank.toFixed(1)}m remaining in bank
+            </div>
+          </div>
+          <button
+            onClick={() => setActiveTab('transfers')}
+            className="px-3 py-1.5 rounded-lg bg-[#00ff87] text-[#111] font-black text-xs hover:opacity-90"
+          >
+            + Buy More Players
+          </button>
+        </div>
+      )}
       {/* Team Info Strip */}
       <div className="mx-2 mt-2 p-2.5 rounded-xl bg-[#2a002e] border border-[#4d0c54] flex flex-col gap-2 text-xs">
         <div className="flex items-center justify-between">

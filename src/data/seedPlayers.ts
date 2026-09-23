@@ -23,7 +23,7 @@ export const SEED_PLAYERS: Player[] = [
     webName: 'Ika',
     clubId: 'SCH',
     position: 'GKP',
-    cost: 7.9,
+    cost: 5.0,
     totalPoints: 0,
     gwPoints: 0,
     form: 5.0,
@@ -37,7 +37,7 @@ export const SEED_PLAYERS: Player[] = [
     webName: 'Futkara',
     clubId: 'SCH',
     position: 'GKP',
-    cost: 8.9,
+    cost: 5.5,
     totalPoints: 0,
     gwPoints: 0,
     form: 5.0,
@@ -53,7 +53,7 @@ export const SEED_PLAYERS: Player[] = [
     webName: 'Shinjo',
     clubId: 'SCH',
     position: 'DEF',
-    cost: 10.0,
+    cost: 7.0,
     totalPoints: 0,
     gwPoints: 0,
     form: 5.0,
@@ -67,7 +67,7 @@ export const SEED_PLAYERS: Player[] = [
     webName: 'Zarno',
     clubId: 'SCH',
     position: 'DEF',
-    cost: 8.8,
+    cost: 6.5,
     totalPoints: 0,
     gwPoints: 0,
     form: 5.0,
@@ -81,7 +81,7 @@ export const SEED_PLAYERS: Player[] = [
     webName: 'Dito',
     clubId: 'SCH',
     position: 'DEF',
-    cost: 8.3,
+    cost: 6.0,
     totalPoints: 0,
     gwPoints: 0,
     form: 5.0,
@@ -95,7 +95,7 @@ export const SEED_PLAYERS: Player[] = [
     webName: 'Mandara',
     clubId: 'SCH',
     position: 'DEF',
-    cost: 8.2,
+    cost: 5.5,
     totalPoints: 0,
     gwPoints: 0,
     form: 5.0,
@@ -111,7 +111,7 @@ export const SEED_PLAYERS: Player[] = [
     webName: 'ciskara',
     clubId: 'SCH',
     position: 'MID',
-    cost: 9.5,
+    cost: 7.0,
     totalPoints: 0,
     gwPoints: 0,
     form: 5.0,
@@ -125,7 +125,7 @@ export const SEED_PLAYERS: Player[] = [
     webName: 'Rati',
     clubId: 'SCH',
     position: 'MID',
-    cost: 9.4,
+    cost: 6.5,
     totalPoints: 0,
     gwPoints: 0,
     form: 5.0,
@@ -139,7 +139,7 @@ export const SEED_PLAYERS: Player[] = [
     webName: 'Vadzo',
     clubId: 'SCH',
     position: 'MID',
-    cost: 8.3,
+    cost: 6.0,
     totalPoints: 0,
     gwPoints: 0,
     form: 5.0,
@@ -155,7 +155,7 @@ export const SEED_PLAYERS: Player[] = [
     webName: 'Chaga',
     clubId: 'SCH',
     position: 'FWD',
-    cost: 9.1,
+    cost: 7.0,
     totalPoints: 0,
     gwPoints: 0,
     form: 5.0,
@@ -169,7 +169,7 @@ export const SEED_PLAYERS: Player[] = [
     webName: 'Tsotne',
     clubId: 'SCH',
     position: 'FWD',
-    cost: 8.7,
+    cost: 6.5,
     totalPoints: 0,
     gwPoints: 0,
     form: 5.0,
@@ -181,8 +181,9 @@ export const SEED_PLAYERS: Player[] = [
 
 // 6-a-side Fantasy Squad: 1 GK, 3 Defenders (mcveli), 3 Midfielders, 2 Forwards (9 total footballers)
 // Total Budget = £60.0m
-// Starting 6 Cost: 7.9 (Ika) + 10.0 (Shinjo) + 8.8 (Zarno) + 9.5 (ciskara) + 9.4 (Rati) + 9.1 (Chaga) = £54.7m
-// Bank = £5.3m (out of £60.0m budget)
+// Starting 6 Cost: 5.0 (Ika) + 7.0 (Shinjo) + 6.5 (Zarno) + 7.0 (ciskara) + 6.5 (Rati) + 7.0 (Chaga) = £39.0m
+// Bench 3 Cost: 6.0 (Dito) + 6.0 (Vadzo) + 6.5 (Tsotne) = £18.5m
+// Bank = £2.5m (out of £60.0m budget)
 export const DEFAULT_SQUAD_PLAYER_IDS = [
   // 6 Starters on Pitch (1 GK, 2 DEF, 2 MID, 1 FWD - Formation: 2-2-1)
   { playerId: 'p_ika', isStarter: true, benchOrder: 0, isCaptain: false, isViceCaptain: false }, // GKP (1/1)
@@ -197,3 +198,4 @@ export const DEFAULT_SQUAD_PLAYER_IDS = [
   { playerId: 'p_vadzo', isStarter: false, benchOrder: 2, isCaptain: false, isViceCaptain: false }, // Sub MID (3/3)
   { playerId: 'p_tsotne', isStarter: false, benchOrder: 3, isCaptain: false, isViceCaptain: false }, // Sub FWD (2/2)
 ];
+

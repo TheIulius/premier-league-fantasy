@@ -3,7 +3,20 @@ import { useFPL } from '../../context/FPLContext';
 import { Position, Player } from '../../types/fpl';
 import { CLUBS } from '../../data/clubs';
 import { KitJersey } from '../pitch/KitJersey';
-import { ArrowLeftRight, Search, Check, AlertCircle, ArrowUpRight, ArrowDownRight, Shield, CheckCircle } from 'lucide-react';
+import {
+  ArrowLeftRight,
+  Search,
+  Check,
+  AlertCircle,
+  ArrowUpRight,
+  ArrowDownRight,
+  Shield,
+  CheckCircle,
+  Plus,
+  Trash2,
+  ShoppingBag,
+  Sparkles,
+} from 'lucide-react';
 import { validateSquadComposition } from '../../engine/scoring';
 import confetti from 'canvas-confetti';
 
@@ -12,6 +25,8 @@ export const TransfersView: React.FC = () => {
     players,
     squad,
     transferPlayer,
+    buyPlayer,
+    removePlayer,
     freeTransfersRemaining,
   } = useFPL();
 
@@ -77,6 +92,41 @@ export const TransfersView: React.FC = () => {
       setTransferMessage({ type: 'error', text: res.message || 'Transfer failed' });
     }
 
+    setTimeout(() => setTransferMessage(null), 4000);
+  };
+
+  const handleBuyPlayer = (playerId: string) => {
+    const p = players[playerId];
+    const res = buyPlayer(playerId);
+    if (res.success) {
+      setTransferMessage({
+        type: 'success',
+        text: `Bought ${p?.webName || 'player'} for £${p?.cost.toFixed(1)}m!`,
+      });
+      confetti({
+        particleCount: 35,
+        spread: 45,
+        origin: { y: 0.6 },
+        colors: ['#00ff87', '#04f5ff'],
+      });
+    } else {
+      setTransferMessage({ type: 'error', text: res.message || 'Failed to buy player' });
+    }
+    setTimeout(() => setTransferMessage(null), 4000);
+  };
+
+  const handleRemovePlayer = (playerId: string) => {
+    const p = players[playerId];
+    const res = removePlayer(playerId);
+    if (res.success) {
+      setTransferMessage({
+        type: 'success',
+        text: `Sold ${p?.webName || 'player'} (+£${p?.cost.toFixed(1)}m refunded to bank)`,
+      });
+      if (outPlayerId === playerId) setOutPlayerId(null);
+    } else {
+      setTransferMessage({ type: 'error', text: res.message || 'Failed to remove player' });
+    }
     setTimeout(() => setTransferMessage(null), 4000);
   };
 
@@ -220,55 +270,88 @@ export const TransfersView: React.FC = () => {
         </div>
       )}
 
-      {/* Step 1: Transfer Out Selection */}
+      {/* Step 1: Current Squad & Management */}
       <div className="rounded-xl bg-[#230026] border border-white/10 p-3">
         <div className="flex items-center justify-between mb-2">
           <span className="text-xs font-black uppercase text-gray-300 flex items-center gap-1.5">
-            <ArrowDownRight className="w-3.5 h-3.5 text-red-400" />
-            1. Select Player to Sell
+            <ShoppingBag className="w-3.5 h-3.5 text-[#00ff87]" />
+            1. My Squad ({squad.players.length}/9 Players Bought)
           </span>
           {outPlayer && (
             <button
               onClick={() => setOutPlayerId(null)}
               className="text-[10px] text-gray-400 hover:text-white"
             >
-              Clear
+              Clear selection
             </button>
           )}
         </div>
 
-        {/* Squad players chip grid */}
-        <div className="grid grid-cols-3 gap-1.5 max-h-48 overflow-y-auto pr-1">
-          {squad.players.map((sp) => {
-            const p = players[sp.playerId];
-            if (!p) return null;
-            const isSelected = outPlayerId === p.id;
+        {squad.players.length === 0 ? (
+          <div className="p-4 rounded-lg bg-black/30 border border-dashed border-white/15 text-center space-y-1.5">
+            <span className="text-xs font-bold text-gray-300 block">Your squad is currently empty!</span>
+            <p className="text-[11px] text-gray-400">
+              Use your <strong className="text-[#00ff87]">£60.0m budget</strong> to buy 1 GK, 3 Defenders, 3 Midfielders, and 2 Forwards from the market below.
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-1.5 max-h-56 overflow-y-auto pr-1">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5">
+              {squad.players.map((sp) => {
+                const p = players[sp.playerId];
+                if (!p) return null;
+                const isSelected = outPlayerId === p.id;
 
-            return (
-              <button
-                key={p.id}
-                onClick={() => {
-                  setOutPlayerId(p.id);
-                  setInPlayerId(null); // Reset replacement
-                }}
-                className={`p-1.5 rounded-lg border text-left flex items-center gap-1.5 transition-all ${
-                  isSelected
-                    ? 'bg-red-500/20 border-red-500 text-white font-bold ring-1 ring-red-500'
-                    : 'bg-white/5 border-white/5 text-gray-300 hover:bg-white/10'
-                }`}
-              >
-                <KitJersey clubId={p.clubId} position={p.position} className="w-6 h-6 flex-shrink-0" />
-                <div className="min-w-0 flex-1">
-                  <div className="text-[11px] font-bold truncate">{p.webName}</div>
-                  <div className="text-[9px] text-gray-400 flex justify-between">
-                    <span>{p.position}</span>
-                    <span>£{p.cost.toFixed(1)}m</span>
+                return (
+                  <div
+                    key={p.id}
+                    className={`p-1.5 rounded-lg border text-left flex items-center justify-between gap-1 transition-all ${
+                      isSelected
+                        ? 'bg-red-500/20 border-red-500 text-white font-bold ring-1 ring-red-500'
+                        : 'bg-white/5 border-white/10 text-gray-300'
+                    }`}
+                  >
+                    <div
+                      onClick={() => {
+                        if (squad.players.length === 9) {
+                          setOutPlayerId(p.id);
+                          setInPlayerId(null);
+                        }
+                      }}
+                      className={`flex items-center gap-1.5 min-w-0 flex-1 ${squad.players.length === 9 ? 'cursor-pointer hover:opacity-80' : ''}`}
+                    >
+                      <KitJersey clubId={p.clubId} position={p.position} className="w-6 h-6 flex-shrink-0" />
+                      <div className="min-w-0 flex-1">
+                        <div className="text-[11px] font-bold truncate">{p.webName}</div>
+                        <div className="text-[9px] text-gray-400 flex items-center gap-1">
+                          <span className="px-1 rounded bg-white/10 text-gray-300 font-bold">{p.position}</span>
+                          <span>£{p.cost.toFixed(1)}m</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleRemovePlayer(p.id);
+                      }}
+                      className="p-1 rounded bg-red-500/10 hover:bg-red-500/30 text-red-400 text-[10px] flex-shrink-0"
+                      title="Sell player (refund to bank)"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
                   </div>
-                </div>
-              </button>
-            );
-          })}
-        </div>
+                );
+              })}
+            </div>
+
+            {squad.players.length < 9 && (
+              <div className="text-[10px] text-[#00ff87] text-center pt-1 border-t border-white/5 font-bold">
+                {9 - squad.players.length} open slot(s) remaining • £{squad.bank.toFixed(1)}m in bank
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Step 2: Transfer In Replacement Market */}
@@ -336,11 +419,32 @@ export const TransfersView: React.FC = () => {
                 ? (isStarterOut ? squad.bank + outPlayer.cost >= p.cost : true)
                 : squad.bank >= p.cost;
 
+              const posLimitReached =
+                (p.position === 'GKP' && comp.gkCount >= 1) ||
+                (p.position === 'DEF' && comp.defCount >= 3) ||
+                (p.position === 'MID' && comp.midCount >= 3) ||
+                (p.position === 'FWD' && comp.fwdCount >= 2);
+
+              const buyBlockReason =
+                posLimitReached
+                  ? `${p.position} Full`
+                  : squad.players.length >= 9
+                  ? 'Squad Full'
+                  : squad.bank < p.cost
+                  ? 'No funds'
+                  : null;
+
+              const canBuyDirect = !buyBlockReason;
+
               return (
                 <div
                   key={p.id}
-                  onClick={() => setInPlayerId(p.id)}
-                  className={`p-2 rounded-lg border flex items-center justify-between cursor-pointer transition-all ${
+                  onClick={() => {
+                    if (outPlayer) setInPlayerId(p.id);
+                  }}
+                  className={`p-2 rounded-lg border flex items-center justify-between transition-all ${
+                    outPlayer ? 'cursor-pointer' : ''
+                  } ${
                     isSelected
                       ? 'bg-[#00ff87]/20 border-[#00ff87] ring-1 ring-[#00ff87]'
                       : 'bg-white/5 border-white/5 hover:bg-white/10'
@@ -362,7 +466,7 @@ export const TransfersView: React.FC = () => {
                     </div>
                   </div>
 
-                  <div className="text-right">
+                  <div className="flex items-center gap-2">
                     <span
                       className={`text-xs font-black block ${
                         affordable ? 'text-white' : 'text-red-400'
@@ -370,8 +474,33 @@ export const TransfersView: React.FC = () => {
                     >
                       £{p.cost.toFixed(1)}m
                     </span>
-                    {isSelected && (
-                      <span className="text-[9px] font-black text-[#00ff87] uppercase">Selected</span>
+
+                    {outPlayer ? (
+                      isSelected && (
+                        <span className="text-[9px] font-black text-[#00ff87] uppercase">Selected</span>
+                      )
+                    ) : (
+                      <button
+                        disabled={!canBuyDirect}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleBuyPlayer(p.id);
+                        }}
+                        className={`px-2.5 py-1 rounded-lg font-black uppercase text-[10px] transition-all flex items-center gap-1 ${
+                          canBuyDirect
+                            ? 'bg-[#00ff87] text-[#37003c] shadow-glow-green hover:opacity-95'
+                            : 'bg-white/5 text-gray-500 cursor-not-allowed border border-white/5'
+                        }`}
+                      >
+                        {canBuyDirect ? (
+                          <>
+                            <Plus className="w-3 h-3" />
+                            <span>Buy</span>
+                          </>
+                        ) : (
+                          <span>{buyBlockReason}</span>
+                        )}
+                      </button>
                     )}
                   </div>
                 </div>

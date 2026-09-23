@@ -173,8 +173,8 @@ app.post('/api/auth/register', (req: Request, res: Response) => {
     squad: {
       teamName: teamName.trim(),
       managerName: managerName.trim(),
-      players: [...DEFAULT_SQUAD_PLAYER_IDS],
-      bank: 5.3,
+      players: [],
+      bank: 60.0,
       freeTransfers: 1,
       transfersMadeThisGW: 0,
       activeChip: null,
@@ -353,8 +353,8 @@ app.post('/api/manager/login', (req: Request, res: Response) => {
       squad: {
         teamName: teamName.trim(),
         managerName: managerName.trim(),
-        players: [...DEFAULT_SQUAD_PLAYER_IDS],
-        bank: 5.3,
+        players: [],
+        bank: 60.0,
         freeTransfers: 1,
         transfersMadeThisGW: 0,
         activeChip: null,
@@ -421,12 +421,27 @@ app.post('/api/squad/save', (req: Request, res: Response) => {
   }
 
   if (players && Array.isArray(players)) {
+    // Check for duplicate player IDs
+    const uniqueIds = new Set(players.map((sp: any) => sp.playerId));
+    if (uniqueIds.size !== players.length) {
+      return res.status(400).json({ error: 'Duplicate player detected in squad!' });
+    }
+
     const gkCount = players.filter((sp: any) => data.players[sp.playerId]?.position === 'GKP').length;
     const defCount = players.filter((sp: any) => data.players[sp.playerId]?.position === 'DEF').length;
     const midCount = players.filter((sp: any) => data.players[sp.playerId]?.position === 'MID').length;
     const fwdCount = players.filter((sp: any) => data.players[sp.playerId]?.position === 'FWD').length;
 
-    if (gkCount !== 1 || defCount !== 3 || midCount !== 3 || fwdCount !== 2) {
+    // Check position limits (cannot exceed max allowable counts)
+    if (gkCount > 1 || defCount > 3 || midCount > 3 || fwdCount > 2 || players.length > 9) {
+      return res.status(400).json({
+        error: `Squad limits exceeded! Max allowed: 1 GK, 3 Defenders, 3 Midfielders, 2 Forwards (Total 9). Current: ${gkCount} GK, ${defCount} DEF, ${midCount} MID, ${fwdCount} FWD.`,
+      });
+    }
+
+    // If explicit complete squad validation requested (e.g. finalizing match lineup)
+    const isComplete = gkCount === 1 && defCount === 3 && midCount === 3 && fwdCount === 2;
+    if (req.body.validateComplete && !isComplete) {
       return res.status(400).json({
         error: `Cannot play! Squad must have exactly 1 GK, 3 Defenders (mcveli), 3 Midfielders, and 2 Forwards. (Current: ${gkCount} GK, ${defCount} DEF, ${midCount} MID, ${fwdCount} FWD)`,
       });
@@ -436,10 +451,8 @@ app.post('/api/squad/save', (req: Request, res: Response) => {
     if (typeof bank === 'number') {
       manager.squad.bank = Math.round(bank * 10) / 10;
     } else {
-      const startersCost = players
-        .filter((sp: any) => sp.isStarter)
-        .reduce((sum: number, sp: any) => sum + (data.players[sp.playerId]?.cost || 0), 0);
-      manager.squad.bank = Math.max(0, Math.round((60.0 - startersCost) * 10) / 10);
+      const totalCost = players.reduce((sum: number, sp: any) => sum + (data.players[sp.playerId]?.cost || 0), 0);
+      manager.squad.bank = Math.max(0, Math.round((60.0 - totalCost) * 10) / 10);
     }
   }
 

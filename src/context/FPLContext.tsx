@@ -46,7 +46,9 @@ interface FPLContextType {
   selectedPlayerForSwap: string | null;
   setSelectedPlayerForSwap: (id: string | null) => void;
   substitutePlayers: (playerAId: string, playerBId: string) => { success: boolean; message?: string };
-  saveSquad: (customPlayers?: SquadPlayer[]) => Promise<{ success: boolean; message?: string }>;
+  saveSquad: (customPlayers?: SquadPlayer[], validateComplete?: boolean) => Promise<{ success: boolean; message?: string }>;
+  buyPlayer: (playerId: string) => { success: boolean; message?: string };
+  removePlayer: (playerId: string) => { success: boolean; message?: string };
   setCaptain: (playerId: string) => void;
   setViceCaptain: (playerId: string) => void;
   activateChip: (chip: ChipType) => boolean;
@@ -184,33 +186,16 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        if (
-          parsed &&
-          Array.isArray(parsed.players) &&
-          parsed.players.length === 9 &&
-          parsed.players.filter((p: any) => p.isStarter).length === 6
-        ) {
-          const playersLookup: Record<string, Player> = {};
-          SEED_PLAYERS.forEach((p) => { playersLookup[p.id] = p; });
-          const savedPlayersRaw = localStorage.getItem(STORAGE_KEY_PLAYERS);
-          if (savedPlayersRaw) {
-            try {
-              const parsedPlayers = JSON.parse(savedPlayersRaw);
-              Object.assign(playersLookup, parsedPlayers);
-            } catch (e) {}
-          }
-          const comp = validateSquadComposition(parsed.players, playersLookup);
-          if (comp.isValid) {
-            return parsed;
-          }
+        if (parsed && Array.isArray(parsed.players) && parsed.players.length <= 9) {
+          return parsed;
         }
       } catch (e) { /* fallback */ }
     }
     return {
-      teamName: 'Apex XI',
-      managerName: 'Apex Manager',
-      players: DEFAULT_SQUAD_PLAYER_IDS,
-      bank: 5.3,
+      teamName: 'My Team',
+      managerName: 'Manager',
+      players: [],
+      bank: 60.0,
       freeTransfers: 1,
       transfersMadeThisGW: 0,
       activeChip: null,
@@ -357,10 +342,8 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const teamValue = useMemo(() => {
     let cost = 0;
     squad.players.forEach((sp) => {
-      if (sp.isStarter) {
-        const p = players[sp.playerId];
-        if (p) cost += p.cost;
-      }
+      const p = players[sp.playerId];
+      if (p) cost += p.cost;
     });
     return Math.round(cost * 10) / 10;
   }, [squad.players, players]);
@@ -395,8 +378,8 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       setSquad({
         teamName,
         managerName,
-        players: [...DEFAULT_SQUAD_PLAYER_IDS],
-        bank: 5.3,
+        players: [],
+        bank: 60.0,
         freeTransfers: 1,
         transfersMadeThisGW: 0,
         activeChip: null,
@@ -483,23 +466,25 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   // Explicit Save Squad to Backend Database & LocalStorage
-  const saveSquad = async (customPlayers?: SquadPlayer[]): Promise<{ success: boolean; message?: string }> => {
+  const saveSquad = async (
+    customPlayers?: SquadPlayer[],
+    validateComplete: boolean = false
+  ): Promise<{ success: boolean; message?: string }> => {
     try {
       const targetPlayers = customPlayers || squad.players;
 
-      const compValidation = validateSquadComposition(targetPlayers, players);
-      if (!compValidation.isValid) {
-        return {
-          success: false,
-          message: compValidation.message || 'Cannot save squad: You must have 1 GK, 3 Defenders, 3 Midfielders, and 2 Forwards.',
-        };
+      if (validateComplete) {
+        const compValidation = validateSquadComposition(targetPlayers, players);
+        if (!compValidation.isValid) {
+          return {
+            success: false,
+            message: compValidation.message || 'Cannot finalize squad: You must have 1 GK, 3 Defenders, 3 Midfielders, and 2 Forwards.',
+          };
+        }
       }
 
-      const startersCost = targetPlayers
-        .filter((sp) => sp.isStarter)
-        .reduce((sum, sp) => sum + (players[sp.playerId]?.cost || 0), 0);
-      const roundedStartersCost = Math.round(startersCost * 10) / 10;
-      const calculatedBank = Math.max(0, Math.round((60.0 - roundedStartersCost) * 10) / 10);
+      const totalCost = targetPlayers.reduce((sum, sp) => sum + (players[sp.playerId]?.cost || 0), 0);
+      const calculatedBank = Math.max(0, Math.round((60.0 - totalCost) * 10) / 10);
 
       const updatedSquad: Squad = {
         ...squad,
@@ -514,7 +499,8 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         currentManagerId,
         targetPlayers,
         updatedSquad.teamName,
-        calculatedBank
+        calculatedBank,
+        validateComplete
       );
 
       if (res && res.squad) {
@@ -527,6 +513,154 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       console.error('Failed to save squad to database:', err);
       return { success: false, message: err?.message || 'Failed to save squad to database' };
     }
+  };
+
+  // Buy a player from market into squad using available £60.0m budget
+  const buyPlayer = (playerId: string): { success: boolean; message?: string } => {
+    const p = players[playerId];
+    if (!p) return { success: false, message: 'Player not found' };
+
+    if (squad.players.some((sp) => sp.playerId === playerId)) {
+      return { success: false, message: `${p.webName} is already in your squad!` };
+    }
+
+    if (squad.players.length >= 9) {
+      return { success: false, message: 'Squad is full (9/9 players). Remove a player first.' };
+    }
+
+    // Position count limits: 1 GK, 3 DEF, 3 MID, 2 FWD
+    const currentPosCount = squad.players.filter(
+      (sp) => players[sp.playerId]?.position === p.position
+    ).length;
+
+    const limits: Record<Position, number> = { GKP: 1, DEF: 3, MID: 3, FWD: 2 };
+    if (currentPosCount >= limits[p.position]) {
+      const posLabels: Record<Position, string> = {
+        GKP: 'Goalkeepers (max 1)',
+        DEF: 'Defenders (max 3)',
+        MID: 'Midfielders (max 3)',
+        FWD: 'Forwards (max 2)',
+      };
+      return {
+        success: false,
+        message: `Position full! You already have the maximum allowed ${posLabels[p.position]}.`,
+      };
+    }
+
+    // Club limits (max 3 per club, or 15 for school club SCH)
+    const currentClubCount = squad.players.filter(
+      (sp) => players[sp.playerId]?.clubId === p.clubId
+    ).length;
+    const maxClubLimit = p.clubId === 'SCH' ? 15 : 3;
+    if (currentClubCount >= maxClubLimit) {
+      return {
+        success: false,
+        message: `Maximum ${maxClubLimit} players allowed from ${CLUBS[p.clubId]?.name || p.clubId}`,
+      };
+    }
+
+    // Budget check
+    if (p.cost > squad.bank) {
+      return {
+        success: false,
+        message: `Insufficient budget! Costs £${p.cost.toFixed(1)}m, but you have £${squad.bank.toFixed(1)}m in bank.`,
+      };
+    }
+
+    // Determine starter vs bench
+    // GKP always starts
+    const currentStarters = squad.players.filter((sp) => sp.isStarter);
+    let shouldStart = false;
+    if (p.position === 'GKP') {
+      shouldStart = true;
+    } else if (currentStarters.length < 6) {
+      shouldStart = true;
+    }
+
+    const currentBench = squad.players.filter((sp) => !sp.isStarter);
+    const benchOrder = shouldStart ? 0 : currentBench.length + 1;
+
+    const hasCaptain = squad.players.some((sp) => sp.isCaptain);
+    const hasVice = squad.players.some((sp) => sp.isViceCaptain);
+    const isCaptain = shouldStart && !hasCaptain;
+    const isViceCaptain = shouldStart && hasCaptain && !hasVice;
+
+    const newSquadPlayer: SquadPlayer = {
+      playerId,
+      isStarter: shouldStart,
+      benchOrder,
+      isCaptain,
+      isViceCaptain,
+    };
+
+    const newPlayers = [...squad.players, newSquadPlayer];
+    const newBank = Math.max(0, Math.round((squad.bank - p.cost) * 10) / 10);
+
+    const updatedSquad: Squad = {
+      ...squad,
+      players: newPlayers,
+      bank: newBank,
+    };
+
+    setSquad(updatedSquad);
+    localStorage.setItem(STORAGE_KEY_SQUAD, JSON.stringify(updatedSquad));
+    api.saveSquadApi(currentManagerId, newPlayers, updatedSquad.teamName, newBank).catch((e) => {
+      console.warn('Auto-save squad buy player failed:', e);
+    });
+
+    return { success: true };
+  };
+
+  // Remove/Sell a player from squad and refund 100% of price back to bank
+  const removePlayer = (playerId: string): { success: boolean; message?: string } => {
+    const target = squad.players.find((sp) => sp.playerId === playerId);
+    if (!target) return { success: false, message: 'Player not in squad' };
+
+    const p = players[playerId];
+    const refund = p ? p.cost : 0;
+
+    let remaining = squad.players.filter((sp) => sp.playerId !== playerId);
+
+    // If removed player was Captain or Vice-Captain, reassign
+    if (target.isCaptain) {
+      const nextStarter = remaining.find((sp) => sp.isStarter);
+      if (nextStarter) {
+        remaining = remaining.map((sp) =>
+          sp.playerId === nextStarter.playerId ? { ...sp, isCaptain: true, isViceCaptain: false } : sp
+        );
+      }
+    } else if (target.isViceCaptain) {
+      const nextStarter = remaining.find((sp) => sp.isStarter && !sp.isCaptain);
+      if (nextStarter) {
+        remaining = remaining.map((sp) =>
+          sp.playerId === nextStarter.playerId ? { ...sp, isViceCaptain: true } : sp
+        );
+      }
+    }
+
+    // Re-index bench orders (1, 2, 3)
+    let benchIdx = 1;
+    remaining = remaining.map((sp) => {
+      if (!sp.isStarter) {
+        return { ...sp, benchOrder: benchIdx++ };
+      }
+      return sp;
+    });
+
+    const newBank = Math.round((squad.bank + refund) * 10) / 10;
+    const updatedSquad: Squad = {
+      ...squad,
+      players: remaining,
+      bank: newBank,
+    };
+
+    setSquad(updatedSquad);
+    localStorage.setItem(STORAGE_KEY_SQUAD, JSON.stringify(updatedSquad));
+    api.saveSquadApi(currentManagerId, remaining, updatedSquad.teamName, newBank).catch((e) => {
+      console.warn('Auto-save squad remove player failed:', e);
+    });
+
+    return { success: true };
   };
 
   // Substitute / Swap logic
@@ -1022,6 +1156,8 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setSelectedPlayerForSwap,
         substitutePlayers,
         saveSquad,
+        buyPlayer,
+        removePlayer,
         setCaptain,
         setViceCaptain,
         activateChip,
