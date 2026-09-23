@@ -855,20 +855,6 @@
       "isAvailable": true,
       "gwStats": {}
     },
-    "p_9_5_t__tsiskaradze": {
-      "id": "p_9_5_t__tsiskaradze",
-      "name": "Tsotne Tsiskaradze",
-      "webName": "T. Tsiskaradze",
-      "clubId": "SCH_9_5",
-      "position": "MID",
-      "cost": 5,
-      "totalPoints": 0,
-      "gwPoints": 0,
-      "form": 5,
-      "selectedByPercent": 5,
-      "isAvailable": true,
-      "gwStats": {}
-    },
     "p_9_5_miqeladze": {
       "id": "p_9_5_miqeladze",
       "name": "Giorgi Miqeladze",
