@@ -274,3 +274,34 @@ export async function adminResetPasswordApi(username: string, newPassword: strin
   return data;
 }
 
+export const adminExportDbUrl = `${API_BASE}/api/admin/db/export`;
+
+export async function adminImportDbApi(dbData: any) {
+  const res = await fetch(`${API_BASE}/api/admin/db/import`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ dbData }),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Failed to import database');
+  return data;
+}
+
+export async function adminSyncGithubApi(params: {
+  token?: string;
+  message?: string;
+  owner?: string;
+  repo?: string;
+  branch?: string;
+}) {
+  const res = await fetch(`${API_BASE}/api/admin/db/sync-github`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(params),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Failed to sync with GitHub');
+  return data;
+}
+
+

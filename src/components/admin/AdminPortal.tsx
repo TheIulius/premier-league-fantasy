@@ -24,8 +24,20 @@ import {
   Layers,
   Key,
   Users as UsersIcon,
+  Database,
+  Download,
+  Upload,
+  ExternalLink,
+  GitBranch,
+  Save,
 } from 'lucide-react';
-import { adminFetchUsersApi, adminResetPasswordApi } from '../../services/api';
+import {
+  adminFetchUsersApi,
+  adminResetPasswordApi,
+  adminExportDbUrl,
+  adminImportDbApi,
+  adminSyncGithubApi,
+} from '../../services/api';
 import confetti from 'canvas-confetti';
 
 export const AdminPortal: React.FC = () => {
@@ -100,6 +112,69 @@ export const AdminPortal: React.FC = () => {
       setIsResetting(false);
     }
   };
+
+  // Database Sync & Persistence State
+  const [githubToken, setGithubToken] = useState<string>(() => {
+    return localStorage.getItem('fpl_admin_gh_token') || '';
+  });
+  const [isSyncingGithub, setIsSyncingGithub] = useState(false);
+  const [lastCommitUrl, setLastCommitUrl] = useState<string | null>(null);
+  const [isImportingDb, setIsImportingDb] = useState(false);
+
+  const handleSyncToGithub = async () => {
+    if (!githubToken.trim()) {
+      alert('Please enter your GitHub Personal Access Token (classic or fine-grained with Repository Contents write permission).');
+      return;
+    }
+    setIsSyncingGithub(true);
+    setLastCommitUrl(null);
+    try {
+      localStorage.setItem('fpl_admin_gh_token', githubToken.trim());
+      const res = await adminSyncGithubApi({
+        token: githubToken.trim(),
+        message: `Admin update: player prices & game database - GW ${currentGW}`,
+      });
+      if (res.success) {
+        showNotification('Database successfully committed to GitHub repository!');
+        setLastCommitUrl(res.commitUrl || null);
+        confetti({
+          particleCount: 50,
+          spread: 60,
+          origin: { y: 0.6 },
+          colors: ['#00ff87', '#04f5ff'],
+        });
+      }
+    } catch (err: any) {
+      alert(err.message || 'Failed to sync database to GitHub');
+    } finally {
+      setIsSyncingGithub(false);
+    }
+  };
+
+  const handleImportDatabase = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+      try {
+        const parsed = JSON.parse(event.target?.result as string);
+        if (!parsed || !parsed.players) {
+          alert('Invalid database JSON file format.');
+          return;
+        }
+        setIsImportingDb(true);
+        await adminImportDbApi(parsed);
+        showNotification('Database imported successfully! Reloading...');
+        setTimeout(() => window.location.reload(), 1500);
+      } catch (err: any) {
+        alert(err.message || 'Failed to parse JSON file');
+      } finally {
+        setIsImportingDb(false);
+      }
+    };
+    reader.readAsText(file);
+  };
+
 
   // Games & Fixtures Admin State
   const [selectedGWForFix, setSelectedGWForFix] = useState<number>(currentGW);
@@ -1160,7 +1235,23 @@ export const AdminPortal: React.FC = () => {
                           <button
                             onClick={() => {
                               const num = parseFloat(editCost);
-                              if (num > 0) editPlayer(p.id, { cost: num });
+                              if (num > 0) {
+                                editPlayer(p.id, { cost: num });
+                                const savedToken = localStorage.getItem('fpl_admin_gh_token');
+                                if (savedToken) {
+                                  showNotification(`Updating ${p.webName} to £${num.toFixed(1)}m & syncing with GitHub...`);
+                                  adminSyncGithubApi({
+                                    token: savedToken,
+                                    message: `Update ${p.webName} price to £${num.toFixed(1)}m`,
+                                  }).then(() => {
+                                    showNotification(`Updated ${p.webName} to £${num.toFixed(1)}m & saved permanently to GitHub!`);
+                                  }).catch(() => {
+                                    showNotification(`Updated ${p.webName} to £${num.toFixed(1)}m locally (GitHub sync failed)`);
+                                  });
+                                } else {
+                                  showNotification(`Updated ${p.webName} to £${num.toFixed(1)}m. (Tip: Enter GitHub PAT in ⚙️ Ops to auto-save to GitHub)`);
+                                }
+                              }
                               setEditingPlayerId(null);
                             }}
                             className="p-1 bg-[#00ff87] text-[#111] rounded text-[10px] font-bold"
@@ -1359,6 +1450,104 @@ export const AdminPortal: React.FC = () => {
               <span>Advance</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </button>
+          </div>
+
+          {/* GitHub Database Sync (Permanent Storage across Deploys) */}
+          <div className="p-3.5 rounded-2xl bg-gradient-to-r from-[#1e0828] to-[#2c0b38] border border-[#00ff87]/30 space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-black text-white uppercase flex items-center gap-1.5">
+                <GitBranch className="w-4 h-4 text-[#00ff87]" />
+                GitHub Database Sync (Permanent)
+              </span>
+              <span className="text-[10px] font-bold text-[#00ff87] bg-[#00ff87]/10 px-2 py-0.5 rounded-full border border-[#00ff87]/30">
+                Prevents Price Reset
+              </span>
+            </div>
+            <p className="text-[11px] text-gray-300">
+              When hosting on cloud servers (like Render), changes made via the website can be overwritten whenever a new server version is pushed to GitHub. Committing your database directly to GitHub's <code className="text-[#00ff87] bg-black/40 px-1 py-0.5 rounded">data/db.json</code> makes your changes 100% permanent!
+            </p>
+
+            <div className="space-y-1.5">
+              <label className="text-[10px] uppercase font-bold text-gray-400 block">
+                GitHub Personal Access Token (PAT)
+              </label>
+              <div className="flex gap-1.5">
+                <input
+                  type="password"
+                  value={githubToken}
+                  onChange={(e) => setGithubToken(e.target.value)}
+                  placeholder="ghp_xxxxxxxxxxxxxxxxxxxx"
+                  className="flex-1 bg-black/60 border border-white/15 focus:border-[#00ff87] text-white px-2.5 py-1.5 rounded-xl text-xs outline-none"
+                />
+                <button
+                  onClick={() => {
+                    localStorage.setItem('fpl_admin_gh_token', githubToken.trim());
+                    showNotification('Token remembered locally!');
+                  }}
+                  className="px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white text-xs font-bold rounded-xl"
+                  title="Remember Token"
+                >
+                  <Save className="w-3.5 h-3.5" />
+                </button>
+              </div>
+              <span className="text-[9px] text-gray-500 block">
+                Needs <strong>repo</strong> or <strong>Contents: read & write</strong> permission. Stored safely in your browser.
+              </span>
+            </div>
+
+            <button
+              onClick={handleSyncToGithub}
+              disabled={isSyncingGithub}
+              className="w-full py-2.5 rounded-xl font-black text-xs uppercase tracking-wider bg-gradient-to-r from-[#00ff87] to-[#04f5ff] text-[#111] shadow-glow-green hover:opacity-95 flex items-center justify-center gap-2 disabled:opacity-50"
+            >
+              <Database className="w-4 h-4" />
+              <span>{isSyncingGithub ? 'Committing to GitHub...' : 'Commit Live Database to GitHub'}</span>
+            </button>
+
+            {lastCommitUrl && (
+              <a
+                href={lastCommitUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="text-[11px] text-[#00ff87] hover:underline flex items-center gap-1 justify-center pt-1"
+              >
+                <span>View committed db.json on GitHub</span>
+                <ExternalLink className="w-3 h-3" />
+              </a>
+            )}
+          </div>
+
+          {/* Database Export & Import Backup */}
+          <div className="p-3.5 rounded-2xl bg-[#230026] border border-white/10 space-y-2.5">
+            <span className="text-xs font-black text-white uppercase flex items-center gap-1.5">
+              <Database className="w-3.5 h-3.5 text-[#04f5ff]" />
+              Manual Database Backup & Restore
+            </span>
+            <p className="text-[11px] text-gray-400">
+              Download a complete JSON snapshot of all players, prices, manager squads, and fixtures to your computer, or restore from a previous file anytime.
+            </p>
+
+            <div className="grid grid-cols-2 gap-2 pt-1">
+              <a
+                href={adminExportDbUrl}
+                download="db.json"
+                className="py-2 px-3 rounded-xl bg-white/10 hover:bg-white/15 text-white font-bold text-xs flex items-center justify-center gap-1.5 border border-white/10 text-center"
+              >
+                <Download className="w-3.5 h-3.5 text-[#00ff87]" />
+                <span>Export db.json</span>
+              </a>
+
+              <label className="py-2 px-3 rounded-xl bg-white/10 hover:bg-white/15 text-white font-bold text-xs flex items-center justify-center gap-1.5 border border-white/10 cursor-pointer text-center">
+                <Upload className="w-3.5 h-3.5 text-[#04f5ff]" />
+                <span>{isImportingDb ? 'Importing...' : 'Import db.json'}</span>
+                <input
+                  type="file"
+                  accept=".json"
+                  onChange={handleImportDatabase}
+                  className="hidden"
+                />
+              </label>
+            </div>
           </div>
 
           {/* Reset All Data to Seed */}

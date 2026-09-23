@@ -769,6 +769,94 @@ app.post('/api/admin/reset', (req: Request, res: Response) => {
   res.json({ success: true });
 });
 
+// 11a. Database Export
+app.get('/api/admin/db/export', (req: Request, res: Response) => {
+  const data = db.getData();
+  res.setHeader('Content-Type', 'application/json');
+  res.setHeader('Content-Disposition', 'attachment; filename="db.json"');
+  res.send(JSON.stringify(data, null, 2));
+});
+
+// 11b. Database Import
+app.post('/api/admin/db/import', (req: Request, res: Response) => {
+  const { dbData } = req.body;
+  if (!dbData || typeof dbData !== 'object' || !dbData.players) {
+    return res.status(400).json({ error: 'Invalid database JSON format' });
+  }
+  db.setData(dbData);
+  res.json({ success: true, message: 'Database imported and saved successfully!' });
+});
+
+// 11c. Sync / Commit Database directly to GitHub
+app.post('/api/admin/db/sync-github', async (req: Request, res: Response) => {
+  const token = req.body.token || process.env.GITHUB_TOKEN;
+  const owner = req.body.owner || process.env.GITHUB_OWNER || 'TheIulius';
+  const repo = req.body.repo || process.env.GITHUB_REPO || 'premier-league-fantasy';
+  const branch = req.body.branch || 'main';
+  const message = req.body.message || 'Update database from Dev Portal';
+
+  if (!token) {
+    return res.status(400).json({
+      error: 'GitHub Personal Access Token required to commit directly to GitHub repository.',
+    });
+  }
+
+  try {
+    const data = db.getData();
+    const contentStr = JSON.stringify(data, null, 2);
+    const base64Content = Buffer.from(contentStr, 'utf-8').toString('base64');
+    const filePath = 'data/db.json';
+
+    // 1. Fetch current file SHA
+    const getRes = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${filePath}?ref=${branch}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: 'application/vnd.github.v3+json',
+        'User-Agent': 'Premier-League-Fantasy-App',
+      },
+    });
+
+    let sha: string | undefined;
+    if (getRes.ok) {
+      const getJson: any = await getRes.json();
+      sha = getJson.sha;
+    }
+
+    // 2. Commit file directly to GitHub repo
+    const putRes = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${filePath}`, {
+      method: 'PUT',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: 'application/vnd.github.v3+json',
+        'Content-Type': 'application/json',
+        'User-Agent': 'Premier-League-Fantasy-App',
+      },
+      body: JSON.stringify({
+        message,
+        content: base64Content,
+        sha,
+        branch,
+      }),
+    });
+
+    const putJson: any = await putRes.json();
+    if (!putRes.ok) {
+      return res.status(putRes.status).json({
+        error: putJson.message || 'Failed to commit to GitHub',
+        details: putJson,
+      });
+    }
+
+    return res.json({
+      success: true,
+      message: 'Successfully committed database to GitHub!',
+      commitUrl: putJson.commit?.html_url,
+    });
+  } catch (err: any) {
+    return res.status(500).json({ error: err.message || 'Failed to sync with GitHub' });
+  }
+});
+
 // 11b. Developer Admin: Add Game / Fixture
 app.post('/api/admin/fixture/add', (req: Request, res: Response) => {
   const { gameweek, homeClubId, awayClubId, homeScore, awayScore, isFinished, isLive, kickoffTime } = req.body;

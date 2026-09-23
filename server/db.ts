@@ -151,6 +151,11 @@ class Database {
     return this.data;
   }
 
+  public setData(newData: DatabaseSchema): void {
+    this.data = newData;
+    this.save();
+  }
+
   public save(): void {
     try {
       const tempFile = DB_FILE + '.tmp';
