@@ -2086,6 +2086,20 @@
       "selectedByPercent": 5,
       "isAvailable": true,
       "gwStats": {}
+    },
+    "p_custom_1790279808543": {
+      "id": "p_custom_1790279808543",
+      "name": "Irakli Barnovi",
+      "webName": "Barnovi",
+      "clubId": "SCH_11_2",
+      "position": "FWD",
+      "cost": 6.5,
+      "totalPoints": 0,
+      "gwPoints": 0,
+      "form": 5,
+      "selectedByPercent": 5,
+      "isAvailable": true,
+      "gwStats": {}
     }
   },
   "clubs": {
