@@ -2058,6 +2058,20 @@
       "selectedByPercent": 5,
       "isAvailable": true,
       "gwStats": {}
+    },
+    "p_custom_1790273600180": {
+      "id": "p_custom_1790273600180",
+      "name": "Cotne Mandaria",
+      "webName": "Mandara",
+      "clubId": "SCH_11_5",
+      "position": "DEF",
+      "cost": 5,
+      "totalPoints": 0,
+      "gwPoints": 0,
+      "form": 5,
+      "selectedByPercent": 5,
+      "isAvailable": true,
+      "gwStats": {}
     }
   },
   "clubs": {
