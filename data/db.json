@@ -1764,6 +1764,20 @@
       "selectedByPercent": 5,
       "isAvailable": true,
       "gwStats": {}
+    },
+    "p_custom_1790259253781": {
+      "id": "p_custom_1790259253781",
+      "name": "Nikoloz Aplakovi",
+      "webName": "Aplakovi",
+      "clubId": "SCH_11_4",
+      "position": "DEF",
+      "cost": 2.9,
+      "totalPoints": 0,
+      "gwPoints": 0,
+      "form": 5,
+      "selectedByPercent": 5,
+      "isAvailable": true,
+      "gwStats": {}
     }
   },
   "clubs": {
