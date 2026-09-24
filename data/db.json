@@ -2044,6 +2044,20 @@
       "selectedByPercent": 5,
       "isAvailable": true,
       "gwStats": {}
+    },
+    "p_custom_1790273584975": {
+      "id": "p_custom_1790273584975",
+      "name": "Ilia Shinjiashvili",
+      "webName": "Shinjo",
+      "clubId": "SCH_11_5",
+      "position": "MID",
+      "cost": 6,
+      "totalPoints": 0,
+      "gwPoints": 0,
+      "form": 5,
+      "selectedByPercent": 5,
+      "isAvailable": true,
+      "gwStats": {}
     }
   },
   "clubs": {
