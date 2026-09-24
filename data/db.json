@@ -1687,7 +1687,7 @@
       "webName": "E. Katamadze",
       "clubId": "SCH_10_1",
       "position": "MID",
-      "cost": 7.4,
+      "cost": 8,
       "totalPoints": 0,
       "gwPoints": 0,
       "form": 5,
@@ -2038,7 +2038,25 @@
       "kickoffTime": "Sat 14:00"
     }
   ],
-  "leagues": [],
+  "leagues": [
+    {
+      "id": "league_1790266146852",
+      "name": "231",
+      "code": "KCL-DLHD7",
+      "isGlobal": false,
+      "members": [
+        {
+          "id": "user_1",
+          "managerName": "Apex Manager",
+          "teamName": "Apex XI",
+          "totalPoints": 0,
+          "gwPoints": 0,
+          "rank": 1,
+          "previousRank": 1
+        }
+      ]
+    }
+  ],
   "managers": {
     "user_1": {
       "id": "user_1",
@@ -2241,8 +2259,72 @@
       "squad": {
         "teamName": "Apex XI",
         "managerName": "My Team Manager",
-        "players": [],
-        "bank": 60,
+        "players": [
+          {
+            "playerId": "p_11_2_chiqvinidze",
+            "isStarter": true,
+            "benchOrder": 0,
+            "isCaptain": false,
+            "isViceCaptain": false
+          },
+          {
+            "playerId": "p_zurashvili",
+            "isStarter": true,
+            "benchOrder": 0,
+            "isCaptain": false,
+            "isViceCaptain": false
+          },
+          {
+            "playerId": "p_9_6_mzhavanadze",
+            "isStarter": false,
+            "benchOrder": 1,
+            "isCaptain": false,
+            "isViceCaptain": false
+          },
+          {
+            "playerId": "p_custom_1790194618189",
+            "isStarter": true,
+            "benchOrder": 0,
+            "isCaptain": false,
+            "isViceCaptain": true
+          },
+          {
+            "playerId": "p_10_1_katamadze",
+            "isStarter": true,
+            "benchOrder": 0,
+            "isCaptain": false,
+            "isViceCaptain": false
+          },
+          {
+            "playerId": "p_chaga",
+            "isStarter": true,
+            "benchOrder": 0,
+            "isCaptain": true,
+            "isViceCaptain": false
+          },
+          {
+            "playerId": "p_9_6_qvaraia",
+            "isStarter": false,
+            "benchOrder": 2,
+            "isCaptain": false,
+            "isViceCaptain": false
+          },
+          {
+            "playerId": "p_giorguna",
+            "isStarter": false,
+            "benchOrder": 3,
+            "isCaptain": false,
+            "isViceCaptain": false
+          },
+          {
+            "playerId": "p_10_1_shengelia",
+            "isStarter": true,
+            "benchOrder": 0,
+            "isCaptain": false,
+            "isViceCaptain": false
+          }
+        ],
+        "bank": 0.4,
         "freeTransfers": 1,
         "transfersMadeThisGW": 0,
         "activeChip": null,
@@ -2253,6 +2335,90 @@
         }
       },
       "joinedAt": "2026-09-23T20:14:59.585Z"
+    },
+    "user_1790177803568": {
+      "id": "user_1790177803568",
+      "managerName": "My Team Manager",
+      "teamName": "Apex XI",
+      "squad": {
+        "teamName": "Apex XI",
+        "managerName": "My Team Manager",
+        "players": [
+          {
+            "playerId": "p_rati",
+            "isStarter": true,
+            "benchOrder": 0,
+            "isCaptain": true,
+            "isViceCaptain": false
+          },
+          {
+            "playerId": "p_custom_1790194618189",
+            "isStarter": true,
+            "benchOrder": 0,
+            "isCaptain": false,
+            "isViceCaptain": true
+          },
+          {
+            "playerId": "p_custom_1790194825803",
+            "isStarter": true,
+            "benchOrder": 0,
+            "isCaptain": false,
+            "isViceCaptain": false
+          },
+          {
+            "playerId": "p_11_2_chiqvinidze",
+            "isStarter": true,
+            "benchOrder": 0,
+            "isCaptain": false,
+            "isViceCaptain": false
+          },
+          {
+            "playerId": "p_10_1_chikovani",
+            "isStarter": true,
+            "benchOrder": 0,
+            "isCaptain": false,
+            "isViceCaptain": false
+          },
+          {
+            "playerId": "p_9_6_kodua",
+            "isStarter": false,
+            "benchOrder": 1,
+            "isCaptain": false,
+            "isViceCaptain": false
+          },
+          {
+            "playerId": "p_custom_1790244156863",
+            "isStarter": true,
+            "benchOrder": 0,
+            "isCaptain": false,
+            "isViceCaptain": false
+          },
+          {
+            "playerId": "p_9_4_midelauri",
+            "isStarter": false,
+            "benchOrder": 2,
+            "isCaptain": false,
+            "isViceCaptain": false
+          },
+          {
+            "playerId": "p_9_6_mzhavanadze",
+            "isStarter": false,
+            "benchOrder": 3,
+            "isCaptain": false,
+            "isViceCaptain": false
+          }
+        ],
+        "bank": 3.1,
+        "freeTransfers": 1,
+        "transfersMadeThisGW": 0,
+        "activeChip": null,
+        "usedChips": {
+          "triple_captain": false,
+          "bench_boost": false,
+          "free_hit": false
+        }
+      },
+      "joinedAt": "2026-09-24T15:28:26.423Z"
     }
   },
   "users": {
