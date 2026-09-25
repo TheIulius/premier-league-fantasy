@@ -6408,6 +6408,26 @@
         }
       },
       "joinedAt": "2026-09-24T15:28:26.423Z"
+    },
+    "user_1790353103544": {
+      "id": "user_1790353103544",
+      "managerName": "Ilia",
+      "teamName": "giorgievski's tractati",
+      "squad": {
+        "teamName": "giorgievski's tractati",
+        "managerName": "Ilia",
+        "players": [],
+        "bank": 60,
+        "freeTransfers": 1,
+        "transfersMadeThisGW": 0,
+        "activeChip": null,
+        "usedChips": {
+          "triple_captain": false,
+          "bench_boost": false,
+          "free_hit": false
+        }
+      },
+      "joinedAt": "2026-09-25T16:18:23.548Z"
     }
   },
   "users": {
@@ -6431,6 +6451,17 @@
       "managerName": "Jack",
       "teamName": "Jack FC",
       "createdAt": "2026-09-20T18:46:38.559Z"
+    },
+    "user_1790353103544": {
+      "id": "user_1790353103544",
+      "username": "theiulius",
+      "email": "theiulius@fantasy.pl",
+      "passwordHash": "3117668ffec30f5b6708295959b91223fa89662bd817ec972ef69e8a03c47758263a5243f52cd0fe48a823a97d9ee8e6c4fe7913dec33c69638c077c33c5fbbf",
+      "salt": "bf561a201267f9bc1552d255a30d0ce4",
+      "managerName": "Ilia",
+      "teamName": "giorgievski's tractati",
+      "token": "8503048813478fb7f6373bf86e4a4bf879fab8143af7088ef1004821fd6aacc0",
+      "createdAt": "2026-09-25T16:18:23.548Z"
     }
   }
 }
