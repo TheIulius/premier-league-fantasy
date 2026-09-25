@@ -410,12 +410,19 @@ export const TransfersView: React.FC = () => {
 
             {/* Tactical Pitch with 9 squad slots (Collapsible on mobile, always visible on lg+) */}
             <div className={`${mobileShowPitch ? 'block' : 'hidden lg:block'} relative rounded-3xl bg-gradient-to-b from-emerald-950/30 via-slate-900/60 to-emerald-950/40 dark:from-emerald-950/40 dark:via-[#09111c] dark:to-emerald-950/30 border border-white/[0.08] shadow-lg p-2.5 sm:p-5 overflow-hidden`}>
-              {/* Subtle Turf Pitch Markings */}
+              {/* Subtle Turf Pitch Markings & Komarovi Champions League Watermark */}
               <div className="absolute inset-0 pointer-events-none opacity-20">
                 <div className="absolute top-0 left-1/4 right-1/4 h-10 border-b border-x border-white/40 rounded-b-xl" />
                 <div className="absolute bottom-0 left-1/4 right-1/4 h-10 border-t border-x border-white/40 rounded-t-xl" />
                 <div className="absolute top-1/2 left-0 right-0 border-t border-white/40" />
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-20 h-20 border border-white/40 rounded-full" />
+              </div>
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none overflow-hidden">
+                <img
+                  src="/kcl-logo-transparent.png"
+                  alt=""
+                  className="w-[180px] sm:w-[240px] opacity-[0.10] object-contain"
+                />
               </div>
 
               <div className="relative z-10 flex flex-col justify-between gap-1.5 sm:gap-3 min-h-[225px] sm:min-h-[340px]">

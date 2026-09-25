@@ -696,7 +696,7 @@ export const ClassCalendarView: React.FC<ClassCalendarViewProps> = ({
 
       {/* Watermark Crest in Top Right */}
       <div className="pointer-events-none absolute top-0 right-1 opacity-[0.06] dark:opacity-[0.08] select-none">
-        <img src="/kcl-logo.svg" alt="" className="w-24 h-24 sm:w-36 sm:h-36 object-contain" />
+        <img src="/kcl-logo-transparent.png" alt="" className="w-24 h-24 sm:w-36 sm:h-36 object-contain" />
       </div>
 
       {/* Compact Top Grade Header & Switcher */}

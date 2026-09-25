@@ -125,9 +125,9 @@ export const PitchView: React.FC<PitchViewProps> = ({
         {/* Massive Etched Watermark Crest in Center Grass */}
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none overflow-hidden">
           <img
-            src="/kcl-logo.svg"
-            alt=""
-            className="w-[340px] sm:w-[380px] md:w-[440px] max-w-[85vw] opacity-[0.09] filter drop-shadow contrast-125"
+            src="/kcl-logo-transparent.png"
+            alt="Komarovi Champions League"
+            className="w-[260px] sm:w-[310px] md:w-[350px] max-w-[75vw] opacity-[0.14] filter drop-shadow contrast-125 object-contain"
           />
         </div>
 
