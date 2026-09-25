@@ -3,6 +3,7 @@ import { useFPL } from '../../context/FPLContext';
 import { KitJersey } from './KitJersey';
 import { canSwapPlayers } from '../../engine/formations';
 import { ArrowLeftRight, Check } from 'lucide-react';
+import { ClassShieldBadge } from '../common/ClassShieldBadge';
 
 interface PlayerCardProps {
   playerId: string;
@@ -150,9 +151,9 @@ export const PlayerCard: React.FC<PlayerCardProps> = ({
         )}
       </div>
 
-      {/* White Nameplate Badge */}
+      {/* White Nameplate Badge with Class Shield */}
       <div
-        className={`w-full text-center px-1 md:px-1.5 py-[1.5px] md:py-1 rounded-t text-[11px] md:text-xs font-bold tracking-tight truncate border-x border-t transition-colors ${
+        className={`w-full text-center px-1 md:px-1.5 py-[1.5px] md:py-1 rounded-t text-[11px] md:text-xs font-bold tracking-tight truncate border-x border-t transition-colors flex items-center justify-center gap-1 ${
           isSwapSource
             ? 'bg-yellow-400 text-black border-yellow-500'
             : isSwapTargetEligible
@@ -160,7 +161,8 @@ export const PlayerCard: React.FC<PlayerCardProps> = ({
             : 'bg-white text-gray-900 border-white/40'
         }`}
       >
-        {player.webName}
+        <ClassShieldBadge clubId={player.clubId} size="xs" className="w-3.5 h-4 flex-shrink-0" />
+        <span className="truncate">{player.webName}</span>
       </div>
 
       {/* Value / Points Plate (Bottom half) */}
