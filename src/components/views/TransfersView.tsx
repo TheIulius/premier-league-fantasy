@@ -57,6 +57,7 @@ export const TransfersView: React.FC = () => {
 
   // Default to Calendar view
   const [viewMode, setViewMode] = useState<'list' | 'classes'>('classes');
+  const [mobileShowPitch, setMobileShowPitch] = useState<boolean>(true);
 
   // Feedback notifications
   const [transferMessage, setTransferMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
@@ -377,14 +378,22 @@ export const TransfersView: React.FC = () => {
           {/* ------------------------------------------------------------- */}
           {/* LEFT COLUMN: MY TEAM SELECTION (TACTICAL FORMATION PITCH)     */}
           {/* ------------------------------------------------------------- */}
-          <div className="lg:col-span-5 lg:sticky lg:top-16 space-y-3">
+          <div className="lg:col-span-5 lg:sticky lg:top-16 space-y-2">
             <div className="flex items-center justify-between px-1">
-              <h2 className="text-xs font-black uppercase tracking-wider text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
-                <span>My Squad Lineup</span>
-                <span className="font-normal font-mono text-[10px] text-slate-400">
-                  ({validSquadCount}/9 selected)
-                </span>
-              </h2>
+              <div className="flex items-center gap-2">
+                <h2 className="text-xs font-black uppercase tracking-wider text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                  <span>My Squad Lineup</span>
+                  <span className="font-normal font-mono text-[10px] text-slate-400">
+                    ({validSquadCount}/9)
+                  </span>
+                </h2>
+                <button
+                  onClick={() => setMobileShowPitch((prev) => !prev)}
+                  className="lg:hidden px-2 py-0.5 rounded-lg bg-slate-200/80 dark:bg-white/10 text-[10px] font-bold text-slate-700 dark:text-slate-300"
+                >
+                  {mobileShowPitch ? 'Hide Pitch ▲' : 'Show Pitch ▼'}
+                </button>
+              </div>
 
               {outPlayer && (
                 <button
@@ -399,17 +408,17 @@ export const TransfersView: React.FC = () => {
               )}
             </div>
 
-            {/* Tactical Pitch with 9 squad slots */}
-            <div className="relative rounded-3xl bg-gradient-to-b from-emerald-950/30 via-slate-900/60 to-emerald-950/40 dark:from-emerald-950/40 dark:via-[#09111c] dark:to-emerald-950/30 border border-white/[0.08] shadow-lg p-3 sm:p-5 overflow-hidden">
+            {/* Tactical Pitch with 9 squad slots (Collapsible on mobile, always visible on lg+) */}
+            <div className={`${mobileShowPitch ? 'block' : 'hidden lg:block'} relative rounded-3xl bg-gradient-to-b from-emerald-950/30 via-slate-900/60 to-emerald-950/40 dark:from-emerald-950/40 dark:via-[#09111c] dark:to-emerald-950/30 border border-white/[0.08] shadow-lg p-2.5 sm:p-5 overflow-hidden`}>
               {/* Subtle Turf Pitch Markings */}
               <div className="absolute inset-0 pointer-events-none opacity-20">
-                <div className="absolute top-0 left-1/4 right-1/4 h-12 border-b border-x border-white/40 rounded-b-xl" />
-                <div className="absolute bottom-0 left-1/4 right-1/4 h-12 border-t border-x border-white/40 rounded-t-xl" />
+                <div className="absolute top-0 left-1/4 right-1/4 h-10 border-b border-x border-white/40 rounded-b-xl" />
+                <div className="absolute bottom-0 left-1/4 right-1/4 h-10 border-t border-x border-white/40 rounded-t-xl" />
                 <div className="absolute top-1/2 left-0 right-0 border-t border-white/40" />
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-24 h-24 border border-white/40 rounded-full" />
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-20 h-20 border border-white/40 rounded-full" />
               </div>
 
-              <div className="relative z-10 flex flex-col justify-between gap-3 min-h-[310px] sm:min-h-[350px]">
+              <div className="relative z-10 flex flex-col justify-between gap-1.5 sm:gap-3 min-h-[225px] sm:min-h-[340px]">
                 {/* GK Row (1 slot) */}
                 <div className="flex justify-center">
                   <SlotCard
@@ -425,7 +434,7 @@ export const TransfersView: React.FC = () => {
                 </div>
 
                 {/* DEF Row (3 slots) */}
-                <div className="flex justify-around gap-1.5 sm:gap-4">
+                <div className="flex justify-around gap-1 sm:gap-4">
                   {[0, 1, 2].map((idx) => (
                     <SlotCard
                       key={`def-${idx}`}
@@ -442,7 +451,7 @@ export const TransfersView: React.FC = () => {
                 </div>
 
                 {/* MID Row (3 slots) */}
-                <div className="flex justify-around gap-1.5 sm:gap-4">
+                <div className="flex justify-around gap-1 sm:gap-4">
                   {[0, 1, 2].map((idx) => (
                     <SlotCard
                       key={`mid-${idx}`}
@@ -459,7 +468,7 @@ export const TransfersView: React.FC = () => {
                 </div>
 
                 {/* FWD Row (2 slots) */}
-                <div className="flex justify-center gap-6 sm:gap-12">
+                <div className="flex justify-center gap-5 sm:gap-12">
                   {[0, 1].map((idx) => (
                     <SlotCard
                       key={`fwd-${idx}`}
@@ -475,18 +484,6 @@ export const TransfersView: React.FC = () => {
                   ))}
                 </div>
               </div>
-            </div>
-
-            {/* Hint Box */}
-            <div className="p-3 rounded-2xl bg-slate-100 dark:bg-white/[0.04] border border-slate-200 dark:border-white/10 text-xs text-slate-500 dark:text-slate-400">
-              <span className="font-bold text-slate-800 dark:text-white">Tip: </span>
-              {outPlayer ? (
-                <span>
-                  Tap a player on the right to replace <strong className="text-rose-500">{outPlayer.webName}</strong>.
-                </span>
-              ) : (
-                <span>Tap any empty slot or player to replace, or browse the calendar market on the right.</span>
-              )}
             </div>
           </div>
 
@@ -783,12 +780,12 @@ const SlotCard: React.FC<SlotCardProps> = ({
     return (
       <button
         onClick={onSelectEmpty}
-        className="w-[74px] sm:w-[88px] h-[78px] sm:h-[92px] rounded-2xl border border-dashed border-white/25 hover:border-emerald-400/80 bg-white/5 dark:bg-slate-900/40 hover:bg-emerald-500/10 flex flex-col items-center justify-center gap-1 transition-all group active:scale-95 shadow-xs"
+        className="w-[64px] sm:w-[88px] h-[64px] sm:h-[92px] rounded-xl sm:rounded-2xl border border-dashed border-white/25 hover:border-emerald-400/80 bg-white/5 dark:bg-slate-900/40 hover:bg-emerald-500/10 flex flex-col items-center justify-center gap-0.5 sm:gap-1 transition-all group active:scale-95 shadow-xs"
       >
-        <div className="w-6 h-6 rounded-full bg-emerald-500/20 flex items-center justify-center group-hover:scale-110 transition-transform">
-          <Plus className="w-3.5 h-3.5 text-emerald-400" />
+        <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-emerald-500/20 flex items-center justify-center group-hover:scale-110 transition-transform">
+          <Plus className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-emerald-400" />
         </div>
-        <span className="text-[10px] font-black uppercase tracking-wider text-slate-300 group-hover:text-emerald-400">
+        <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-wider text-slate-300 group-hover:text-emerald-400">
           {label}
         </span>
       </button>
@@ -798,7 +795,7 @@ const SlotCard: React.FC<SlotCardProps> = ({
   return (
     <div
       onClick={() => onSelectPlayer(player)}
-      className={`relative w-[76px] sm:w-[92px] h-[82px] sm:h-[96px] rounded-2xl cursor-pointer p-1.5 flex flex-col items-center justify-between transition-all group active:scale-95 ${
+      className={`relative w-[66px] sm:w-[92px] h-[68px] sm:h-[96px] rounded-xl sm:rounded-2xl cursor-pointer p-1 sm:p-1.5 flex flex-col items-center justify-between transition-all group active:scale-95 ${
         isOutPlayer
           ? 'bg-rose-500/20 border-2 border-rose-500 shadow-[0_0_12px_rgba(244,63,94,0.35)]'
           : 'bg-white/80 dark:bg-slate-900/85 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200/80 dark:border-white/10 shadow-sm'
@@ -812,22 +809,22 @@ const SlotCard: React.FC<SlotCardProps> = ({
             onRemovePlayer(player.id);
           }}
           title="Refund to bank"
-          className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-rose-500 hover:bg-rose-600 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-20 shadow-xs"
+          className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-rose-500 hover:bg-rose-600 text-white flex items-center justify-center opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity z-20 shadow-xs"
         >
           <X className="w-2.5 h-2.5" />
         </button>
       )}
 
       {/* Player Jersey Kit */}
-      <KitJersey clubId={player.clubId} position={player.position} className="w-7 h-7 sm:w-8 sm:h-8 flex-shrink-0" />
+      <KitJersey clubId={player.clubId} position={player.position} className="w-6 h-6 sm:w-8 sm:h-8 flex-shrink-0" />
 
       {/* Player Name */}
-      <span className="text-[10px] sm:text-[11px] font-extrabold truncate w-full text-center text-slate-900 dark:text-white leading-tight">
+      <span className="text-[9px] sm:text-[11px] font-extrabold truncate w-full text-center text-slate-900 dark:text-white leading-tight">
         {player.webName}
       </span>
 
       {/* Price Badge in Monospace Tabular Figures */}
-      <span className="text-[9px] sm:text-[10px] font-mono tabular-nums font-bold text-emerald-600 dark:text-emerald-400 -mt-0.5">
+      <span className="text-[8px] sm:text-[10px] font-mono tabular-nums font-bold text-emerald-600 dark:text-emerald-400 -mt-0.5">
         £{player.cost.toFixed(1)}m
       </span>
     </div>
