@@ -969,13 +969,14 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     cost: number;
   }): Player => {
     const id = 'p_custom_' + Date.now();
+    const finalCost = Math.max(4.0, Math.round(playerData.cost * 10) / 10);
     const newPlayer: Player = {
       id,
       name: playerData.name,
       webName: playerData.webName,
       clubId: playerData.clubId,
       position: playerData.position,
-      cost: playerData.cost,
+      cost: finalCost,
       totalPoints: 0,
       gwPoints: 0,
       form: 5.0,
@@ -995,15 +996,19 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Developer: Edit player
   const editPlayer = (playerId: string, data: Partial<Player>) => {
+    const updates = { ...data };
+    if (updates.cost !== undefined) {
+      updates.cost = Math.max(4.0, Math.round(updates.cost * 10) / 10);
+    }
     setPlayers((prev) => {
       const existing = prev[playerId];
       if (!existing) return prev;
       return {
         ...prev,
-        [playerId]: { ...existing, ...data },
+        [playerId]: { ...existing, ...updates },
       };
     });
-    api.adminPlayerApi({ action: 'edit', playerId, updates: data }).catch(() => {});
+    api.adminPlayerApi({ action: 'edit', playerId, updates }).catch(() => {});
   };
 
   // Developer: Delete player (freely removes player from game and cleans squad)

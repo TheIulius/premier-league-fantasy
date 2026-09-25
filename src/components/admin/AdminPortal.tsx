@@ -293,7 +293,11 @@ export const AdminPortal: React.FC = () => {
     if (!newPlayerName.trim()) return;
 
     const costVal = parseFloat(newPlayerCost);
-    const costNum = isNaN(costVal) ? 4.0 : Math.max(0.1, costVal);
+    if (isNaN(costVal) || costVal < 4.0) {
+      showNotification('Minimum player cost is £4.0m!');
+      return;
+    }
+    const costNum = Math.round(costVal * 10) / 10;
     const added = addCustomPlayer({
       name: newPlayerName.trim(),
       webName: newPlayerWebName.trim() || newPlayerName.trim().split(' ').slice(-1)[0],
@@ -1208,9 +1212,9 @@ export const AdminPortal: React.FC = () => {
               <input
                 type="number"
                 step="0.1"
-                min="0.1"
+                min="4.0"
                 max="25.0"
-                placeholder="Cost £m"
+                placeholder="Cost £m (min 4.0)"
                 value={newPlayerCost}
                 onChange={(e) => setNewPlayerCost(e.target.value)}
                 className="bg-black/40 border border-white/10 rounded-lg px-2 py-1.5 text-xs text-white focus:outline-none"
@@ -1259,7 +1263,7 @@ export const AdminPortal: React.FC = () => {
                           <input
                             type="number"
                             step="0.1"
-                            min="0.1"
+                            min="4.0"
                             value={editCost}
                             onChange={(e) => setEditCost(e.target.value)}
                             className="w-14 bg-black border border-[#00ff87] text-white px-1 py-0.5 rounded text-xs"
@@ -1267,22 +1271,25 @@ export const AdminPortal: React.FC = () => {
                           <button
                             onClick={() => {
                               const num = parseFloat(editCost);
-                              if (num > 0) {
-                                editPlayer(p.id, { cost: num });
-                                const savedToken = localStorage.getItem('fpl_admin_gh_token');
-                                if (savedToken) {
-                                  showNotification(`Updating ${p.webName} to £${num.toFixed(1)}m & syncing with GitHub...`);
-                                  adminSyncGithubApi({
-                                    token: savedToken,
-                                    message: `Update ${p.webName} price to £${num.toFixed(1)}m`,
-                                  }).then(() => {
-                                    showNotification(`Updated ${p.webName} to £${num.toFixed(1)}m & saved permanently to GitHub!`);
-                                  }).catch(() => {
-                                    showNotification(`Updated ${p.webName} to £${num.toFixed(1)}m locally (GitHub sync failed)`);
-                                  });
-                                } else {
-                                  showNotification(`Updated ${p.webName} to £${num.toFixed(1)}m. (Tip: Enter GitHub PAT in ⚙️ Ops to auto-save to GitHub)`);
-                                }
+                              if (isNaN(num) || num < 4.0) {
+                                showNotification('Minimum player cost is £4.0m!');
+                                return;
+                              }
+                              const costNum = Math.round(num * 10) / 10;
+                              editPlayer(p.id, { cost: costNum });
+                              const savedToken = localStorage.getItem('fpl_admin_gh_token');
+                              if (savedToken) {
+                                showNotification(`Updating ${p.webName} to £${costNum.toFixed(1)}m & syncing with GitHub...`);
+                                adminSyncGithubApi({
+                                  token: savedToken,
+                                  message: `Update ${p.webName} price to £${costNum.toFixed(1)}m`,
+                                }).then(() => {
+                                  showNotification(`Updated ${p.webName} to £${costNum.toFixed(1)}m & saved permanently to GitHub!`);
+                                }).catch(() => {
+                                  showNotification(`Updated ${p.webName} to £${costNum.toFixed(1)}m locally (GitHub sync failed)`);
+                                });
+                              } else {
+                                showNotification(`Updated ${p.webName} to £${costNum.toFixed(1)}m. (Tip: Enter GitHub PAT in ⚙️ Ops to auto-save to GitHub)`);
                               }
                               setEditingPlayerId(null);
                             }}

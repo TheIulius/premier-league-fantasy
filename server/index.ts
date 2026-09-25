@@ -767,9 +767,11 @@ app.post('/api/admin/player', (req: Request, res: Response) => {
 
   if (action === 'add' && player) {
     const id = 'p_custom_' + Date.now();
+    const finalCost = Math.max(4.0, Math.round(Number(player.cost || 4.0) * 10) / 10);
     const newP: Player = {
       ...player,
       id,
+      cost: finalCost,
       totalPoints: 0,
       gwPoints: 0,
       form: 5.0,
@@ -786,6 +788,9 @@ app.post('/api/admin/player', (req: Request, res: Response) => {
   if (action === 'edit' && playerId && updates) {
     const p = data.players[playerId];
     if (p) {
+      if (updates.cost !== undefined) {
+        updates.cost = Math.max(4.0, Math.round(Number(updates.cost) * 10) / 10);
+      }
       Object.assign(p, updates);
       db.save();
       const priceMsg = updates.cost !== undefined ? `price £${updates.cost}m` : 'details';
