@@ -934,6 +934,11 @@ export function scheduleAutoSyncToGitHub(reason: string) {
   }, 2500); // 2.5-second debounce for batch actions
 }
 
+// Automatically sync all database saves (user registrations, squads, transfers, match events) to GitHub
+db.setOnSaveCallback((reason) => {
+  scheduleAutoSyncToGitHub(reason || 'Data updated');
+});
+
 // Check Server Auto-Sync Status
 app.get('/api/admin/db/sync-status', (req: Request, res: Response) => {
   const hasToken = Boolean(runtimeGithubToken || process.env.GITHUB_TOKEN);

@@ -184,11 +184,20 @@ class Database {
     this.save();
   }
 
-  public save(): void {
+  private onSaveCallback?: (reason?: string) => void;
+
+  public setOnSaveCallback(cb: (reason?: string) => void): void {
+    this.onSaveCallback = cb;
+  }
+
+  public save(reason?: string): void {
     try {
       const tempFile = DB_FILE + '.tmp';
       fs.writeFileSync(tempFile, JSON.stringify(this.data, null, 2), 'utf-8');
       fs.renameSync(tempFile, DB_FILE);
+      if (this.onSaveCallback) {
+        this.onSaveCallback(reason);
+      }
     } catch (err) {
       console.error('Failed to save db.json', err);
     }
