@@ -299,13 +299,13 @@ export const AdminPortal: React.FC = () => {
               type="password"
               value={pinInput}
               onChange={(e) => setPinInput(e.target.value)}
-              placeholder="Enter Admin PIN"
-              maxLength={8}
+              placeholder="Enter Admin Password"
+              maxLength={64}
               autoFocus
               className="w-full text-center tracking-widest text-xl font-mono py-3 px-4 rounded-xl bg-zinc-950 border border-white/10 text-white outline-none focus:border-emerald-500"
             />
             {loginError && (
-              <p className="text-rose-400 text-xs font-bold animate-shake">Incorrect Admin PIN. Try again.</p>
+              <p className="text-rose-400 text-xs font-bold animate-shake">Incorrect Admin Password. Try again.</p>
             )}
             <button
               type="submit"

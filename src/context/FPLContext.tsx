@@ -212,12 +212,15 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   });
 
   const [players, setPlayers] = useState<Record<string, Player>>(() => {
-    const saved = localStorage.getItem(STORAGE_KEY_PLAYERS);
-    if (saved) {
-      try { return JSON.parse(saved); } catch (e) { /* fallback */ }
-    }
     const map: Record<string, Player> = {};
     SEED_PLAYERS.forEach((p) => { map[p.id] = p; });
+    const saved = localStorage.getItem(STORAGE_KEY_PLAYERS);
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        return { ...map, ...parsed };
+      } catch (e) { /* fallback */ }
+    }
     return map;
   });
 
@@ -313,7 +316,11 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       const data = await api.fetchAppState(currentManagerId);
       if (data) {
         if (data.clubs) setClubs(data.clubs);
-        if (data.players) setPlayers(data.players);
+        if (data.players) {
+          const seedMap: Record<string, Player> = {};
+          SEED_PLAYERS.forEach((p) => { seedMap[p.id] = p; });
+          setPlayers({ ...seedMap, ...data.players });
+        }
         if (data.fixtures) setFixtures(data.fixtures);
         if (data.leagues) setLeagues(data.leagues);
         if (data.currentGW) setCurrentGW(data.currentGW);

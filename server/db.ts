@@ -146,6 +146,19 @@ class Database {
           this.data.players['p_rati'].position = 'FWD';
           this.save();
         }
+        // Auto-merge any newly added SEED_PLAYERS into existing database without overwriting existing player stats
+        if (this.data.players) {
+          let seedAdded = false;
+          SEED_PLAYERS.forEach((sp) => {
+            if (!this.data.players[sp.id]) {
+              this.data.players[sp.id] = sp;
+              seedAdded = true;
+            }
+          });
+          if (seedAdded) {
+            this.save();
+          }
+        }
         // Sanitize manager squads: auto-remove deleted ghost players and restore refund to bank
         if (this.data.players && this.data.managers) {
           let squadsChanged = false;
