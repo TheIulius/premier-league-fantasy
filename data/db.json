@@ -6484,7 +6484,7 @@
         "bank": 9.9,
         "freeTransfers": 1,
         "transfersMadeThisGW": 0,
-        "activeChip": "triple_captain",
+        "activeChip": null,
         "usedChips": {
           "triple_captain": false,
           "bench_boost": false,
