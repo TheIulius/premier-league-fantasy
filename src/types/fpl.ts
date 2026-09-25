@@ -14,14 +14,16 @@ export interface PlayerStats {
   goals: number;
   assists: number;
   cleanSheet: boolean;
-  goalsConceded: number;
   yellowCards: number;
   redCards: number;
-  saves: number;
   penaltiesSaved: number;
   penaltiesMissed: number;
   ownGoals: number;
-  bonus: number;
+  isMVP: boolean;
+  // Legacy fields kept for backward compat with existing DB data
+  goalsConceded?: number;
+  saves?: number;
+  bonus?: number;
 }
 
 export interface Player {
@@ -60,6 +62,15 @@ export interface Squad {
   usedChips: Record<ChipType, boolean>;
 }
 
+export type Venue = 'parki' | 'one_price';
+
+export interface MatchGoal {
+  playerId: string;
+  minute?: number;
+  isOwnGoal?: boolean;
+  assistPlayerId?: string;
+}
+
 export interface Fixture {
   id: string;
   gameweek: number;
@@ -70,6 +81,8 @@ export interface Fixture {
   isFinished: boolean;
   isLive: boolean;
   kickoffTime: string;
+  venue?: Venue;
+  goalScorers?: MatchGoal[];
 }
 
 export interface LeagueMember {
@@ -88,6 +101,11 @@ export interface League {
   code: string;
   isGlobal: boolean;
   members: LeagueMember[];
+}
+
+export interface GameweekDeadline {
+  gameweek: number;
+  deadlineTime: string; // ISO timestamp
 }
 
 export interface GameweekInfo {

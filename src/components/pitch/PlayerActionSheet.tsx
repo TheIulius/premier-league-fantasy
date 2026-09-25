@@ -19,6 +19,8 @@ export const PlayerActionSheet: React.FC<PlayerActionSheetProps> = ({ playerId, 
     setActiveTab,
     currentGW,
     calculationResult,
+    setTransferOutPlayerId,
+    isSquadLocked,
   } = useFPL();
 
   if (!playerId) return null;
@@ -37,21 +39,26 @@ export const PlayerActionSheet: React.FC<PlayerActionSheetProps> = ({ playerId, 
   const currentPts = breakdown ? breakdown.finalPoints : (stats ? player.gwPoints : 0);
 
   const handleStartSwap = () => {
+    if (isSquadLocked) return;
     setSelectedPlayerForSwap(playerId);
     onClose();
   };
 
   const handleMakeCaptain = () => {
+    if (isSquadLocked) return;
     setCaptain(playerId);
     onClose();
   };
 
   const handleMakeViceCaptain = () => {
+    if (isSquadLocked) return;
     setViceCaptain(playerId);
     onClose();
   };
 
   const handleTransfer = () => {
+    if (isSquadLocked) return;
+    setTransferOutPlayerId(playerId);
     setActiveTab('transfers');
     onClose();
   };
@@ -121,12 +128,24 @@ export const PlayerActionSheet: React.FC<PlayerActionSheetProps> = ({ playerId, 
           </div>
         </div>
 
+        {/* Lock warning if locked */}
+        {isSquadLocked && (
+          <div className="my-2 p-2 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-600 dark:text-rose-400 text-xs font-bold text-center">
+            🔒 Lineups are locked for this Gameweek
+          </div>
+        )}
+
         {/* Quick Action Grid */}
         <div className="grid grid-cols-2 gap-2 mt-3">
           {/* Substitute / Swap Button */}
           <button
             onClick={handleStartSwap}
-            className="flex items-center justify-center space-x-2 py-2.5 px-3 rounded-xl font-bold text-xs bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700 transition-colors"
+            disabled={isSquadLocked}
+            className={`flex items-center justify-center space-x-2 py-2.5 px-3 rounded-xl font-bold text-xs border transition-colors ${
+              isSquadLocked
+                ? 'opacity-40 cursor-not-allowed bg-slate-50 dark:bg-slate-800/40 border-transparent text-slate-400'
+                : 'bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 border-slate-200 dark:border-slate-700'
+            }`}
           >
             <ArrowLeftRight className="w-4 h-4 text-amber-500" />
             <span>Substitute</span>
@@ -135,7 +154,12 @@ export const PlayerActionSheet: React.FC<PlayerActionSheetProps> = ({ playerId, 
           {/* Transfer Button */}
           <button
             onClick={handleTransfer}
-            className="flex items-center justify-center space-x-2 py-2.5 px-3 rounded-xl font-bold text-xs bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700 transition-colors"
+            disabled={isSquadLocked}
+            className={`flex items-center justify-center space-x-2 py-2.5 px-3 rounded-xl font-bold text-xs border transition-colors ${
+              isSquadLocked
+                ? 'opacity-40 cursor-not-allowed bg-slate-50 dark:bg-slate-800/40 border-transparent text-slate-400'
+                : 'bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 border-slate-200 dark:border-slate-700'
+            }`}
           >
             <ArrowRight className="w-4 h-4 text-sky-500" />
             <span>Transfer Out</span>

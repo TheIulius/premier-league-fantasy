@@ -41,6 +41,7 @@ import {
   adminSetServerTokenApi,
 } from '../../services/api';
 import confetti from 'canvas-confetti';
+import { MatchDayAdmin } from './MatchDayAdmin';
 
 export const AdminPortal: React.FC = () => {
   const {
@@ -63,11 +64,15 @@ export const AdminPortal: React.FC = () => {
     finalizeGameweek,
     advanceGameweek,
     resetToDefaults,
+    deadline,
+    setDeadline,
+    isSquadLocked,
   } = useFPL();
 
   const [pinInput, setPinInput] = useState('');
   const [loginError, setLoginError] = useState(false);
-  const [adminTab, setAdminTab] = useState<'fixtures' | 'events' | 'players' | 'users' | 'gw'>('fixtures');
+  const [adminTab, setAdminTab] = useState<'matchday' | 'fixtures' | 'events' | 'players' | 'users' | 'gw'>('matchday');
+  const [deadlineInput, setDeadlineInput] = useState('');
 
   // Users & Password Management State
   const [usersList, setUsersList] = useState<{
@@ -525,7 +530,15 @@ export const AdminPortal: React.FC = () => {
       )}
 
       {/* Sub-Panel Switcher */}
-      <div className="grid grid-cols-5 gap-1 md:gap-2 bg-black/40 p-1 md:p-1.5 rounded-xl border border-white/10 text-xs md:text-sm font-bold">
+      <div className="grid grid-cols-3 sm:grid-cols-6 gap-1 md:gap-2 bg-black/40 p-1 md:p-1.5 rounded-xl border border-white/10 text-xs md:text-sm font-bold">
+        <button
+          onClick={() => setAdminTab('matchday')}
+          className={`py-1.5 md:py-2 rounded-lg transition-all ${
+            adminTab === 'matchday' ? 'bg-[#00ff87] text-[#37003c]' : 'text-gray-400 hover:text-white'
+          }`}
+        >
+          ⚡ Match Day
+        </button>
         <button
           onClick={() => setAdminTab('fixtures')}
           className={`py-1.5 md:py-2 rounded-lg transition-all ${
@@ -570,6 +583,9 @@ export const AdminPortal: React.FC = () => {
           ⚙️ Ops
         </button>
       </div>
+
+      {/* PANEL: DEDICATED MATCH DAY ADMIN MODULE */}
+      {adminTab === 'matchday' && <MatchDayAdmin />}
 
       {/* PANEL 0: GAMES & FIXTURES ADMIN */}
       {adminTab === 'fixtures' && (
@@ -1460,6 +1476,107 @@ export const AdminPortal: React.FC = () => {
       {/* PANEL 3: GAMEWEEK OPERATIONS & RESET */}
       {adminTab === 'gw' && (
         <div className="space-y-3">
+          {/* Deadline & Lineup Freeze Control Card */}
+          <div className="p-3.5 rounded-2xl bg-gradient-to-r from-[#200028] to-[#34003c] border border-amber-500/30 space-y-3 shadow-lg">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-black text-white uppercase flex items-center gap-1.5">
+                <Clock className="w-4 h-4 text-amber-400" />
+                GW {currentGW} Deadline & Freeze
+              </span>
+              <span
+                className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+                  isSquadLocked
+                    ? 'bg-rose-500/20 text-rose-300 border-rose-500/40'
+                    : deadline
+                    ? 'bg-amber-500/20 text-amber-300 border-amber-500/40'
+                    : 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
+                }`}
+              >
+                {isSquadLocked ? '🔴 LOCKED' : deadline ? '🟡 DEADLINE SET' : '🟢 OPEN'}
+              </span>
+            </div>
+
+            <p className="text-[11px] text-gray-300">
+              When the deadline passes or lineups are locked, fantasy managers cannot make transfers, swap starters, or change captains.
+            </p>
+
+            {deadline && (
+              <div className="p-2 rounded-xl bg-black/40 border border-white/10 text-xs flex items-center justify-between">
+                <div>
+                  <span className="text-[10px] text-gray-400 block">Current GW {deadline.gameweek} Deadline:</span>
+                  <strong className="text-white font-mono">
+                    {new Date(deadline.deadlineTime).toLocaleString('en-US', {
+                      month: 'short',
+                      day: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit',
+                      hour12: true,
+                    })}
+                  </strong>
+                </div>
+                {isSquadLocked && (
+                  <span className="text-[10px] text-rose-400 font-bold bg-rose-500/10 px-2 py-1 rounded-lg border border-rose-500/20">
+                    Lineups Frozen
+                  </span>
+                )}
+              </div>
+            )}
+
+            <div className="space-y-2 pt-1 border-t border-white/10">
+              <label className="text-[10px] font-bold text-gray-400 uppercase block">
+                Set Match Deadline Date & Time:
+              </label>
+              <div className="flex flex-col sm:flex-row gap-2">
+                <input
+                  type="datetime-local"
+                  value={deadlineInput}
+                  onChange={(e) => setDeadlineInput(e.target.value)}
+                  className="flex-1 bg-black/50 border border-white/15 focus:border-[#00ff87] text-white px-3 py-1.5 rounded-xl text-xs outline-none"
+                />
+                <button
+                  type="button"
+                  onClick={async () => {
+                    if (!deadlineInput) {
+                      showNotification('Please select a date and time');
+                      return;
+                    }
+                    const iso = new Date(deadlineInput).toISOString();
+                    await setDeadline({ gameweek: currentGW, deadlineTime: iso });
+                    showNotification(`GW ${currentGW} deadline set!`);
+                  }}
+                  className="px-3.5 py-1.5 bg-[#00ff87] text-[#37003c] rounded-xl font-bold text-xs uppercase tracking-wide hover:opacity-90"
+                >
+                  Set Deadline
+                </button>
+              </div>
+
+              <div className="flex gap-2 pt-1">
+                <button
+                  type="button"
+                  onClick={async () => {
+                    // Lock instantly by setting deadline to now
+                    await setDeadline({ gameweek: currentGW, deadlineTime: new Date().toISOString() });
+                    showNotification('Lineups locked instantly!');
+                  }}
+                  className="flex-1 py-1.5 rounded-xl text-xs font-bold bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/40"
+                >
+                  🔒 Lock Lineups Now
+                </button>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    await setDeadline(null);
+                    setDeadlineInput('');
+                    showNotification('Deadline cleared. Lineups unlocked!');
+                  }}
+                  className="flex-1 py-1.5 rounded-xl text-xs font-bold bg-white/10 hover:bg-white/20 text-white border border-white/10"
+                >
+                  🔓 Unlock / Clear
+                </button>
+              </div>
+            </div>
+          </div>
+
           {/* Finalize GW Card */}
           <div className="p-3.5 rounded-2xl bg-gradient-to-r from-[#2c0032] to-[#3a0042] border border-[#5d0e68] space-y-2">
             <span className="text-xs font-black text-white uppercase block">

@@ -102,6 +102,12 @@ interface FPLContextType {
   theme: 'dark' | 'light';
   setTheme: (theme: 'dark' | 'light') => void;
   toggleTheme: () => void;
+  deadline: { gameweek: number; deadlineTime: string } | null;
+  isSquadLocked: boolean;
+  setDeadline: (deadline: { gameweek: number; deadlineTime: string } | null) => Promise<void>;
+  sellPlayer: (playerId: string) => { success: boolean; message?: string };
+  transferOutPlayerId: string | null;
+  setTransferOutPlayerId: (id: string | null) => void;
 }
 
 const STORAGE_KEY_AUTH_TOKEN = 'fpl_auth_token_v1';
@@ -277,6 +283,29 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [activeTab, setActiveTab] = useState<TabType>('team');
   const [isDevAuthenticated, setIsDevAuthenticated] = useState<boolean>(false);
   const [selectedPlayerForSwap, setSelectedPlayerForSwap] = useState<string | null>(null);
+  const [transferOutPlayerId, setTransferOutPlayerId] = useState<string | null>(null);
+
+  // Deadline / Freeze system
+  const [deadline, setDeadlineState] = useState<{ gameweek: number; deadlineTime: string } | null>(null);
+
+  const isSquadLocked = useMemo(() => {
+    if (!deadline) return false;
+    return new Date() >= new Date(deadline.deadlineTime);
+  }, [deadline]);
+
+  const setDeadline = useCallback(async (d: { gameweek: number; deadlineTime: string } | null) => {
+    try {
+      if (d) {
+        await api.adminSetDeadlineApi(d.gameweek, d.deadlineTime);
+      } else {
+        await api.adminClearDeadlineApi();
+      }
+      setDeadlineState(d);
+    } catch (err) {
+      console.error('Failed to set deadline:', err);
+      setDeadlineState(d);
+    }
+  }, []);
 
   // Sync state from server API
   const refreshServerState = useCallback(async () => {
@@ -289,6 +318,7 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         if (data.leagues) setLeagues(data.leagues);
         if (data.currentGW) setCurrentGW(data.currentGW);
         if (data.managers) setAvailableManagers(data.managers);
+        if (data.deadline !== undefined) setDeadlineState(data.deadline || null);
         if (data.activeManager) {
           setCurrentManager({
             id: data.activeManager.id,
@@ -423,9 +453,10 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       currentGW,
       squad.activeChip,
       squad.transfersMadeThisGW,
-      squad.freeTransfers
+      squad.freeTransfers,
+      fixtures
     );
-  }, [squad, players, currentGW]);
+  }, [squad, players, currentGW, fixtures]);
 
   const teamValue = useMemo(() => {
     let cost = 0;
@@ -559,6 +590,10 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     validateComplete: boolean = false
   ): Promise<{ success: boolean; message?: string }> => {
     try {
+      if (isSquadLocked) {
+        return { success: false, message: 'Lineups are locked. The deadline has passed.' };
+      }
+
       const targetPlayers = customPlayers || squad.players;
 
       if (validateComplete) {
@@ -605,6 +640,10 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Buy a player from market into squad using available £60.0m budget
   const buyPlayer = (playerId: string): { success: boolean; message?: string } => {
+    if (isSquadLocked) {
+      return { success: false, message: 'Lineups are locked. The deadline has passed.' };
+    }
+
     const p = players[playerId];
     if (!p) return { success: false, message: 'Player not found' };
 
@@ -722,6 +761,10 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Remove/Sell a player from squad and refund 100% of price back to bank
   const removePlayer = (playerId: string): { success: boolean; message?: string } => {
+    if (isSquadLocked) {
+      return { success: false, message: 'Lineups are locked. The deadline has passed.' };
+    }
+
     const target = squad.players.find((sp) => sp.playerId === playerId);
     if (!target) return { success: false, message: 'Player not in squad' };
 
@@ -774,6 +817,10 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Substitute / Swap logic
   const substitutePlayers = (playerAId: string, playerBId: string) => {
+    if (isSquadLocked) {
+      return { success: false, message: 'Lineups are locked. The deadline has passed.' };
+    }
+
     const check = canSwapPlayers(playerAId, playerBId, squad.players, players);
     if (!check.canSwap) {
       return { success: false, message: check.reason };
@@ -837,6 +884,7 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Set Captain
   const setCaptain = (playerId: string) => {
+    if (isSquadLocked) return;
     const target = squad.players.find((p) => p.playerId === playerId);
     if (!target || !target.isStarter) return;
 
@@ -856,6 +904,7 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Set Vice-Captain
   const setViceCaptain = (playerId: string) => {
+    if (isSquadLocked) return;
     const target = squad.players.find((p) => p.playerId === playerId);
     if (!target || !target.isStarter || target.isCaptain) return;
 
@@ -874,7 +923,7 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Activate Chip
   const activateChip = (chip: ChipType): boolean => {
-    if (squad.usedChips[chip]) return false;
+    if (isSquadLocked || squad.usedChips[chip]) return false;
     const newActive = squad.activeChip === chip ? null : chip;
     const updatedSquad = { ...squad, activeChip: newActive };
     setSquad(updatedSquad);
@@ -885,6 +934,10 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Transfer Player
   const transferPlayer = (outPlayerId: string, inPlayerId: string) => {
+    if (isSquadLocked) {
+      return { success: false, message: 'Transfers are locked. The deadline has passed.' };
+    }
+
     const outPlayer = players[outPlayerId];
     const inPlayer = players[inPlayerId];
     if (!outPlayer || !inPlayer) return { success: false, message: 'Invalid player' };
@@ -950,18 +1003,24 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         goals: 0,
         assists: 0,
         cleanSheet: false,
-        goalsConceded: 0,
         yellowCards: 0,
         redCards: 0,
-        saves: 0,
         penaltiesSaved: 0,
         penaltiesMissed: 0,
         ownGoals: 0,
-        bonus: 0,
+        isMVP: false,
       };
 
       const updatedStats = { ...currentStats, ...statsUpdate };
-      const newGWPoints = calculatePlayerPoints(player.position, updatedStats);
+
+      // Check if this fixture was at One Price Stadium
+      const normClub = player.clubId === 'SCH' ? 'SCH_11_5' : player.clubId;
+      const gwFixture = fixtures.find(
+        (f) => f.gameweek === gw && (f.homeClubId === normClub || f.awayClubId === normClub)
+      );
+      const isOnePrice = gwFixture?.venue === 'one_price';
+
+      const newGWPoints = calculatePlayerPoints(player.position, updatedStats, isOnePrice);
 
       const updatedGWStats = {
         ...player.gwStats,
@@ -969,8 +1028,13 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       };
 
       let sumTotalPoints = 0;
-      Object.values(updatedGWStats).forEach((gStats) => {
-        sumTotalPoints += calculatePlayerPoints(player.position, gStats);
+      Object.entries(updatedGWStats).forEach(([gKey, gStats]) => {
+        const gNum = parseInt(gKey, 10);
+        const gFix = fixtures.find(
+          (f) => f.gameweek === gNum && (f.homeClubId === normClub || f.awayClubId === normClub)
+        );
+        const gOnePrice = gFix?.venue === 'one_price';
+        sumTotalPoints += calculatePlayerPoints(player.position, gStats, gOnePrice);
       });
 
       return {
@@ -1321,6 +1385,12 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         theme,
         setTheme,
         toggleTheme,
+        deadline,
+        isSquadLocked,
+        setDeadline,
+        sellPlayer: removePlayer,
+        transferOutPlayerId,
+        setTransferOutPlayerId,
       }}
     >
       {children}

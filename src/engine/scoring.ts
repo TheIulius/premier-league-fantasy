@@ -1,72 +1,96 @@
 import { Player, PlayerStats, Position, SquadPlayer, ChipType } from '../types/fpl';
 
 /**
- * Calculates raw points for a player given their position and stats in a match/gameweek.
- * Follows official Premier League Fantasy scoring rules.
+ * KCL Fantasy Football Scoring Engine
+ * ====================================
+ * Calculates raw points for a player based on their position and match stats.
+ *
+ * Rules:
+ *  GK:  goal +7, assist +3, CS +4 (20+ min), pen save +3, MVP +3
+ *  DEF: goal +6, assist +3, CS +4 (20+ min), MVP +3
+ *  MID: goal +5, assist +3, CS +1 (20+ min), MVP +3
+ *  FWD: goal +4, assist +3, MVP +3
+ *
+ *  All positions:
+ *    1+ min played   → +1
+ *    20+ min played  → +1 (additional, total +2)
+ *    penalty miss    → -2
+ *    yellow card     → -1
+ *    red card        → -3
+ *    own goal        → -3
+ *
+ *  One Price Stadium: goals, assists, MVP each reduced by 1 point.
  */
-export function calculatePlayerPoints(position: Position, stats?: Partial<PlayerStats>): number {
+export function calculatePlayerPoints(
+  position: Position,
+  stats?: Partial<PlayerStats>,
+  isOnePriceStadium: boolean = false
+): number {
   if (!stats) return 0;
 
   let points = 0;
   const minutes = stats.minutes || 0;
   const goals = stats.goals || 0;
   const assists = stats.assists || 0;
-  const goalsConceded = stats.goalsConceded || 0;
-  const saves = stats.saves || 0;
 
-  // 1. Minutes played
-  if (minutes > 0 && minutes < 60) {
-    points += 1;
-  } else if (minutes >= 60) {
+  // 1. Minutes played (KCL: +1 for 1+ min, +1 extra for 20+ min)
+  if (minutes >= 20) {
     points += 2;
+  } else if (minutes >= 1) {
+    points += 1;
   }
 
-  // 2. Goals scored
+  // 2. Goals scored (position-dependent, One Price Stadium reduces by 1)
   if (goals > 0) {
-    if (position === 'GKP' || position === 'DEF') {
-      points += goals * 6;
+    let goalPts: number;
+    if (position === 'GKP') {
+      goalPts = 7;
+    } else if (position === 'DEF') {
+      goalPts = 6;
     } else if (position === 'MID') {
-      points += goals * 5;
-    } else if (position === 'FWD') {
-      points += goals * 4;
+      goalPts = 5;
+    } else {
+      goalPts = 4; // FWD
     }
+    if (isOnePriceStadium) goalPts -= 1;
+    points += goals * goalPts;
   }
 
-  // 3. Assists
-  points += assists * 3;
+  // 3. Assists (KCL: +3 all positions, One Price Stadium: +2)
+  const assistPts = isOnePriceStadium ? 2 : 3;
+  points += assists * assistPts;
 
-  // 4. Clean sheets (must play 60+ minutes)
-  if (stats.cleanSheet && minutes >= 60) {
+  // 4. Clean sheets (KCL: must play 20+ minutes)
+  if (stats.cleanSheet && minutes >= 20) {
     if (position === 'GKP' || position === 'DEF') {
       points += 4;
     } else if (position === 'MID') {
       points += 1;
     }
+    // FWD: 0 points for clean sheet
   }
 
-  // 5. Goals conceded (GKP & DEF: -1 for every 2 goals conceded)
-  if ((position === 'GKP' || position === 'DEF') && goalsConceded >= 2) {
-    points -= Math.floor(goalsConceded / 2);
+  // 5. Penalty saved (KCL: +3 for GK only)
+  if (position === 'GKP') {
+    points += (stats.penaltiesSaved || 0) * 3;
   }
 
-  // 6. Saves (GKP: 1 point for every 3 saves)
-  if (position === 'GKP' && saves >= 3) {
-    points += Math.floor(saves / 3);
-  }
-
-  // 7. Penalties saved / missed
-  points += (stats.penaltiesSaved || 0) * 5;
+  // 6. Penalty missed (KCL: -2 all positions)
   points -= (stats.penaltiesMissed || 0) * 2;
 
-  // 8. Disciplinary cards
+  // 7. Disciplinary cards
   points -= (stats.yellowCards || 0) * 1;
   points -= (stats.redCards || 0) * 3;
 
-  // 9. Own goals
-  points -= (stats.ownGoals || 0) * 2;
+  // 8. Own goals (KCL: -3)
+  points -= (stats.ownGoals || 0) * 3;
 
-  // 10. Bonus points
-  points += stats.bonus || 0;
+  // 9. MVP (KCL: +3, One Price Stadium: +2)
+  // Support both new isMVP (boolean) and legacy bonus (number) fields
+  const isMVP = stats.isMVP || (stats.bonus != null && stats.bonus > 0);
+  if (isMVP) {
+    points += isOnePriceStadium ? 2 : 3;
+  }
 
   return points;
 }
@@ -200,7 +224,7 @@ export function isValidStartingXI(positions: (Position | undefined)[]): boolean 
 /**
  * Full gameweek score calculator for a user's squad:
  * - Validates squad has exact 1 GK, 3 DEF, 3 MID, 2 FWD (cannot play otherwise)
- * - Computes raw points for each player
+ * - Computes raw points for each player (with One Price Stadium modifier per fixture)
  * - Applies auto-subs for 0-minute starters using bench order
  * - Applies captain (2x / 3x) and vice-captain failover
  * - Applies bench boost if active
@@ -212,7 +236,8 @@ export function calculateGameweekSquadPoints(
   currentGW: number,
   activeChip: ChipType | null,
   transfersMadeThisGW: number,
-  freeTransfers: number
+  freeTransfers: number,
+  fixtures?: { homeClubId: string; awayClubId: string; venue?: string }[]
 ): GameweekCalculationResult {
   const compValidation = validateSquadComposition(squadPlayers, allPlayers);
 
@@ -248,6 +273,16 @@ export function calculateGameweekSquadPoints(
   const isBenchBoost = activeChip === 'bench_boost';
   const isFreeHit = activeChip === 'free_hit';
 
+  // Helper: determine if a player's fixture is at One Price Stadium
+  const isPlayerOnePriceStadium = (player: Player): boolean => {
+    if (!fixtures || fixtures.length === 0) return false;
+    const normClub = player.clubId === 'SCH' ? 'SCH_11_5' : player.clubId;
+    const fix = fixtures.find(
+      (f) => f.homeClubId === normClub || f.awayClubId === normClub
+    );
+    return fix?.venue === 'one_price';
+  };
+
   // Calculate raw points for all 9 players
   const rawPointsMap: Record<string, number> = {};
   const minutesMap: Record<string, number> = {};
@@ -256,7 +291,8 @@ export function calculateGameweekSquadPoints(
     const player = allPlayers[sp.playerId];
     if (player) {
       const stats = player.gwStats[currentGW];
-      rawPointsMap[sp.playerId] = calculatePlayerPoints(player.position, stats);
+      const isOnePrice = isPlayerOnePriceStadium(player);
+      rawPointsMap[sp.playerId] = calculatePlayerPoints(player.position, stats, isOnePrice);
       minutesMap[sp.playerId] = stats?.minutes || 0;
     } else {
       rawPointsMap[sp.playerId] = 0;
@@ -297,12 +333,10 @@ export function calculateGameweekSquadPoints(
   }
 
   // 2. Outfield auto-subs
-  // Iterate through non-GK starters with 0 minutes
   for (let i = 0; i < currentStartingPlayers.length; i++) {
     const sp = currentStartingPlayers[i];
     const player = allPlayers[sp.playerId];
     if (player?.position !== 'GKP' && minutesMap[sp.playerId] === 0) {
-      // Find candidate from bench (bench order 2, 3, 4 which are outfield bench 1, 2, 3)
       for (const bp of bench) {
         const benchPlayer = allPlayers[bp.playerId];
         if (
@@ -311,7 +345,6 @@ export function calculateGameweekSquadPoints(
           !usedBenchPlayerIds.has(bp.playerId) &&
           minutesMap[bp.playerId] > 0
         ) {
-          // Check if swapping yields a valid starting formation
           const candidateStarting = [...currentStartingPlayers];
           candidateStarting[i] = bp;
           const candidatePositions = candidateStarting.map(
@@ -347,7 +380,6 @@ export function calculateGameweekSquadPoints(
   // Compute final points
   const activePlayingIds = new Set(currentStartingPlayers.map((p) => p.playerId));
   if (isBenchBoost) {
-    // With Bench Boost, bench players also score!
     bench.forEach((bp) => activePlayingIds.add(bp.playerId));
   }
 

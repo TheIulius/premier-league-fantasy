@@ -68,6 +68,7 @@ app.get('/api/state', (req: Request, res: Response) => {
     leagues: data.leagues,
     managers: managersList,
     activeManager: manager,
+    deadline: data.deadline || null,
   });
 });
 
@@ -397,6 +398,12 @@ app.post('/api/squad/save', (req: Request, res: Response) => {
   }
 
   const data = db.getData();
+
+  // Deadline check
+  if (data.deadline && new Date() >= new Date(data.deadline.deadlineTime)) {
+    return res.status(403).json({ error: 'Lineups are locked. The deadline has passed.' });
+  }
+
   let manager = data.managers[managerId];
 
   if (!manager) {
@@ -540,6 +547,12 @@ app.post('/api/squad/chip', (req: Request, res: Response) => {
 app.post('/api/squad/transfer', (req: Request, res: Response) => {
   const { managerId, outPlayerId, inPlayerId } = req.body;
   const data = db.getData();
+
+  // Deadline check
+  if (data.deadline && new Date() >= new Date(data.deadline.deadlineTime)) {
+    return res.status(403).json({ error: 'Transfers are locked. The deadline has passed.' });
+  }
+
   let manager = data.managers[managerId];
 
   if (!manager) {
@@ -617,14 +630,12 @@ app.post('/api/admin/stat', (req: Request, res: Response) => {
     goals: 0,
     assists: 0,
     cleanSheet: false,
-    goalsConceded: 0,
     yellowCards: 0,
     redCards: 0,
-    saves: 0,
     penaltiesSaved: 0,
     penaltiesMissed: 0,
     ownGoals: 0,
-    bonus: 0,
+    isMVP: false,
   };
 
   const updatedStats = { ...currentStats, ...stats };
@@ -1201,6 +1212,139 @@ app.post('/api/league/delete', (req: Request, res: Response) => {
   data.leagues.splice(idx, 1);
   db.save();
   res.json({ success: true, leagues: data.leagues });
+});
+
+// --- Deadline Management ---
+
+// Get current deadline
+app.get('/api/deadline', (req: Request, res: Response) => {
+  const data = db.getData();
+  res.json({ deadline: data.deadline || null });
+});
+
+// Set deadline
+app.post('/api/admin/deadline', (req: Request, res: Response) => {
+  const { gameweek, deadlineTime } = req.body;
+  if (!gameweek || !deadlineTime) {
+    return res.status(400).json({ error: 'gameweek and deadlineTime are required' });
+  }
+  const data = db.getData();
+  data.deadline = { gameweek, deadlineTime };
+  db.save();
+  res.json({ success: true, deadline: data.deadline });
+});
+
+// Clear deadline
+app.post('/api/admin/deadline/clear', (req: Request, res: Response) => {
+  const data = db.getData();
+  data.deadline = null;
+  db.save();
+  res.json({ success: true, deadline: null });
+});
+
+// --- Batch Match Events (for Match-Day Admin module) ---
+
+app.post('/api/admin/match-events', (req: Request, res: Response) => {
+  const {
+    fixtureId,
+    homeScore,
+    awayScore,
+    goalScorers,
+    mvpPlayerIds,
+    playerMinutes,
+    yellowCards,
+    redCards,
+    penaltiesSaved,
+    penaltiesMissed,
+    venue,
+  } = req.body;
+
+  const data = db.getData();
+  const fixture = data.fixtures.find((f: Fixture) => f.id === fixtureId);
+  if (!fixture) return res.status(404).json({ error: 'Fixture not found' });
+
+  const gw = fixture.gameweek;
+
+  // Update fixture
+  fixture.homeScore = homeScore;
+  fixture.awayScore = awayScore;
+  fixture.isFinished = true;
+  fixture.isLive = false;
+  fixture.venue = venue || 'parki';
+  fixture.goalScorers = goalScorers || [];
+
+  // Determine which players are on each team
+  const homePlayers = Object.values(data.players).filter(
+    (p: Player) => (p.clubId === 'SCH' ? 'SCH_11_5' : p.clubId) === fixture.homeClubId
+  );
+  const awayPlayers = Object.values(data.players).filter(
+    (p: Player) => (p.clubId === 'SCH' ? 'SCH_11_5' : p.clubId) === fixture.awayClubId
+  );
+  const allMatchPlayers = [...homePlayers, ...awayPlayers];
+
+  // Tally goals, assists, own goals per player from goalScorers array
+  const goalCount: Record<string, number> = {};
+  const assistCount: Record<string, number> = {};
+  const ownGoalCount: Record<string, number> = {};
+
+  (goalScorers || []).forEach((g: any) => {
+    if (g.isOwnGoal) {
+      ownGoalCount[g.playerId] = (ownGoalCount[g.playerId] || 0) + 1;
+    } else {
+      goalCount[g.playerId] = (goalCount[g.playerId] || 0) + 1;
+    }
+    if (g.assistPlayerId) {
+      assistCount[g.assistPlayerId] = (assistCount[g.assistPlayerId] || 0) + 1;
+    }
+  });
+
+  // Determine clean sheets from final score
+  const homeCleanSheet = (awayScore || 0) === 0;
+  const awayCleanSheet = (homeScore || 0) === 0;
+
+  // Update each match player's stats
+  for (const player of allMatchPlayers) {
+    const mins = playerMinutes?.[player.id] || 0;
+    if (mins === 0) continue; // Skip players who didn't participate
+
+    const isHomeTeam = homePlayers.some((p: Player) => p.id === player.id);
+    const hasCleanSheet = isHomeTeam ? homeCleanSheet : awayCleanSheet;
+
+    const stats: PlayerStats = {
+      minutes: mins,
+      goals: goalCount[player.id] || 0,
+      assists: assistCount[player.id] || 0,
+      cleanSheet: hasCleanSheet && mins >= 20,
+      yellowCards: (yellowCards || []).filter((id: string) => id === player.id).length,
+      redCards: (redCards || []).filter((id: string) => id === player.id).length,
+      penaltiesSaved: penaltiesSaved?.[player.id] || 0,
+      penaltiesMissed: penaltiesMissed?.[player.id] || 0,
+      ownGoals: ownGoalCount[player.id] || 0,
+      isMVP: (mvpPlayerIds || []).includes(player.id),
+    };
+
+    player.gwStats[gw] = stats;
+
+    const isOnePrice = venue === 'one_price';
+    player.gwPoints = calculatePlayerPoints(player.position, stats, isOnePrice);
+
+    // Recalculate total points across all GWs
+    let sum = 0;
+    for (const gwKey of Object.keys(player.gwStats)) {
+      const gwNum = parseInt(gwKey, 10);
+      // Determine if this GW's fixture was at One Price Stadium
+      const gwFixture = data.fixtures.find((f: Fixture) => {
+        const normClub = player.clubId === 'SCH' ? 'SCH_11_5' : player.clubId;
+        return f.gameweek === gwNum && (f.homeClubId === normClub || f.awayClubId === normClub);
+      });
+      const gwIsOnePrice = gwFixture?.venue === 'one_price';
+      sum += calculatePlayerPoints(player.position, player.gwStats[gwNum], gwIsOnePrice);
+    }
+    player.totalPoints = sum;
+  }
+
+  db.save();
+  res.json({ success: true, fixture, players: data.players });
 });
 
 // Static assets in production

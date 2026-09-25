@@ -2,12 +2,12 @@ import React, { useState } from 'react';
 import { useFPL } from '../../context/FPLContext';
 import { PitchView } from '../pitch/PitchView';
 import { ChipType } from '../../types/fpl';
-import { Sparkles, Shield, Zap, RefreshCw, CheckCircle, Loader2, AlertCircle, ChevronDown, ChevronUp } from 'lucide-react';
+import { Sparkles, Shield, Zap, RefreshCw, CheckCircle, Loader2, AlertCircle, ChevronDown, ChevronUp, Lock } from 'lucide-react';
 import { validateSquadComposition } from '../../engine/scoring';
 import confetti from 'canvas-confetti';
 
 export const PickTeamView: React.FC = () => {
-  const { squad, players, activateChip, teamValue, freeTransfersRemaining, saveSquad, setActiveTab } = useFPL();
+  const { squad, players, activateChip, teamValue, freeTransfersRemaining, saveSquad, setActiveTab, isSquadLocked } = useFPL();
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -58,6 +58,19 @@ export const PickTeamView: React.FC = () => {
 
   return (
     <div className="flex flex-col space-y-2.5 pb-24 md:pb-12 px-2 sm:px-4 md:px-6 pt-1 md:pt-3 max-w-4xl lg:max-w-5xl mx-auto w-full transition-colors duration-200">
+      {/* Lineup Locked Banner */}
+      {isSquadLocked && (
+        <div className="p-2.5 md:p-3 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-300 dark:border-rose-800 text-rose-700 dark:text-rose-300 text-xs font-bold flex items-center justify-between shadow-xs">
+          <div className="flex items-center gap-2">
+            <Lock className="w-4 h-4 flex-shrink-0 text-rose-500" />
+            <span>Lineups are locked for this Gameweek. Team changes are prohibited.</span>
+          </div>
+          <span className="text-[10px] uppercase font-black px-2 py-0.5 rounded bg-rose-500 text-white">
+            Locked
+          </span>
+        </div>
+      )}
+
       {/* Empty Squad Callout */}
       {validCount === 0 && (
         <div className="p-4 md:p-5 rounded-2xl bg-white dark:bg-slate-900 border border-emerald-500/40 shadow-sm text-center space-y-2.5">
@@ -189,12 +202,12 @@ export const PickTeamView: React.FC = () => {
             return (
               <button
                 key={chip.id}
-                disabled={isUsed}
+                disabled={isUsed || isSquadLocked}
                 onClick={() => activateChip(chip.id)}
                 className={`px-2 md:px-2.5 py-1 rounded-lg text-[10px] md:text-xs font-bold border transition-all ${
                   isActive
                     ? 'bg-emerald-500 text-white border-emerald-500 shadow-xs'
-                    : isUsed
+                    : isUsed || isSquadLocked
                     ? 'bg-slate-100 dark:bg-slate-800 text-slate-400 border-transparent opacity-50 cursor-not-allowed'
                     : 'bg-slate-50 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700'
                 }`}
@@ -220,9 +233,9 @@ export const PickTeamView: React.FC = () => {
         )}
         <button
           onClick={handleSaveTeam}
-          disabled={isSaving || !comp.isValid}
+          disabled={isSaving || !comp.isValid || isSquadLocked}
           className={`w-full py-3 px-4 rounded-xl font-bold text-xs md:text-sm uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-xs ${
-            !comp.isValid
+            !comp.isValid || isSquadLocked
               ? 'bg-slate-200 dark:bg-slate-800 text-slate-400 dark:text-slate-500 cursor-not-allowed'
               : 'bg-emerald-500 hover:bg-emerald-600 active:scale-99 text-white font-black'
           }`}
@@ -232,6 +245,8 @@ export const PickTeamView: React.FC = () => {
               <Loader2 className="w-4 h-4 animate-spin text-white" />
               <span>Saving Lineup...</span>
             </>
+          ) : isSquadLocked ? (
+            <span>🔒 Lineups Locked for GW {squad.players.length > 0 ? '' : ''}</span>
           ) : saveSuccess ? (
             <>
               <CheckCircle className="w-4 h-4 text-white" />

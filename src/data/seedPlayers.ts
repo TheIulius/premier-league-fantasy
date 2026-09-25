@@ -13,6 +13,7 @@ const emptyStats: PlayerStats = {
   penaltiesMissed: 0,
   ownGoals: 0,
   bonus: 0,
+  isMVP: false,
 };
 
 export const SEED_PLAYERS: Player[] = [

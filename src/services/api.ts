@@ -332,5 +332,55 @@ export async function adminSetServerTokenApi(token: string) {
   return data;
 }
 
+// Deadline management
+export async function fetchDeadlineApi(): Promise<{ deadline: { gameweek: number; deadlineTime: string } | null }> {
+  const res = await fetch(`${API_BASE}/api/deadline`);
+  if (!res.ok) return { deadline: null };
+  return res.json();
+}
 
+export async function adminSetDeadlineApi(gameweek: number, deadlineTime: string) {
+  const res = await fetch(`${API_BASE}/api/admin/deadline`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ gameweek, deadlineTime }),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Failed to set deadline');
+  return data;
+}
+
+export async function adminClearDeadlineApi() {
+  const res = await fetch(`${API_BASE}/api/admin/deadline/clear`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Failed to clear deadline');
+  return data;
+}
+
+// Batch match events (for the new Match-Day Admin module)
+export async function adminSaveMatchEventsApi(payload: {
+  fixtureId: string;
+  homeScore: number;
+  awayScore: number;
+  goalScorers: { playerId: string; minute?: number; isOwnGoal?: boolean; assistPlayerId?: string }[];
+  mvpPlayerIds: string[];
+  playerMinutes: Record<string, number>;
+  yellowCards: string[];
+  redCards: string[];
+  penaltiesSaved: Record<string, number>;
+  penaltiesMissed: Record<string, number>;
+  venue: 'parki' | 'one_price';
+}) {
+  const res = await fetch(`${API_BASE}/api/admin/match-events`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Failed to save match events');
+  return data;
+}
 

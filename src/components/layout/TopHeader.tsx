@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useFPL, TabType } from '../../context/FPLContext';
-import { Sparkles, Wrench, Users, Shirt, ArrowLeftRight, Zap, Trophy, Calendar, Sun, Moon } from 'lucide-react';
+import { Sparkles, Wrench, Users, Shirt, ArrowLeftRight, Zap, Trophy, Calendar, Sun, Moon, Clock } from 'lucide-react';
 
 interface TabItem {
   id: TabType;
@@ -31,7 +31,39 @@ export const TopHeader: React.FC = () => {
     currentManager,
     theme,
     toggleTheme,
+    deadline,
+    isSquadLocked,
   } = useFPL();
+
+  const [timeLeft, setTimeLeft] = useState<string>('');
+
+  useEffect(() => {
+    if (!deadline) {
+      setTimeLeft('');
+      return;
+    }
+    const updateCountdown = () => {
+      const diff = new Date(deadline.deadlineTime).getTime() - Date.now();
+      if (diff <= 0) {
+        setTimeLeft('Locked');
+        return;
+      }
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+      const mins = Math.floor((diff / (1000 * 60)) % 60);
+      if (days > 0) {
+        setTimeLeft(`${days}d ${hours}h`);
+      } else if (hours > 0) {
+        setTimeLeft(`${hours}h ${mins}m`);
+      } else {
+        const secs = Math.floor((diff / 1000) % 60);
+        setTimeLeft(`${mins}m ${secs}s`);
+      }
+    };
+    updateCountdown();
+    const timer = setInterval(updateCountdown, 1000);
+    return () => clearInterval(timer);
+  }, [deadline]);
 
   const userLeagueMember = leagues.flatMap((l) => l.members).find(
     (m) => m.id === currentManager?.id || m.id === 'user' || (authUser && m.id === authUser.id)
@@ -57,6 +89,19 @@ export const TopHeader: React.FC = () => {
               <span className="text-[10px] md:text-xs font-bold px-1.5 py-0.2 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
                 GW {currentGW}
               </span>
+              {deadline && (
+                <span
+                  className={`text-[9px] md:text-xs font-bold px-1.5 py-0.2 rounded flex items-center gap-1 border ${
+                    isSquadLocked
+                      ? 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/30'
+                      : 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30'
+                  }`}
+                  title={`Deadline: ${new Date(deadline.deadlineTime).toLocaleString()}`}
+                >
+                  <Clock className="w-2.5 h-2.5 md:w-3 md:h-3" />
+                  <span>{isSquadLocked ? 'Locked' : timeLeft}</span>
+                </span>
+              )}
             </div>
             <div className="flex items-center gap-1.5">
               <button
