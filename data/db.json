@@ -4330,7 +4330,25 @@
       "kickoffTime": "Matchday 4"
     }
   ],
-  "leagues": [],
+  "leagues": [
+    {
+      "id": "league_1790369699246",
+      "name": "11/5 volkebi",
+      "code": "KCL-4Q9VN",
+      "isGlobal": false,
+      "members": [
+        {
+          "id": "user_1790353103544",
+          "managerName": "Ilia",
+          "teamName": "giorgievski's tractati",
+          "totalPoints": 0,
+          "gwPoints": 0,
+          "rank": 1,
+          "previousRank": 1
+        }
+      ]
+    }
+  ],
   "managers": {
     "user_1": {
       "id": "user_1",
