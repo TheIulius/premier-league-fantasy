@@ -7394,6 +7394,26 @@
         }
       },
       "joinedAt": "2026-09-25T16:18:23.548Z"
+    },
+    "user_1790357898196": {
+      "id": "user_1790357898196",
+      "managerName": "Nika",
+      "teamName": "Chaga XI",
+      "squad": {
+        "teamName": "Chaga XI",
+        "managerName": "Nika",
+        "players": [],
+        "bank": 60,
+        "freeTransfers": 1,
+        "transfersMadeThisGW": 0,
+        "activeChip": null,
+        "usedChips": {
+          "triple_captain": false,
+          "bench_boost": false,
+          "free_hit": false
+        }
+      },
+      "joinedAt": "2026-09-25T17:38:18.197Z"
     }
   },
   "users": {
@@ -7428,6 +7448,17 @@
       "teamName": "giorgievski's tractati",
       "token": "5eb7636cf0313d5c3cca5b8c98691584ef6f4598abd3ffdc6f1bc92fd7c8a3ac",
       "createdAt": "2026-09-25T16:18:23.548Z"
+    },
+    "user_1790357898196": {
+      "id": "user_1790357898196",
+      "username": "chaga",
+      "email": "chaga@fantasy.pl",
+      "passwordHash": "39f1ea921b69f059ae60f7057426b4c50a16f96d00f248f9f8dc002dba66af3e78a2c40f1673f275188a5f952424b3243c490845e13048600bf14cb89ef0dbee",
+      "salt": "29c1f7c3ae344032980cba1fb37c163a",
+      "managerName": "Nika",
+      "teamName": "Chaga XI",
+      "token": "729ee14940867e2584517d6d75e59ed457884a3764edcbaa58eb6deaf1b13372",
+      "createdAt": "2026-09-25T17:38:18.197Z"
     }
   },
   "deadline": {
