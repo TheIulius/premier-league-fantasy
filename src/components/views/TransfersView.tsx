@@ -19,6 +19,7 @@ import {
   Lock,
   List,
   LayoutGrid,
+  Calendar,
   Sparkles,
   ChevronRight,
   Coins,
@@ -26,6 +27,7 @@ import {
 } from 'lucide-react';
 import { validateSquadComposition } from '../../engine/scoring';
 import confetti from 'canvas-confetti';
+import { ClassCalendarView } from '../transfers/ClassCalendarView';
 
 export type SortOption =
   | 'points_desc'
@@ -65,7 +67,6 @@ export const TransfersView: React.FC = () => {
   // Drawer expansion state: 'collapsed' (peek), 'expanded' (full)
   const [drawerExpanded, setDrawerExpanded] = useState<boolean>(false);
   const [viewMode, setViewMode] = useState<'list' | 'classes'>('list');
-  const [expandedClass, setExpandedClass] = useState<string | null>(null);
 
   // Feedback notifications
   const [transferMessage, setTransferMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
@@ -504,7 +505,7 @@ export const TransfersView: React.FC = () => {
                 )}
               </div>
 
-              {/* View Mode Toggle: List vs Classes */}
+              {/* View Mode Toggle: List vs Calendar */}
               <div className="flex items-center p-0.5 rounded-xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-xs">
                 <button
                   onClick={() => setViewMode('list')}
@@ -524,9 +525,9 @@ export const TransfersView: React.FC = () => {
                       ? 'bg-white dark:bg-slate-800 text-emerald-600 dark:text-emerald-400 shadow-xs'
                       : 'text-slate-400 hover:text-slate-200'
                   }`}
-                  title="Class Grid View"
+                  title="Calendar Zoom View"
                 >
-                  <LayoutGrid className="w-4 h-4" />
+                  <Calendar className="w-4 h-4" />
                 </button>
               </div>
             </div>
@@ -579,37 +580,39 @@ export const TransfersView: React.FC = () => {
               </button>
             </div>
 
-            {/* Sort & Club Dropdown */}
-            <div className="grid grid-cols-2 gap-2 text-xs">
-              <select
-                value={clubFilter}
-                onChange={(e) => setClubFilter(e.target.value)}
-                className="w-full py-1.5 px-2.5 rounded-xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-800 dark:text-slate-200 text-xs outline-none"
-              >
-                <option value="ALL">All Classes (28)</option>
-                {sortedClubs.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.shortName} ({c.name})
-                  </option>
-                ))}
-              </select>
+            {/* Sort & Club Dropdown (List Mode) */}
+            {viewMode === 'list' && (
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <select
+                  value={clubFilter}
+                  onChange={(e) => setClubFilter(e.target.value)}
+                  className="w-full py-1.5 px-2.5 rounded-xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-800 dark:text-slate-200 text-xs outline-none"
+                >
+                  <option value="ALL">All Classes (28)</option>
+                  {sortedClubs.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.shortName} ({c.name})
+                    </option>
+                  ))}
+                </select>
 
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as SortOption)}
-                className="w-full py-1.5 px-2.5 rounded-xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-800 dark:text-slate-200 text-xs outline-none"
-              >
-                <option value="points_desc">Points: High to Low</option>
-                <option value="cost_desc">Price: High to Low</option>
-                <option value="cost_asc">Price: Low to High</option>
-                <option value="form_desc">Form: High to Low</option>
-                <option value="name_asc">Name: A to Z</option>
-              </select>
-            </div>
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value as SortOption)}
+                  className="w-full py-1.5 px-2.5 rounded-xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-800 dark:text-slate-200 text-xs outline-none"
+                >
+                  <option value="points_desc">Points: High to Low</option>
+                  <option value="cost_desc">Price: High to Low</option>
+                  <option value="cost_asc">Price: Low to High</option>
+                  <option value="form_desc">Form: High to Low</option>
+                  <option value="name_asc">Name: A to Z</option>
+                </select>
+              </div>
+            )}
           </div>
 
           {/* Candidate Market Listing */}
-          <div className="max-h-[380px] sm:max-h-[460px] overflow-y-auto px-3 sm:px-4 pb-4 divide-y divide-slate-100 dark:divide-white/[0.04]">
+          <div className={`max-h-[440px] sm:max-h-[520px] overflow-y-auto px-3 sm:px-4 pb-4 ${viewMode === 'list' ? 'divide-y divide-slate-100 dark:divide-white/[0.04]' : ''}`}>
             {viewMode === 'list' ? (
               candidatePlayers.length > 0 ? (
                 candidatePlayers.map((p) => {
@@ -723,124 +726,21 @@ export const TransfersView: React.FC = () => {
                 </div>
               )
             ) : (
-              /* Class Grid Calendar View */
-              <div className="py-2 space-y-2">
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                  {sortedClubs.map((club) => {
-                    const normClub = club.id === 'SCH' ? 'SCH_11_5' : club.id;
-                    const clubPlayers = classPlayersMap[normClub] || [];
-                    const ownedInClub = squad.players.filter((sp) => {
-                      const p = players[sp.playerId];
-                      return p && (p.clubId === 'SCH' ? 'SCH_11_5' : p.clubId) === normClub;
-                    }).length;
-                    const isMaxed = ownedInClub >= 2;
-                    const isExpanded = expandedClass === normClub;
-
-                    return (
-                      <div
-                        key={club.id}
-                        className={`rounded-2xl border transition-all ${
-                          isMaxed
-                            ? 'bg-rose-500/5 border-rose-500/30'
-                            : isExpanded
-                            ? 'bg-emerald-500/10 border-emerald-500/40 shadow-sm'
-                            : 'bg-slate-100/60 dark:bg-white/5 border-slate-200 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20'
-                        }`}
-                      >
-                        <div
-                          onClick={() => setExpandedClass(isExpanded ? null : normClub)}
-                          className="p-2.5 cursor-pointer flex items-center justify-between"
-                        >
-                          <div>
-                            <div className="flex items-center gap-1.5">
-                              <span
-                                className="w-2.5 h-2.5 rounded-full"
-                                style={{ backgroundColor: club.primaryColor }}
-                              />
-                              <span className="font-extrabold text-xs text-slate-900 dark:text-white">
-                                {club.shortName}
-                              </span>
-                            </div>
-                            <span className="text-[10px] text-slate-400 block mt-0.5">
-                              {clubPlayers.length} Players
-                            </span>
-                          </div>
-
-                          <div className="text-right">
-                            <span
-                              className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
-                                isMaxed
-                                  ? 'bg-rose-500/20 text-rose-400'
-                                  : 'bg-slate-200 dark:bg-white/10 text-slate-600 dark:text-slate-300 font-mono'
-                              }`}
-                            >
-                              {ownedInClub}/2
-                            </span>
-                          </div>
-                        </div>
-
-                        {/* Inline Expandable Players List for this Class */}
-                        <AnimatePresence>
-                          {isExpanded && (
-                            <motion.div
-                              initial={{ opacity: 0, height: 0 }}
-                              animate={{ opacity: 1, height: 'auto' }}
-                              exit={{ opacity: 0, height: 0 }}
-                              className="border-t border-slate-200 dark:border-white/10 p-2 space-y-1 bg-white/40 dark:bg-black/20"
-                            >
-                              {clubPlayers.map((p) => {
-                                const isOwned = squadPlayerIds.has(p.id);
-                                const isAffordable = p.cost <= (outPlayer ? squad.bank + outPlayer.cost : squad.bank);
-
-                                return (
-                                  <div
-                                    key={p.id}
-                                    className="flex items-center justify-between p-1.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-white/5 text-xs"
-                                  >
-                                    <div className="flex items-center gap-1.5 truncate">
-                                      <KitJersey clubId={p.clubId} position={p.position} className="w-5 h-5 flex-shrink-0" />
-                                      <span className="font-bold truncate text-slate-900 dark:text-white">
-                                        {p.webName}
-                                      </span>
-                                      <span className="text-[9px] text-slate-400">{p.position}</span>
-                                    </div>
-                                    <div className="flex items-center gap-1.5 flex-shrink-0">
-                                      <span className="font-mono tabular-nums text-emerald-500 font-bold text-[11px]">
-                                        £{p.cost.toFixed(1)}m
-                                      </span>
-                                      {isOwned ? (
-                                        <span className="text-[9px] px-1.5 py-0.5 rounded bg-slate-100 dark:bg-white/10 text-slate-400 font-bold">
-                                          Owned
-                                        </span>
-                                      ) : outPlayer ? (
-                                        <button
-                                          onClick={() => setInPlayerId(p.id)}
-                                          disabled={isMaxed || !isAffordable || isSquadLocked}
-                                          className="px-2 py-0.5 rounded bg-emerald-500 text-slate-950 font-bold text-[10px]"
-                                        >
-                                          Pick
-                                        </button>
-                                      ) : (
-                                        <button
-                                          onClick={() => handleBuyPlayer(p.id)}
-                                          disabled={isMaxed || !isAffordable || isSquadLocked || validSquadCount >= 9}
-                                          className="px-2 py-0.5 rounded bg-emerald-500 text-slate-950 font-bold text-[10px]"
-                                        >
-                                          +
-                                        </button>
-                                      )}
-                                    </div>
-                                  </div>
-                                );
-                              })}
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
+              /* Interactive Calendar Zoom & Grade Shuffler View */
+              <ClassCalendarView
+                players={players}
+                clubs={clubs}
+                squad={squad}
+                outPlayer={outPlayer}
+                inPlayerId={inPlayerId}
+                onSelectInPlayer={setInPlayerId}
+                onBuyPlayer={handleBuyPlayer}
+                isSquadLocked={isSquadLocked}
+                validSquadCount={validSquadCount}
+                searchQuery={searchQuery}
+                positionFilter={positionFilter}
+                affordableOnly={affordableOnly}
+              />
             )}
           </div>
         </div>
