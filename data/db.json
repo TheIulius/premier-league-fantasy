@@ -6465,9 +6465,16 @@
             "benchOrder": 1,
             "isCaptain": false,
             "isViceCaptain": false
+          },
+          {
+            "playerId": "p_9_4_jafarashvili",
+            "isStarter": true,
+            "benchOrder": 0,
+            "isCaptain": false,
+            "isViceCaptain": false
           }
         ],
-        "bank": 20.9,
+        "bank": 16.9,
         "freeTransfers": 1,
         "transfersMadeThisGW": 0,
         "activeChip": null,
