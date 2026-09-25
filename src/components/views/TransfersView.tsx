@@ -66,7 +66,7 @@ export const TransfersView: React.FC = () => {
 
   // Drawer expansion state: 'collapsed' (peek), 'expanded' (full)
   const [drawerExpanded, setDrawerExpanded] = useState<boolean>(false);
-  const [viewMode, setViewMode] = useState<'list' | 'classes'>('list');
+  const [viewMode, setViewMode] = useState<'list' | 'classes'>('classes');
 
   // Feedback notifications
   const [transferMessage, setTransferMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
@@ -505,29 +505,31 @@ export const TransfersView: React.FC = () => {
                 )}
               </div>
 
-              {/* View Mode Toggle: List vs Calendar */}
+              {/* View Mode Toggle: Calendar vs List */}
               <div className="flex items-center p-0.5 rounded-xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-xs">
                 <button
+                  onClick={() => setViewMode('classes')}
+                  className={`flex items-center gap-1 px-2.5 py-1 rounded-lg transition-colors font-bold ${
+                    viewMode === 'classes'
+                      ? 'bg-emerald-500 text-slate-950 font-black shadow-xs'
+                      : 'text-slate-400 hover:text-slate-200'
+                  }`}
+                  title="Calendar (Years / Months / Field)"
+                >
+                  <Calendar className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">Calendar</span>
+                </button>
+                <button
                   onClick={() => setViewMode('list')}
-                  className={`p-1.5 rounded-lg transition-colors ${
+                  className={`flex items-center gap-1 px-2.5 py-1 rounded-lg transition-colors font-bold ${
                     viewMode === 'list'
-                      ? 'bg-white dark:bg-slate-800 text-emerald-600 dark:text-emerald-400 shadow-xs'
+                      ? 'bg-emerald-500 text-slate-950 font-black shadow-xs'
                       : 'text-slate-400 hover:text-slate-200'
                   }`}
                   title="List View"
                 >
-                  <List className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={() => setViewMode('classes')}
-                  className={`p-1.5 rounded-lg transition-colors ${
-                    viewMode === 'classes'
-                      ? 'bg-white dark:bg-slate-800 text-emerald-600 dark:text-emerald-400 shadow-xs'
-                      : 'text-slate-400 hover:text-slate-200'
-                  }`}
-                  title="Calendar Zoom View"
-                >
-                  <Calendar className="w-4 h-4" />
+                  <List className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">List</span>
                 </button>
               </div>
             </div>
