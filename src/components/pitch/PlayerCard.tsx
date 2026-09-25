@@ -167,8 +167,8 @@ export const PlayerCard: React.FC<PlayerCardProps> = ({
       <div
         className={`w-full text-center px-1 md:px-1.5 py-[1px] md:py-0.5 rounded-b text-[10px] md:text-[11px] font-extrabold border-x border-b tracking-tight transition-colors ${
           showPoints
-            ? 'bg-[#37003c] text-[#00ff87] border-[#550c5d]'
-            : 'bg-[#1b001d] text-gray-200 border-[#470a4e]'
+            ? 'bg-slate-950 text-emerald-400 border-slate-700'
+            : 'bg-slate-900 text-slate-200 border-slate-800'
         }`}
       >
         {showPoints ? `${pts} pts` : `£${player.cost.toFixed(1)}m`}

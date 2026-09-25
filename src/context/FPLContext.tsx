@@ -99,9 +99,13 @@ interface FPLContextType {
   loginUser: (login: string, pass: string) => Promise<void>;
   registerUser: (data: { username: string; email?: string; password: string; managerName: string; teamName: string }) => Promise<void>;
   logoutUser: () => void;
+  theme: 'dark' | 'light';
+  setTheme: (theme: 'dark' | 'light') => void;
+  toggleTheme: () => void;
 }
 
 const STORAGE_KEY_AUTH_TOKEN = 'fpl_auth_token_v1';
+const STORAGE_KEY_THEME = 'fpl_theme';
 const STORAGE_KEY_AUTH_USER = 'fpl_auth_user_v1';
 const STORAGE_KEY_MANAGER_ID = 'fpl_active_manager_id_v1';
 const STORAGE_KEY_PLAYERS = 'fpl_players_v1';
@@ -156,6 +160,29 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   ]);
 
   const [isManagerModalOpen, setIsManagerModalOpen] = useState<boolean>(false);
+
+  // Theme Management (Dark / Light Mode)
+  const [theme, setTheme] = useState<'dark' | 'light'>(() => {
+    const saved = localStorage.getItem(STORAGE_KEY_THEME);
+    if (saved === 'dark' || saved === 'light') return saved;
+    if (typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      return 'dark';
+    }
+    return 'dark';
+  });
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY_THEME, theme);
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [theme]);
+
+  const toggleTheme = useCallback(() => {
+    setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
+  }, []);
 
   // Core Game State
   const [clubs, setClubs] = useState<Record<string, Club>>(() => {
@@ -1291,6 +1318,9 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         loginUser,
         registerUser,
         logoutUser,
+        theme,
+        setTheme,
+        toggleTheme,
       }}
     >
       {children}

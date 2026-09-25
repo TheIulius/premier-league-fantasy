@@ -4,9 +4,23 @@
 
 @layer base {
   :root {
-    --pl-purple: #37003c;
-    --pl-green: #00ff87;
-    --pl-magenta: #e90052;
+    --bg-page: #f8fafc;
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --card-bg: #ffffff;
+    --card-border: #e2e8f0;
+    --accent: #10b981;
+    color-scheme: light;
+  }
+
+  .dark {
+    --bg-page: #090d16;
+    --text-primary: #f8fafc;
+    --text-secondary: #94a3b8;
+    --card-bg: #111827;
+    --card-border: rgba(255, 255, 255, 0.08);
+    --accent: #10b981;
+    color-scheme: dark;
   }
 
   html, body {
@@ -14,10 +28,11 @@
     padding: 0;
     width: 100%;
     min-height: 100%;
-    background-color: #120014;
-    color: #ffffff;
+    background-color: var(--bg-page);
+    color: var(--text-primary);
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
+    transition: background-color 0.2s ease, color 0.2s ease;
   }
 
   #root {
@@ -25,7 +40,8 @@
     min-height: 100vh;
     display: flex;
     justify-content: center;
-    background-color: #120014;
+    background-color: var(--bg-page);
+    transition: background-color 0.2s ease;
   }
 }
 
@@ -38,11 +54,11 @@
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(148, 163, 184, 0.3);
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 255, 135, 0.4);
+  background: rgba(16, 185, 129, 0.5);
 }
 
 /* Pitch Grass Stripes Pattern */

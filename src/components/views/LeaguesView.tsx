@@ -41,7 +41,7 @@ export const LeaguesView: React.FC = () => {
     const code = await createLeague(name);
     setNewLeagueName('');
     setShowCreateModal(false);
-    setFeedbackMsg({ type: 'success', text: `League "${name}" created! Share code: ${code}` });
+    setFeedbackMsg({ type: 'success', text: `League "${name}" created! Code: ${code}` });
     setTimeout(() => setFeedbackMsg(null), 6000);
   };
 
@@ -54,13 +54,13 @@ export const LeaguesView: React.FC = () => {
       setJoinCode('');
       setShowJoinModal(false);
     } else {
-      setFeedbackMsg({ type: 'error', text: 'Invalid league code. Please check and try again.' });
+      setFeedbackMsg({ type: 'error', text: 'Invalid league code. Try again.' });
     }
     setTimeout(() => setFeedbackMsg(null), 4000);
   };
 
   const handleDelete = async (leagueId: string, leagueName: string) => {
-    if (window.confirm(`Are you sure you want to delete "${leagueName}"?`)) {
+    if (window.confirm(`Delete "${leagueName}"?`)) {
       await deleteLeague(leagueId);
       setFeedbackMsg({ type: 'success', text: `League "${leagueName}" deleted.` });
       setTimeout(() => setFeedbackMsg(null), 4000);
@@ -76,12 +76,12 @@ export const LeaguesView: React.FC = () => {
   return (
     <div className="flex flex-col space-y-3 pb-24 md:pb-12 px-2 md:px-6 pt-2 md:pt-4 select-none max-w-4xl lg:max-w-5xl mx-auto w-full">
       {/* Leagues Selector & Actions */}
-      <div className="p-3 md:p-4 rounded-2xl bg-[#28002d] border border-[#4d0c54] space-y-2.5">
+      <div className="p-3 md:p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-2.5 shadow-xs">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Trophy className="w-5 h-5 text-yellow-400" />
-            <h2 className="text-sm md:text-base font-black text-white uppercase tracking-tight">
-              Leagues & Standings
+            <Trophy className="w-5 h-5 text-amber-500" />
+            <h2 className="text-sm md:text-base font-black text-slate-900 dark:text-white uppercase tracking-tight">
+              Leagues
             </h2>
           </div>
 
@@ -91,9 +91,9 @@ export const LeaguesView: React.FC = () => {
                 setShowJoinModal(true);
                 setShowCreateModal(false);
               }}
-              className="px-2.5 md:px-3 py-1 md:py-1.5 rounded-lg text-[10px] md:text-xs font-bold bg-white/10 hover:bg-white/20 text-white flex items-center gap-1 transition-colors"
+              className="px-2.5 md:px-3 py-1 md:py-1.5 rounded-lg text-[11px] md:text-xs font-bold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 flex items-center gap-1 transition-colors"
             >
-              <Key className="w-3 h-3 md:w-3.5 md:h-3.5" />
+              <Key className="w-3.5 h-3.5" />
               Join
             </button>
             <button
@@ -101,25 +101,25 @@ export const LeaguesView: React.FC = () => {
                 setShowCreateModal(true);
                 setShowJoinModal(false);
               }}
-              className="px-2.5 md:px-3 py-1 md:py-1.5 rounded-lg text-[10px] md:text-xs font-bold bg-[#00ff87] text-[#37003c] flex items-center gap-1 shadow-glow-green hover:opacity-90 transition-opacity"
+              className="px-2.5 md:px-3 py-1 md:py-1.5 rounded-lg text-[11px] md:text-xs font-bold bg-emerald-500 hover:bg-emerald-600 text-white flex items-center gap-1 shadow-xs transition-colors"
             >
-              <Plus className="w-3 h-3 md:w-3.5 md:h-3.5" />
+              <Plus className="w-3.5 h-3.5" />
               Create
             </button>
           </div>
         </div>
 
-        {/* League Pills Bar (only when leagues exist) */}
+        {/* League Pills Bar */}
         {leagues.length > 0 && (
-          <div className="flex items-center gap-2 overflow-x-auto pb-1">
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
             {leagues.map((l) => (
               <button
                 key={l.id}
                 onClick={() => setSelectedLeagueId(l.id)}
-                className={`px-3 md:px-4 py-1.5 md:py-2 rounded-full text-xs md:text-sm font-bold whitespace-nowrap transition-all ${
+                className={`px-3 md:px-3.5 py-1 md:py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all ${
                   activeLeague?.id === l.id
-                    ? 'bg-[#00ff87] text-[#37003c] shadow-glow-green'
-                    : 'bg-white/5 text-gray-300 hover:bg-white/10'
+                    ? 'bg-emerald-500 text-white shadow-xs'
+                    : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
                 }`}
               >
                 {l.name}
@@ -134,8 +134,8 @@ export const LeaguesView: React.FC = () => {
         <div
           className={`p-2.5 rounded-xl text-xs font-bold ${
             feedbackMsg.type === 'success'
-              ? 'bg-[#00ff87]/20 text-[#00ff87] border border-[#00ff87]/40'
-              : 'bg-red-500/20 text-red-300 border border-red-500/40'
+              ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20'
+              : 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20'
           }`}
         >
           {feedbackMsg.text}
@@ -146,35 +146,35 @@ export const LeaguesView: React.FC = () => {
       {showCreateModal && (
         <form
           onSubmit={handleCreate}
-          className="p-3.5 rounded-2xl bg-[#230026] border border-[#00ff87]/40 animate-fadeIn space-y-3 shadow-xl"
+          className="p-3.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl space-y-3 animate-fadeIn"
         >
           <div className="flex items-center justify-between">
-            <span className="text-xs font-black text-[#00ff87] uppercase tracking-wide flex items-center gap-1.5">
-              <Plus className="w-3.5 h-3.5" />
-              Create New League
+            <span className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wide flex items-center gap-1.5">
+              <Plus className="w-3.5 h-3.5 text-emerald-500" />
+              Create League
             </span>
             <button
               type="button"
               onClick={() => setShowCreateModal(false)}
-              className="text-gray-400 text-xs hover:text-white px-2 py-0.5"
+              className="text-slate-400 text-xs hover:text-slate-600 dark:hover:text-white px-2 py-0.5"
             >
               Cancel
             </button>
           </div>
-          <p className="text-[11px] text-gray-300">
-            Create a custom league for your school, class, or friends.
+          <p className="text-xs text-slate-500 dark:text-slate-400">
+            Create a private league for your school, class, or friends.
           </p>
           <input
             type="text"
-            placeholder="League Name (e.g. Class 11/5 League)"
+            placeholder="League Name (e.g. 11/5 League)"
             value={newLeagueName}
             onChange={(e) => setNewLeagueName(e.target.value)}
-            className="w-full bg-black/40 border border-white/15 rounded-xl px-3 py-2 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-[#00ff87]"
+            className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-emerald-500"
             autoFocus
           />
           <button
             type="submit"
-            className="w-full py-2.5 bg-[#00ff87] text-[#37003c] rounded-xl text-xs font-black uppercase tracking-wider shadow-glow-green"
+            className="w-full py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl text-xs font-bold uppercase tracking-wider transition-colors shadow-xs"
           >
             Create League
           </button>
@@ -185,35 +185,35 @@ export const LeaguesView: React.FC = () => {
       {showJoinModal && (
         <form
           onSubmit={handleJoin}
-          className="p-3.5 rounded-2xl bg-[#230026] border border-[#04f5ff]/40 animate-fadeIn space-y-3 shadow-xl"
+          className="p-3.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl space-y-3 animate-fadeIn"
         >
           <div className="flex items-center justify-between">
-            <span className="text-xs font-black text-[#04f5ff] uppercase tracking-wide flex items-center gap-1.5">
-              <Key className="w-3.5 h-3.5" />
+            <span className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wide flex items-center gap-1.5">
+              <Key className="w-3.5 h-3.5 text-sky-500" />
               Join League
             </span>
             <button
               type="button"
               onClick={() => setShowJoinModal(false)}
-              className="text-gray-400 text-xs hover:text-white px-2 py-0.5"
+              className="text-slate-400 text-xs hover:text-slate-600 dark:hover:text-white px-2 py-0.5"
             >
               Cancel
             </button>
           </div>
-          <p className="text-[11px] text-gray-300">
-            Enter the league code shared by your friend (e.g. <code className="text-[#04f5ff]">KCL-XXXX</code>).
+          <p className="text-xs text-slate-500 dark:text-slate-400">
+            Enter the code shared with you (e.g. <code className="text-sky-500 font-semibold">KCL-XXXX</code>).
           </p>
           <input
             type="text"
             placeholder="League Code"
             value={joinCode}
             onChange={(e) => setJoinCode(e.target.value)}
-            className="w-full bg-black/40 border border-white/15 rounded-xl px-3 py-2 text-xs text-white placeholder-gray-500 uppercase focus:outline-none focus:border-[#04f5ff]"
+            className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-white placeholder-slate-400 uppercase focus:outline-none focus:border-sky-500"
             autoFocus
           />
           <button
             type="submit"
-            className="w-full py-2.5 bg-[#04f5ff] text-[#111] rounded-xl text-xs font-black uppercase tracking-wider"
+            className="w-full py-2.5 bg-sky-500 hover:bg-sky-600 text-white rounded-xl text-xs font-bold uppercase tracking-wider transition-colors shadow-xs"
           >
             Join League
           </button>
@@ -222,15 +222,15 @@ export const LeaguesView: React.FC = () => {
 
       {/* Empty State when no leagues exist */}
       {leagues.length === 0 && (
-        <div className="p-6 rounded-2xl bg-gradient-to-b from-[#200024] to-[#160018] border border-white/10 text-center space-y-4">
-          <div className="w-14 h-14 mx-auto rounded-2xl bg-gradient-to-br from-[#e90052]/20 to-[#00ff87]/20 border border-white/15 flex items-center justify-center shadow-lg">
-            <Trophy className="w-7 h-7 text-yellow-400" />
+        <div className="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-center space-y-4 shadow-xs">
+          <div className="w-12 h-12 mx-auto rounded-2xl bg-amber-500/10 text-amber-500 flex items-center justify-center">
+            <Trophy className="w-6 h-6" />
           </div>
 
           <div className="space-y-1">
-            <h3 className="text-base font-extrabold text-white">No Leagues Yet</h3>
-            <p className="text-xs text-gray-300 max-w-xs mx-auto leading-relaxed">
-              Start your own fantasy competition! Create a custom league for your class, or enter an invite code to join one.
+            <h3 className="text-base font-extrabold text-slate-900 dark:text-white">No Leagues Yet</h3>
+            <p className="text-xs text-slate-500 dark:text-slate-400 max-w-xs mx-auto">
+              Create a custom league for your class, or enter an invite code to join one.
             </p>
           </div>
 
@@ -240,20 +240,20 @@ export const LeaguesView: React.FC = () => {
                 setShowCreateModal(true);
                 setShowJoinModal(false);
               }}
-              className="px-4 py-2.5 bg-[#00ff87] text-[#37003c] rounded-xl text-xs font-black uppercase tracking-wide flex items-center justify-center gap-1.5 shadow-glow-green"
+              className="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl text-xs font-bold uppercase tracking-wide flex items-center justify-center gap-1.5 shadow-xs transition-colors"
             >
               <Plus className="w-4 h-4" />
-              Create Your First League
+              Create League
             </button>
             <button
               onClick={() => {
                 setShowJoinModal(true);
                 setShowCreateModal(false);
               }}
-              className="px-4 py-2.5 bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 border border-white/15"
+              className="px-4 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-colors"
             >
               <Key className="w-4 h-4" />
-              Join With Code
+              Join Code
             </button>
           </div>
         </div>
@@ -261,11 +261,11 @@ export const LeaguesView: React.FC = () => {
 
       {/* Active League Info & Code */}
       {activeLeague && (
-        <div className="rounded-2xl bg-[#200024] border border-white/10 overflow-hidden shadow-lg">
-          <div className="px-3.5 md:px-5 py-2.5 md:py-3.5 bg-[#2a0030] border-b border-white/5 flex items-center justify-between text-xs md:text-sm">
+        <div className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 overflow-hidden shadow-xs">
+          <div className="px-3.5 md:px-5 py-2.5 md:py-3.5 bg-slate-50 dark:bg-slate-800/60 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between text-xs md:text-sm">
             <div className="flex items-center gap-2">
-              <span className="font-black text-white text-sm md:text-base">{activeLeague.name}</span>
-              <span className="text-[9px] md:text-[10px] bg-[#00ff87]/15 text-[#00ff87] px-1.5 py-0.5 rounded font-bold border border-[#00ff87]/30">
+              <span className="font-black text-slate-900 dark:text-white text-sm md:text-base">{activeLeague.name}</span>
+              <span className="text-[10px] bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-1.5 py-0.5 rounded font-bold border border-emerald-500/20">
                 {activeLeague.members.length} {activeLeague.members.length === 1 ? 'Manager' : 'Managers'}
               </span>
             </div>
@@ -273,16 +273,16 @@ export const LeaguesView: React.FC = () => {
             <div className="flex items-center gap-2">
               <button
                 onClick={() => copyCodeToClipboard(activeLeague.code)}
-                className="flex items-center gap-1 text-[11px] md:text-xs font-bold text-[#00ff87] hover:underline bg-[#00ff87]/10 px-2 py-1 rounded-lg border border-[#00ff87]/20"
+                className="flex items-center gap-1 text-[11px] md:text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:underline bg-emerald-50 dark:bg-emerald-950/30 px-2 py-1 rounded-lg border border-emerald-500/20 transition-colors"
                 title="Click to copy invite code"
               >
-                {copiedCode ? <Check className="w-3 h-3 text-[#00ff87]" /> : <Copy className="w-3 h-3 text-[#00ff87]" />}
-                <span>Code: {activeLeague.code}</span>
+                {copiedCode ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+                <span>{activeLeague.code}</span>
               </button>
 
               <button
                 onClick={() => handleDelete(activeLeague.id, activeLeague.name)}
-                className="text-gray-400 hover:text-red-400 p-1 rounded-lg hover:bg-white/5 transition-colors"
+                className="text-slate-400 hover:text-rose-500 p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                 title="Delete this league"
               >
                 <Trash2 className="w-3.5 h-3.5" />
@@ -292,24 +292,23 @@ export const LeaguesView: React.FC = () => {
 
           {/* Standings Table or Empty State */}
           {activeLeague.members.length === 0 ? (
-            <div className="p-8 md:p-12 text-center space-y-2">
-              <p className="text-xs md:text-sm text-gray-300">
+            <div className="p-8 text-center space-y-2">
+              <p className="text-xs md:text-sm text-slate-500 dark:text-slate-400">
                 No managers in this league yet.
               </p>
-              <p className="text-[11px] md:text-xs text-[#00ff87]">
-                Share code <span className="font-mono font-bold bg-black/40 px-2 py-0.5 rounded">{activeLeague.code}</span> with friends to compete!
+              <p className="text-xs text-emerald-600 dark:text-emerald-400 font-medium">
+                Share code <span className="font-mono font-bold bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded">{activeLeague.code}</span> to compete!
               </p>
             </div>
           ) : (
-            <div className="divide-y divide-white/5">
-              <div className="grid grid-cols-12 px-3 md:px-5 py-2 md:py-2.5 text-[10px] md:text-xs font-black uppercase text-gray-400 bg-black/30 items-center">
+            <div className="divide-y divide-slate-100 dark:divide-slate-800/60">
+              <div className="grid grid-cols-12 px-3 md:px-5 py-2 md:py-2.5 text-[10px] md:text-xs font-bold uppercase text-slate-400 bg-slate-50/80 dark:bg-slate-950/50 border-b border-slate-200 dark:border-slate-800 items-center">
                 <span className="col-span-2">Rank</span>
-                <span className="col-span-5">
-                  Team & Manager
-                  <span className="hidden sm:inline-block text-[8px] md:text-[9px] text-[#00ff87] font-semibold lowercase ml-1">(tap to view)</span>
+                <span className="col-span-6 sm:col-span-5">
+                  Manager
                 </span>
                 <span className="col-span-2 text-center">GW</span>
-                <span className="col-span-3 text-right">Total</span>
+                <span className="col-span-2 sm:col-span-3 text-right">Total</span>
               </div>
 
               {activeLeague.members.map((member) => {
@@ -323,45 +322,45 @@ export const LeaguesView: React.FC = () => {
                   <div
                     key={member.id}
                     onClick={() => setInspectedManagerId(member.id)}
-                    title={`View ${member.managerName}'s squad & live points`}
-                    className={`grid grid-cols-12 px-3 md:px-5 py-2.5 md:py-3.5 items-center text-xs md:text-sm transition-all cursor-pointer group hover:bg-white/10 active:scale-[0.99] ${
+                    title={`View ${member.managerName}'s squad`}
+                    className={`grid grid-cols-12 px-3 md:px-5 py-2.5 md:py-3.5 items-center text-xs md:text-sm transition-all cursor-pointer group active:scale-[0.99] ${
                       isUser
-                        ? 'bg-[#37003c]/60 border-l-4 border-[#00ff87] font-bold text-white'
-                        : 'text-gray-200 hover:bg-white/5'
+                        ? 'bg-emerald-50/80 dark:bg-emerald-950/20 border-l-4 border-emerald-500 font-bold text-slate-900 dark:text-white'
+                        : 'text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/40'
                     }`}
                   >
                     {/* Rank Column */}
                     <div className="col-span-2 flex items-center gap-1">
-                      <span className="font-black text-sm md:text-base">{member.rank}</span>
+                      <span className="font-black text-sm md:text-base text-slate-900 dark:text-slate-100">{member.rank}</span>
                       {rankDiff > 0 ? (
-                        <ArrowUp className="w-3 h-3 text-[#00ff87]" />
+                        <ArrowUp className="w-3 h-3 text-emerald-500" />
                       ) : rankDiff < 0 ? (
-                        <ArrowDown className="w-3 h-3 text-[#e90052]" />
+                        <ArrowDown className="w-3 h-3 text-rose-500" />
                       ) : (
-                        <Minus className="w-2.5 h-2.5 text-gray-500" />
+                        <Minus className="w-2.5 h-2.5 text-slate-400" />
                       )}
                     </div>
 
                     {/* Team & Manager */}
-                    <div className="col-span-5 min-w-0 pr-1">
-                      <div className="font-extrabold truncate text-white group-hover:text-[#00ff87] transition-colors flex items-center gap-1">
+                    <div className="col-span-6 sm:col-span-5 min-w-0 pr-1">
+                      <div className="font-extrabold truncate text-slate-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors flex items-center gap-1">
                         <span className="truncate">{member.teamName}</span>
-                        {isUser && <span className="text-[8px] bg-[#00ff87]/20 text-[#00ff87] px-1 py-0.2 rounded font-bold">YOU</span>}
+                        {isUser && <span className="text-[8px] bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 px-1 py-0.2 rounded font-bold">YOU</span>}
                       </div>
-                      <div className="text-[10px] md:text-xs text-gray-400 truncate">
+                      <div className="text-[10px] md:text-xs text-slate-400 truncate">
                         {member.managerName}
                       </div>
                     </div>
 
                     {/* GW Points */}
-                    <div className="col-span-2 text-center font-bold text-gray-300">
+                    <div className="col-span-2 text-center font-bold text-slate-600 dark:text-slate-300">
                       {member.gwPoints}
                     </div>
 
                     {/* Total Points + Chevron */}
-                    <div className="col-span-3 flex items-center justify-end gap-1 text-right font-black text-[#00ff87]">
+                    <div className="col-span-2 sm:col-span-3 flex items-center justify-end gap-1 text-right font-black text-emerald-600 dark:text-emerald-400">
                       <span>{member.totalPoints}</span>
-                      <ChevronRight className="w-3.5 h-3.5 text-gray-400 group-hover:text-[#00ff87] group-hover:translate-x-0.5 transition-all" />
+                      <ChevronRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-emerald-500 group-hover:translate-x-0.5 transition-all" />
                     </div>
                   </div>
                 );
@@ -371,7 +370,7 @@ export const LeaguesView: React.FC = () => {
         </div>
       )}
 
-      {/* Other Manager Squad & Score Breakdown Modal (Just like real FPL!) */}
+      {/* Other Manager Squad & Score Breakdown Modal */}
       <ManagerSquadModal
         managerId={inspectedManagerId}
         onClose={() => setInspectedManagerId(null)}

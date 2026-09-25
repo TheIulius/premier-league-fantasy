@@ -18,10 +18,10 @@ export const MobileContainer: React.FC<MobileContainerProps> = ({ children }) =>
   } = useFPL();
 
   return (
-    <div className="min-h-screen w-full flex flex-col bg-[#1a001d] select-none text-white">
+    <div className="min-h-screen w-full flex flex-col bg-slate-50 text-slate-900 dark:bg-[#090d16] dark:text-slate-100 select-none transition-colors duration-200">
       {/* Top small Beta Version banner */}
-      <div className="w-full bg-[#220027] border-b border-white/5 py-1 px-3 text-center select-none">
-        <span className="text-[10px] md:text-xs font-semibold text-gray-400/80 tracking-widest uppercase">
+      <div className="w-full bg-slate-200/70 dark:bg-slate-900/80 border-b border-slate-300/50 dark:border-white/5 py-0.5 md:py-1 px-3 text-center select-none">
+        <span className="text-[10px] md:text-xs font-semibold text-slate-500 dark:text-slate-400 tracking-widest uppercase">
           Beta Version
         </span>
       </div>
@@ -36,13 +36,13 @@ export const MobileContainer: React.FC<MobileContainerProps> = ({ children }) =>
         </div>
 
         {/* School branding & creator watermark */}
-        <footer className="pt-10 pb-8 text-center select-none space-y-2.5 border-t border-white/5 mt-10 max-w-6xl mx-auto px-4">
+        <footer className="pt-8 pb-8 text-center select-none space-y-2 border-t border-slate-200 dark:border-white/5 mt-10 max-w-6xl mx-auto px-4">
           <div className="flex items-center justify-center space-x-3">
-            <img src="/kcl-logo.png" alt="KCL Logo" className="h-10 md:h-12 w-auto rounded-lg object-contain shadow-sm border border-white/10" />
-            <img src="/komarovi-logo.png" alt="Komarovi School" className="h-6 md:h-8 w-auto object-contain opacity-80" />
+            <img src="/kcl-logo.png" alt="KCL Logo" className="h-9 md:h-11 w-auto rounded-lg object-contain shadow-xs border border-slate-200 dark:border-white/10" />
+            <img src="/komarovi-logo.png" alt="Komarovi School" className="h-5 md:h-7 w-auto object-contain opacity-75 dark:opacity-80" />
           </div>
-          <p className="text-[10px] md:text-xs text-gray-400/60 font-medium tracking-wide">
-            © Komarovi Charity League (KCL) • (Created By Theiulius and Chaga)
+          <p className="text-[10px] md:text-xs text-slate-400 dark:text-slate-500 font-medium tracking-wide">
+            © Komarovi Charity League (KCL) • Created By Theiulius & Chaga
           </p>
         </footer>
       </main>

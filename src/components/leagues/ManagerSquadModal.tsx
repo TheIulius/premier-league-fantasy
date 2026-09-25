@@ -6,7 +6,7 @@ import { GameweekCalculationResult } from '../../engine/scoring';
 import { getFormationLayout } from '../../engine/formations';
 import { KitJersey } from '../pitch/KitJersey';
 import { CLUBS } from '../../data/clubs';
-import { ArrowLeft, Award, Activity, Sparkles, X, ChevronRight, AlertCircle, Loader2 } from 'lucide-react';
+import { ArrowLeft, Award, Activity, Sparkles, X, AlertCircle, Loader2 } from 'lucide-react';
 
 interface ManagerSquadModalProps {
   managerId: string | null;
@@ -69,25 +69,25 @@ export const ManagerSquadModal: React.FC<ManagerSquadModalProps> = ({ managerId,
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-xs p-0 sm:p-2 animate-fade-in select-none"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-xs p-0 sm:p-2 animate-fade-in select-none"
       onClick={onClose}
     >
       <div
-        className="w-full max-w-[460px] md:max-w-2xl h-full sm:h-[92vh] sm:max-h-[860px] bg-[#1a001d] sm:rounded-3xl border border-[#4d0c54] shadow-2xl flex flex-col overflow-hidden"
+        className="w-full max-w-[460px] md:max-w-2xl h-full sm:h-[92vh] sm:max-h-[860px] bg-white dark:bg-slate-900 sm:rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl flex flex-col overflow-hidden text-slate-900 dark:text-white"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Modal Navigation Header */}
-        <div className="px-4 py-3 bg-[#2a002e] border-b border-white/10 flex items-center justify-between z-20">
+        <div className="px-4 py-3 bg-slate-50 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between z-20">
           <button
             onClick={onClose}
-            className="flex items-center gap-1.5 text-xs font-bold text-gray-300 hover:text-white transition-colors bg-white/5 hover:bg-white/10 px-2.5 py-1.5 rounded-xl border border-white/10"
+            className="flex items-center gap-1.5 text-xs font-bold text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white transition-colors bg-white dark:bg-slate-800 px-2.5 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-xs"
           >
             <ArrowLeft className="w-4 h-4" />
-            <span>Back to Standings</span>
+            <span>Standings</span>
           </button>
 
           <div className="text-right">
-            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#00ff87]/20 text-[#00ff87] border border-[#00ff87]/30">
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
               GW {currentGW} Team
             </span>
           </div>
@@ -95,55 +95,55 @@ export const ManagerSquadModal: React.FC<ManagerSquadModalProps> = ({ managerId,
 
         {loading ? (
           <div className="flex-1 flex flex-col items-center justify-center space-y-3">
-            <Loader2 className="w-8 h-8 text-[#00ff87] animate-spin" />
-            <p className="text-xs text-gray-400 font-medium">Loading manager's squad...</p>
+            <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
+            <p className="text-xs text-slate-400 font-medium">Loading squad...</p>
           </div>
         ) : managerData && calcResult ? (
           <div className="flex-1 overflow-y-auto overscroll-contain pb-8">
             {/* Manager Info & GW Points Card */}
-            <div className="p-3 mx-2 mt-2 rounded-2xl bg-gradient-to-r from-[#2c0032] via-[#3d0046] to-[#250029] border border-[#5d0e68] shadow-lg">
+            <div className="p-3 mx-2 mt-2 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 shadow-xs">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-base font-black text-white leading-tight">
+                  <h3 className="text-base font-black text-slate-900 dark:text-white leading-tight">
                     {managerData.teamName}
                   </h3>
-                  <p className="text-xs text-gray-400 mt-0.5">
-                    Manager: <strong className="text-gray-200">{managerData.managerName}</strong>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                    Manager: <strong className="text-slate-800 dark:text-slate-200">{managerData.managerName}</strong>
                   </p>
                 </div>
 
-                <div className="text-right border-l border-white/10 pl-3">
-                  <span className="text-[9px] uppercase font-bold text-gray-400 block">
-                    GW {currentGW} Score
+                <div className="text-right border-l border-slate-200 dark:border-slate-800 pl-3">
+                  <span className="text-[9px] uppercase font-bold text-slate-400 block">
+                    GW {currentGW}
                   </span>
                   <div className="flex items-baseline justify-end gap-1">
-                    <span className="text-2xl font-black text-[#00ff87]">
+                    <span className="text-2xl font-black text-emerald-600 dark:text-emerald-400">
                       {calcResult.totalPoints}
                     </span>
-                    <span className="text-[10px] font-bold text-gray-300">PTS</span>
+                    <span className="text-[10px] font-bold text-slate-400">PTS</span>
                   </div>
                 </div>
               </div>
 
               {/* Badges / Chips */}
-              <div className="mt-2.5 pt-2 border-t border-white/10 flex flex-wrap items-center justify-between text-xs gap-1">
+              <div className="mt-2.5 pt-2 border-t border-slate-200 dark:border-slate-800/80 flex flex-wrap items-center justify-between text-xs gap-1">
                 {topPerformer && topPerformer.points > 0 ? (
-                  <span className="text-[11px] text-gray-300 flex items-center gap-1">
-                    <Award className="w-3.5 h-3.5 text-yellow-400" />
-                    Top: <strong className="text-white">{topPerformer.player.webName}</strong> ({topPerformer.points} pts)
+                  <span className="text-[11px] text-slate-600 dark:text-slate-300 flex items-center gap-1">
+                    <Award className="w-3.5 h-3.5 text-amber-500" />
+                    Top: <strong className="text-slate-900 dark:text-white">{topPerformer.player.webName}</strong> ({topPerformer.points} pts)
                   </span>
                 ) : <span />}
 
                 <div className="flex items-center gap-1.5">
                   {managerData.squad.activeChip && (
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#e90052] text-white flex items-center gap-1">
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-500 text-white flex items-center gap-1">
                       <Sparkles className="w-2.5 h-2.5" />
                       {managerData.squad.activeChip.replace('_', ' ').toUpperCase()}
                     </span>
                   )}
                   {calcResult.transferCost > 0 && (
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-500/20 text-red-400 border border-red-500/40">
-                      -{calcResult.transferCost} pts (Transfers)
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20">
+                      -{calcResult.transferCost} pts
                     </span>
                   )}
                 </div>
@@ -152,17 +152,17 @@ export const ManagerSquadModal: React.FC<ManagerSquadModalProps> = ({ managerId,
 
             {/* Auto Subs Banner */}
             {calcResult.autoSubstitutions.length > 0 && (
-              <div className="mx-2 mt-2 p-2.5 rounded-xl bg-blue-900/30 border border-blue-500/30 text-xs">
-                <span className="font-bold text-blue-300 flex items-center gap-1.5 mb-1">
+              <div className="mx-2 mt-2 p-2.5 rounded-xl bg-sky-50 dark:bg-sky-950/30 border border-sky-200 dark:border-sky-800 text-xs">
+                <span className="font-bold text-sky-700 dark:text-sky-300 flex items-center gap-1.5 mb-1">
                   <Activity className="w-3.5 h-3.5" />
-                  Auto-Substitutions Applied
+                  Auto-Substitutions
                 </span>
                 <div className="space-y-1">
                   {calcResult.autoSubstitutions.map((sub: { outPlayerId: string; inPlayerId: string }, idx: number) => (
-                    <div key={idx} className="text-[11px] text-gray-300 flex items-center gap-2">
-                      <span className="text-red-400 line-through">{players[sub.outPlayerId]?.webName} (0 mins)</span>
+                    <div key={idx} className="text-[11px] text-slate-600 dark:text-slate-300 flex items-center gap-2">
+                      <span className="text-rose-500 line-through">{players[sub.outPlayerId]?.webName} (0m)</span>
                       <span>➔</span>
-                      <span className="text-[#00ff87] font-bold">{players[sub.inPlayerId]?.webName}</span>
+                      <span className="text-emerald-600 dark:text-emerald-400 font-bold">{players[sub.inPlayerId]?.webName}</span>
                     </div>
                   ))}
                 </div>
@@ -170,7 +170,7 @@ export const ManagerSquadModal: React.FC<ManagerSquadModalProps> = ({ managerId,
             )}
 
             {/* Football Pitch */}
-            <div className="relative mx-2 my-2 rounded-2xl overflow-hidden shadow-2xl border-2 border-[#125c27] bg-[#14642c]">
+            <div className="relative mx-2 my-2 rounded-2xl overflow-hidden shadow-xl border-2 border-emerald-800/60 bg-[#14642c]">
               <div className="absolute inset-0 pitch-stripes pointer-events-none opacity-95" />
 
               {/* Pitch White Chalk Lines (SVG) */}
@@ -188,15 +188,15 @@ export const ManagerSquadModal: React.FC<ManagerSquadModalProps> = ({ managerId,
               {/* Pitch Formation Header */}
               <div className="relative pt-2 px-3 flex items-center justify-between z-10">
                 <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-black/40 text-gray-200 backdrop-blur-xs border border-white/10">
-                  Formation: {layout.formationString}
+                  {layout.formationString}
                 </span>
                 <span className="text-[10px] text-gray-300 bg-black/40 px-2 py-0.5 rounded-full">
-                  Tap player for match stats
+                  Tap player for stats
                 </span>
               </div>
 
               {/* Pitch Rows */}
-              <div className="relative z-10 flex flex-col justify-around min-h-[440px] py-3 px-1.5 space-y-3">
+              <div className="relative z-10 flex flex-col justify-around min-h-[420px] py-3 px-1.5 space-y-3">
                 {/* Row 1: Goalkeeper */}
                 <div className="flex justify-center items-center">
                   {layout.gks.map((sp) => {
@@ -284,9 +284,9 @@ export const ManagerSquadModal: React.FC<ManagerSquadModalProps> = ({ managerId,
             </div>
 
             {/* Bench Area */}
-            <div className="mx-2 p-2.5 rounded-2xl bg-[#220027] border border-white/10">
-              <span className="text-[10px] font-black uppercase text-gray-400 block mb-2 tracking-wide">
-                Substitutes Bench
+            <div className="mx-2 p-2.5 rounded-2xl bg-slate-100 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800">
+              <span className="text-[10px] font-bold uppercase text-slate-400 block mb-2 tracking-wide">
+                Substitutes
               </span>
               <div className="flex items-center justify-around">
                 {layout.bench.map((sp, idx) => {
@@ -296,8 +296,8 @@ export const ManagerSquadModal: React.FC<ManagerSquadModalProps> = ({ managerId,
                   const pts = bd ? bd.finalPoints : 0;
                   return (
                     <div key={sp.playerId} className="flex flex-col items-center text-center">
-                      <span className="text-[9px] text-gray-400 font-bold mb-0.5">
-                        {idx === 0 ? 'SUB GK' : `SUB ${idx}`}
+                      <span className="text-[9px] text-slate-400 font-bold mb-0.5">
+                        {idx === 0 ? 'GK' : `${idx}`}
                       </span>
                       <OpponentPlayerCard
                         player={p}
@@ -315,90 +315,90 @@ export const ManagerSquadModal: React.FC<ManagerSquadModalProps> = ({ managerId,
           </div>
         ) : (
           <div className="flex-1 flex flex-col items-center justify-center p-4 text-center">
-            <AlertCircle className="w-8 h-8 text-red-400 mb-2" />
-            <p className="text-sm font-bold text-white">Could not find manager details.</p>
+            <AlertCircle className="w-8 h-8 text-rose-500 mb-2" />
+            <p className="text-sm font-bold text-slate-900 dark:text-white">Could not find manager details.</p>
           </div>
         )}
 
         {/* Player Match Stats Popup Sheet */}
         {sheetPlayer && (
           <div
-            className="fixed inset-0 z-60 flex items-end md:items-center justify-center bg-black/70 backdrop-blur-xs animate-fade-in md:p-4"
+            className="fixed inset-0 z-60 flex items-end md:items-center justify-center bg-black/60 backdrop-blur-xs animate-fade-in md:p-4"
             onClick={() => setSelectedPlayerForSheet(null)}
           >
             <div
-              className="w-full max-w-[460px] md:max-w-md bg-gradient-to-b from-[#320037] to-[#1e0022] rounded-t-3xl md:rounded-2xl border-t md:border border-x border-[#590c63] p-4 md:p-6 shadow-2xl animate-slide-up select-none safe-bottom"
+              className="w-full max-w-[460px] md:max-w-md bg-white dark:bg-slate-900 rounded-t-3xl md:rounded-2xl border border-slate-200 dark:border-slate-800 p-4 md:p-6 shadow-2xl animate-slide-up select-none safe-bottom text-slate-900 dark:text-white"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Drag handle (mobile only) */}
-              <div className="w-12 h-1 bg-white/20 rounded-full mx-auto mb-3 md:hidden" />
+              <div className="w-12 h-1 bg-slate-300 dark:bg-slate-700 rounded-full mx-auto mb-3 md:hidden" />
 
               {/* Player Header */}
-              <div className="flex items-start justify-between pb-3 border-b border-white/10">
+              <div className="flex items-start justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
                 <div className="flex items-center space-x-3">
                   <KitJersey clubId={sheetPlayer.clubId} position={sheetPlayer.position} className="w-12 h-12" />
                   <div>
                     <div className="flex items-center gap-1.5">
-                      <span className="text-xs font-bold px-1.5 py-0.5 rounded bg-white/10 text-gray-200">
+                      <span className="text-xs font-bold px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200">
                         {sheetPlayer.position}
                       </span>
-                      <span className="text-xs font-medium text-gray-400">
+                      <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
                         {CLUBS[sheetPlayer.clubId]?.name || sheetPlayer.clubId}
                       </span>
                       {sheetSquadPlayer?.isCaptain && (
-                        <span className="text-[9px] font-black px-1.5 py-0.5 rounded bg-black text-white border border-white/30">
-                          {calcResult?.isTripleCaptain ? 'TRIPLE CAPTAIN (3x)' : 'CAPTAIN (2x)'}
+                        <span className="text-[9px] font-black px-1.5 py-0.5 rounded bg-slate-900 text-white dark:bg-white dark:text-slate-900">
+                          {calcResult?.isTripleCaptain ? 'TRIPLE C (3x)' : 'CAPTAIN (2x)'}
                         </span>
                       )}
                     </div>
-                    <h2 className="text-lg font-black text-white leading-tight mt-0.5">
+                    <h2 className="text-base font-black text-slate-900 dark:text-white leading-tight mt-0.5">
                       {sheetPlayer.name}
                     </h2>
-                    <span className="text-xs text-gray-400">Cost: £{sheetPlayer.cost.toFixed(1)}m</span>
+                    <span className="text-xs text-slate-400">£{sheetPlayer.cost.toFixed(1)}m</span>
                   </div>
                 </div>
 
                 <button
                   onClick={() => setSelectedPlayerForSheet(null)}
-                  className="p-1 rounded-full text-gray-400 hover:text-white bg-white/5 hover:bg-white/10"
+                  className="p-1 rounded-full text-slate-400 hover:text-slate-600 dark:hover:text-white bg-slate-100 dark:bg-slate-800"
                 >
                   <X className="w-5 h-5" />
                 </button>
               </div>
 
               {/* Performance Stats */}
-              <div className="my-3 p-3 rounded-2xl bg-black/40 border border-white/10 space-y-2">
+              <div className="my-3 p-3 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-gray-300">Gameweek {currentGW} Points</span>
-                  <span className="text-xl font-black text-[#00ff87]">
+                  <span className="text-xs font-bold text-slate-600 dark:text-slate-300">GW {currentGW} Score</span>
+                  <span className="text-xl font-black text-emerald-600 dark:text-emerald-400">
                     {sheetBreakdown ? sheetBreakdown.finalPoints : (sheetStats ? sheetPlayer.gwPoints : 0)} PTS
                   </span>
                 </div>
 
-                <div className="grid grid-cols-2 gap-2 pt-2 border-t border-white/5 text-xs text-gray-300">
-                  <div className="flex justify-between p-1.5 rounded bg-white/5">
-                    <span>Minutes Played:</span>
-                    <strong className="text-white">{sheetStats?.minutes || 0}'</strong>
+                <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-200 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-300">
+                  <div className="flex justify-between p-1.5 rounded bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800">
+                    <span>Minutes:</span>
+                    <strong className="text-slate-900 dark:text-white">{sheetStats?.minutes || 0}'</strong>
                   </div>
-                  <div className="flex justify-between p-1.5 rounded bg-white/5">
+                  <div className="flex justify-between p-1.5 rounded bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800">
                     <span>Goals:</span>
-                    <strong className="text-[#00ff87]">{sheetStats?.goals || 0}</strong>
+                    <strong className="text-emerald-600 dark:text-emerald-400">{sheetStats?.goals || 0}</strong>
                   </div>
-                  <div className="flex justify-between p-1.5 rounded bg-white/5">
+                  <div className="flex justify-between p-1.5 rounded bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800">
                     <span>Assists:</span>
-                    <strong className="text-[#04f5ff]">{sheetStats?.assists || 0}</strong>
+                    <strong className="text-sky-500">{sheetStats?.assists || 0}</strong>
                   </div>
-                  <div className="flex justify-between p-1.5 rounded bg-white/5">
+                  <div className="flex justify-between p-1.5 rounded bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800">
                     <span>Clean Sheet:</span>
-                    <strong className="text-white">{sheetStats?.cleanSheet ? 'Yes (+4)' : 'No'}</strong>
+                    <strong className="text-slate-900 dark:text-white">{sheetStats?.cleanSheet ? 'Yes (+4)' : 'No'}</strong>
                   </div>
-                  <div className="flex justify-between p-1.5 rounded bg-white/5">
-                    <span>Bonus Points:</span>
-                    <strong className="text-yellow-400">+{sheetStats?.bonus || 0}</strong>
+                  <div className="flex justify-between p-1.5 rounded bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800">
+                    <span>Bonus:</span>
+                    <strong className="text-amber-500">+{sheetStats?.bonus || 0}</strong>
                   </div>
-                  <div className="flex justify-between p-1.5 rounded bg-white/5">
+                  <div className="flex justify-between p-1.5 rounded bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800">
                     <span>Multiplier:</span>
-                    <strong className="text-white">{sheetBreakdown?.multiplier || 1}x</strong>
+                    <strong className="text-slate-900 dark:text-white">{sheetBreakdown?.multiplier || 1}x</strong>
                   </div>
                 </div>
               </div>
@@ -432,7 +432,7 @@ const OpponentPlayerCard: React.FC<{
         {isCaptain && (
           <span
             className={`absolute -top-1 -right-1 w-4 h-4 rounded-full flex items-center justify-center font-black text-[9px] text-white shadow-md border ${
-              isTripleCaptain ? 'bg-[#e90052] border-white ring-1 ring-yellow-400' : 'bg-black border-yellow-400'
+              isTripleCaptain ? 'bg-rose-500 border-white ring-1 ring-amber-400' : 'bg-slate-900 border-amber-400'
             }`}
           >
             C
@@ -441,25 +441,25 @@ const OpponentPlayerCard: React.FC<{
 
         {/* Vice-captain badge */}
         {isViceCaptain && !isCaptain && (
-          <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-gray-900 border border-gray-400 flex items-center justify-center font-black text-[9px] text-white shadow-md">
+          <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-slate-800 border border-slate-400 flex items-center justify-center font-black text-[9px] text-white shadow-md">
             V
           </span>
         )}
       </div>
 
       {/* Name banner */}
-      <div className="w-full bg-[#18001b] border border-white/15 rounded-t text-center py-0.5 px-0.5 shadow-sm truncate mt-0.5">
+      <div className="w-full bg-slate-900/90 border border-slate-700/80 rounded-t text-center py-0.5 px-0.5 shadow-xs truncate mt-0.5">
         <span className="text-[10px] font-extrabold text-white block truncate leading-tight">
           {player.webName}
         </span>
       </div>
 
       {/* Points banner */}
-      <div className="w-full bg-[#37003c] border-x border-b border-white/15 rounded-b text-center py-0.5 shadow-sm flex items-center justify-center gap-1">
-        <span className="text-[10px] font-black text-[#00ff87] leading-none">
+      <div className="w-full bg-slate-800 border-x border-b border-slate-700/80 rounded-b text-center py-0.5 shadow-xs flex items-center justify-center gap-1">
+        <span className="text-[10px] font-black text-emerald-400 leading-none">
           {points}
         </span>
-        <span className="text-[8px] text-gray-400 leading-none">pts</span>
+        <span className="text-[8px] text-slate-400 leading-none">pts</span>
       </div>
     </div>
   );

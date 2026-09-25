@@ -166,13 +166,13 @@ export const PitchView: React.FC<PitchViewProps> = ({ showPoints = false }) => {
         </div>
 
         {/* Bench Dugout Bar (Strictly 3 Reserves) */}
-        <div className="relative z-10 bg-[#160018]/95 backdrop-blur-md border-t-2 border-[#3c0843] pt-2.5 md:pt-3 pb-3 md:pb-4 px-2 md:px-6">
-          <div className="flex items-center justify-between mb-2 px-1">
-            <span className="text-[10px] md:text-xs uppercase font-black tracking-wider text-gray-200 flex items-center gap-1.5">
-              Substitutes ({layout.bench.length}/3 Reserves)
+        <div className="relative z-10 bg-slate-900/95 dark:bg-slate-950/95 backdrop-blur-md border-t border-slate-700/60 dark:border-slate-800 pt-2 md:pt-2.5 pb-2.5 md:pb-3 px-2 md:px-6">
+          <div className="flex items-center justify-between mb-1.5 px-1">
+            <span className="text-[10px] md:text-xs uppercase font-bold tracking-wider text-slate-200 flex items-center gap-1.5">
+              Substitutes ({layout.bench.length}/3)
             </span>
-            <span className="text-[9px] md:text-[10px] font-semibold text-gray-400">
-              Auto-subs apply in priority order (Sub 1 → Sub 2 → Sub 3)
+            <span className="text-[9px] text-slate-400">
+              Auto-subs: Sub 1 → 2 → 3
             </span>
           </div>
 

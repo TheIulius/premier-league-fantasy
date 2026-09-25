@@ -9,17 +9,17 @@ import {
   Check,
   AlertCircle,
   ArrowUpRight,
-  ArrowDownRight,
   Shield,
   CheckCircle,
   Plus,
   Trash2,
   ShoppingBag,
-  Sparkles,
   X,
   RotateCcw,
   ArrowUpDown,
   Coins,
+  ChevronDown,
+  ChevronUp,
 } from 'lucide-react';
 import { validateSquadComposition } from '../../engine/scoring';
 import confetti from 'canvas-confetti';
@@ -53,6 +53,7 @@ export const TransfersView: React.FC = () => {
   const [transferMessage, setTransferMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   const comp = useMemo(() => validateSquadComposition(squad.players, players), [squad.players, players]);
+  const [showCompDetails, setShowCompDetails] = useState<boolean>(!comp.isValid && squad.players.length > 0);
 
   const outPlayer = outPlayerId ? players[outPlayerId] : null;
   const inPlayer = inPlayerId ? players[inPlayerId] : null;
@@ -63,10 +64,8 @@ export const TransfersView: React.FC = () => {
     return Math.round((squad.bank + outPlayer.cost - inPlayer.cost) * 10) / 10;
   }, [outPlayer, inPlayer, squad.bank]);
 
-  // Filter available players for transfer
   const squadPlayerIds = useMemo(() => new Set(squad.players.map((p) => p.playerId)), [squad.players]);
 
-  // Available clubs that have players in the market
   const availableClubs = useMemo(() => {
     const clubIds = new Set<string>();
     Object.values(players).forEach((p) => {
@@ -81,7 +80,6 @@ export const TransfersView: React.FC = () => {
       .sort((a, b) => a.shortName.localeCompare(b.shortName));
   }, [players, clubs]);
 
-  // Position counts in the market
   const positionCounts = useMemo(() => {
     const counts: Record<string, number> = { ALL: 0, GKP: 0, DEF: 0, MID: 0, FWD: 0 };
     Object.values(players).forEach((p) => {
@@ -94,86 +92,69 @@ export const TransfersView: React.FC = () => {
 
   const candidatePlayers = useMemo(() => {
     return Object.values(players)
-      .filter((p) => !squadPlayerIds.has(p.id)) // Not currently in squad
+      .filter((p) => !squadPlayerIds.has(p.id))
       .filter((p) => {
-        // If outPlayer is selected, restrict candidate list to matching position
         if (outPlayer) return p.position === outPlayer.position;
-        if (positionFilter !== 'ALL') return p.position === positionFilter;
-        return true;
+        if (positionFilter === 'ALL') return true;
+        return p.position === positionFilter;
       })
-      .filter((p) => (clubFilter === 'ALL' ? true : p.clubId === clubFilter))
+      .filter((p) => {
+        if (clubFilter === 'ALL') return true;
+        return p.clubId === clubFilter;
+      })
+      .filter((p) => {
+        if (!searchQuery.trim()) return true;
+        const q = searchQuery.toLowerCase().trim();
+        const pClub = clubs?.[p.clubId] || CLUBS[p.clubId];
+        const clubName = pClub?.name.toLowerCase() || '';
+        const clubShort = pClub?.shortName.toLowerCase() || '';
+        return (
+          p.name.toLowerCase().includes(q) ||
+          p.webName.toLowerCase().includes(q) ||
+          clubName.includes(q) ||
+          clubShort.includes(q)
+        );
+      })
       .filter((p) => {
         if (!affordableOnly) return true;
         const maxSpend = outPlayer ? squad.bank + outPlayer.cost : squad.bank;
         return p.cost <= maxSpend;
       })
-      .filter((p) => {
-        if (!searchQuery.trim()) return true;
-        const q = searchQuery.toLowerCase().trim();
-        const nameMatch = p.name.toLowerCase().includes(q);
-        const webNameMatch = p.webName.toLowerCase().includes(q);
-        const clubObj = clubs?.[p.clubId] || CLUBS[p.clubId];
-        const clubMatch =
-          clubObj?.name.toLowerCase().includes(q) || clubObj?.shortName.toLowerCase().includes(q);
-        return nameMatch || webNameMatch || !!clubMatch;
-      })
       .sort((a, b) => {
+        if (sortBy === 'points_desc') return b.totalPoints - a.totalPoints;
         if (sortBy === 'cost_desc') return b.cost - a.cost;
         if (sortBy === 'cost_asc') return a.cost - b.cost;
-        if (sortBy === 'form_desc') return (b.form || 0) - (a.form || 0);
+        if (sortBy === 'form_desc') return b.form - a.form;
         if (sortBy === 'selected_desc') return b.selectedByPercent - a.selectedByPercent;
         if (sortBy === 'name_asc') return a.webName.localeCompare(b.webName);
-        // Default: points_desc
-        if (b.totalPoints !== a.totalPoints) return b.totalPoints - a.totalPoints;
         return b.cost - a.cost;
       });
-  }, [
-    players,
-    squadPlayerIds,
-    outPlayer,
-    positionFilter,
-    clubFilter,
-    affordableOnly,
-    searchQuery,
-    sortBy,
-    clubs,
-    squad.bank,
-  ]);
-
-  const hasActiveFilters =
-    searchQuery.trim().length > 0 ||
-    positionFilter !== 'ALL' ||
-    clubFilter !== 'ALL' ||
-    affordableOnly ||
-    sortBy !== 'points_desc';
-
-  const handleResetFilters = () => {
-    setSearchQuery('');
-    if (!outPlayer) setPositionFilter('ALL');
-    setClubFilter('ALL');
-    setAffordableOnly(false);
-    setSortBy('points_desc');
-  };
+  }, [players, squadPlayerIds, outPlayer, positionFilter, clubFilter, searchQuery, affordableOnly, sortBy, clubs]);
 
   const handleConfirmTransfer = () => {
     if (!outPlayerId || !inPlayerId) return;
-
     const res = transferPlayer(outPlayerId, inPlayerId);
     if (res.success) {
-      setTransferMessage({ type: 'success', text: `Transferred ${outPlayer?.webName} for ${inPlayer?.webName} successfully!` });
-      setOutPlayerId(null);
-      setInPlayerId(null);
       confetti({
         particleCount: 40,
         spread: 50,
         origin: { y: 0.7 },
-        colors: ['#00ff87', '#04f5ff'],
+        colors: ['#10b981', '#38bdf8'],
       });
+      setTransferMessage({
+        type: 'success',
+        text: `Transferred ${outPlayer?.webName} -> ${inPlayer?.webName}!`,
+      });
+      setOutPlayerId(null);
+      setInPlayerId(null);
+      setTimeout(() => setTransferMessage(null), 3000);
     } else {
-      setTransferMessage({ type: 'error', text: res.message || 'Transfer failed' });
+      setTransferMessage({
+        type: 'error',
+        text: res.message || 'Transfer failed.',
+      });
+      setTimeout(() => setTransferMessage(null), 4000);
     }
-
-    setTimeout(() => setTransferMessage(null), 4000);
   };
 
   const handleBuyPlayer = (playerId: string) => {
@@ -184,175 +165,184 @@ export const TransfersView: React.FC = () => {
         type: 'success',
         text: `Bought ${p?.webName || 'player'} for £${p?.cost.toFixed(1)}m!`,
       });
-      confetti({
-        particleCount: 35,
-        spread: 45,
-        origin: { y: 0.6 },
-        colors: ['#00ff87', '#04f5ff'],
-      });
+      setTimeout(() => setTransferMessage(null), 2500);
     } else {
-      setTransferMessage({ type: 'error', text: res.message || 'Failed to buy player' });
+      setTransferMessage({
+        type: 'error',
+        text: res.message || 'Could not buy player.',
+      });
+      setTimeout(() => setTransferMessage(null), 3500);
     }
-    setTimeout(() => setTransferMessage(null), 4000);
   };
 
   const handleRemovePlayer = (playerId: string) => {
     const p = players[playerId];
     const res = removePlayer(playerId);
     if (res.success) {
+      if (outPlayerId === playerId) setOutPlayerId(null);
       setTransferMessage({
         type: 'success',
-        text: `Sold ${p?.webName || 'player'} (+£${p?.cost.toFixed(1)}m refunded to bank)`,
+        text: `Sold ${p?.webName || 'player'} (+£${p?.cost.toFixed(1)}m refunded)`,
       });
-      if (outPlayerId === playerId) setOutPlayerId(null);
+      setTimeout(() => setTransferMessage(null), 2500);
     } else {
-      setTransferMessage({ type: 'error', text: res.message || 'Failed to remove player' });
+      setTransferMessage({
+        type: 'error',
+        text: res.message || 'Could not sell player.',
+      });
+      setTimeout(() => setTransferMessage(null), 3500);
     }
-    setTimeout(() => setTransferMessage(null), 4000);
   };
 
+  const handleResetFilters = () => {
+    setPositionFilter('ALL');
+    setClubFilter('ALL');
+    setSearchQuery('');
+    setSortBy('points_desc');
+    setAffordableOnly(false);
+  };
+
+  const hasActiveFilters =
+    positionFilter !== 'ALL' ||
+    clubFilter !== 'ALL' ||
+    searchQuery.trim() !== '' ||
+    sortBy !== 'points_desc' ||
+    affordableOnly;
+
   return (
-    <div className="flex flex-col space-y-3 pb-24 md:pb-12 px-2 md:px-6 pt-2 md:pt-4 select-none max-w-5xl lg:max-w-6xl mx-auto w-full">
-      {/* Transfer Metrics Bar */}
-      <div className="p-2.5 md:p-4 rounded-xl bg-[#2a002e] border border-[#4d0c54] flex flex-col gap-2 text-xs md:text-sm">
-        <div className="grid grid-cols-4 gap-1.5 md:gap-4 text-center">
-          <div>
-            <span className="text-[10px] md:text-xs text-gray-400 uppercase font-bold block">Budget</span>
-            <span className="text-sm md:text-base font-black text-white">£60.0m</span>
+    <div className="flex flex-col space-y-2.5 pb-24 md:pb-12 px-2 sm:px-4 md:px-6 pt-1 md:pt-3 select-none max-w-5xl lg:max-w-6xl mx-auto w-full transition-colors duration-200">
+      {/* Transfer Metrics & Quick Status Bar */}
+      <div className="p-2.5 md:p-3 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-2">
+        <div className="flex items-center justify-between flex-wrap gap-2 text-xs">
+          <div className="flex items-center gap-3 sm:gap-4 text-center">
+            <div>
+              <span className="text-[10px] uppercase font-bold text-slate-400 block">Bank</span>
+              <span className="font-bold text-slate-800 dark:text-slate-200">£{squad.bank.toFixed(1)}m</span>
+            </div>
+            <div>
+              <span className="text-[10px] uppercase font-bold text-slate-400 block">Free Transfers</span>
+              <span className="font-bold text-emerald-600 dark:text-emerald-400">{freeTransfersRemaining}</span>
+            </div>
+            <div>
+              <span className="text-[10px] uppercase font-bold text-slate-400 block">Next Cost</span>
+              <span className="font-bold text-slate-700 dark:text-slate-300">
+                {freeTransfersRemaining > 0 ? '0 pts' : '-4 pts'}
+              </span>
+            </div>
           </div>
-          <div>
-            <span className="text-[10px] md:text-xs text-gray-400 uppercase font-bold block">In Bank</span>
-            <span className="text-sm md:text-base font-black text-white">£{squad.bank.toFixed(1)}m</span>
-          </div>
-          <div>
-            <span className="text-[10px] md:text-xs text-gray-400 uppercase font-bold block">Free Transf.</span>
-            <span className="text-sm md:text-base font-black text-[#00ff87]">{freeTransfersRemaining}</span>
-          </div>
-          <div>
-            <span className="text-[10px] md:text-xs text-gray-400 uppercase font-bold block">Cost Next</span>
-            <span className="text-sm md:text-base font-black text-[#e90052]">
-              {freeTransfersRemaining > 0 ? '0 pts' : '-4 pts'}
-            </span>
-          </div>
-        </div>
-        <div className="flex items-center justify-between pt-1.5 border-t border-white/10 text-[10px] md:text-xs text-gray-400">
-          <span className="font-bold text-[#00ff87]">6 Starters • 3 Bench Reserves • Max 2 per Class</span>
-          <span className="text-gray-300">Bank is governed by Starting 6</span>
-        </div>
-      </div>
 
-      {/* Class Limit Violation Banner if any */}
-      {comp.exceededClubs && comp.exceededClubs.length > 0 && (
-        <div className="p-3 rounded-xl bg-red-950/80 border border-red-500/50 text-red-200 text-xs flex items-center gap-2">
-          <AlertCircle className="w-4 h-4 text-red-400 flex-shrink-0" />
-          <span>
-            <strong>Class Limit Violation:</strong> Maximum 2 players allowed from the same class. Exceeded in: {comp.exceededClubs.map((ec) => `${ec.clubId.replace('SCH_', '')} (${ec.count}/2)`).join(', ')}. Sell excess players to fix.
-          </span>
-        </div>
-      )}
-
-      {/* Position Requirements Bar */}
-      <div className="p-2.5 md:p-4 rounded-xl bg-[#230026] border border-[#520d5a] flex flex-col gap-1.5 text-xs md:text-sm">
-        <div className="flex items-center justify-between">
-          <span className="text-[10px] md:text-xs font-black uppercase text-gray-300 flex items-center gap-1.5">
-            <Shield className="w-3.5 h-3.5 text-[#00ff87]" />
-            Squad Composition Requirements
-          </span>
-          {comp.isValid ? (
-            <span className="text-[10px] md:text-xs font-extrabold text-[#00ff87] flex items-center gap-1 bg-[#00ff87]/15 px-2 py-0.5 rounded-full border border-[#00ff87]/30">
-              <CheckCircle className="w-3 h-3" /> 100% Complete
-            </span>
-          ) : (
-            <span className="text-[10px] md:text-xs font-extrabold text-[#e90052] flex items-center gap-1 bg-[#e90052]/15 px-2 py-0.5 rounded-full border border-[#e90052]/30">
-              <AlertCircle className="w-3 h-3" /> Incomplete
-            </span>
-          )}
+          {/* Squad Status toggle button */}
+          <button
+            onClick={() => setShowCompDetails((prev) => !prev)}
+            className={`px-2.5 py-1 rounded-full text-xs font-bold border transition-colors flex items-center gap-1.5 ${
+              comp.isValid
+                ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-700 dark:text-emerald-400'
+                : 'bg-rose-500/10 border-rose-500/30 text-rose-600 dark:text-rose-400'
+            }`}
+          >
+            {comp.isValid ? (
+              <>
+                <CheckCircle className="w-3.5 h-3.5 text-emerald-500" />
+                <span>Squad Complete</span>
+              </>
+            ) : (
+              <>
+                <AlertCircle className="w-3.5 h-3.5 text-rose-500" />
+                <span>Need 1 GK, 3 DEF, 3 MID, 2 FWD</span>
+              </>
+            )}
+            {showCompDetails ? <ChevronUp className="w-3 h-3 ml-0.5" /> : <ChevronDown className="w-3 h-3 ml-0.5" />}
+          </button>
         </div>
 
-        <div className="grid grid-cols-4 gap-1.5 md:gap-3 text-center pt-1 border-t border-white/5">
-          <div className={`p-1.5 md:p-2.5 rounded-lg border ${comp.gkCount === 1 ? 'bg-[#00ff87]/10 border-[#00ff87]/40 text-[#00ff87]' : 'bg-red-500/10 border-red-500/40 text-red-400'}`}>
-            <span className="text-[9px] md:text-[10px] uppercase font-bold block">1 GK</span>
-            <span className="text-xs md:text-sm font-black">{comp.gkCount}/1</span>
-          </div>
-          <div className={`p-1.5 md:p-2.5 rounded-lg border ${comp.defCount === 3 ? 'bg-[#00ff87]/10 border-[#00ff87]/40 text-[#00ff87]' : 'bg-red-500/10 border-red-500/40 text-red-400'}`}>
-            <span className="text-[9px] md:text-[10px] uppercase font-bold block">3 DEF (mcveli)</span>
-            <span className="text-xs md:text-sm font-black">{comp.defCount}/3</span>
-          </div>
-          <div className={`p-1.5 md:p-2.5 rounded-lg border ${comp.midCount === 3 ? 'bg-[#00ff87]/10 border-[#00ff87]/40 text-[#00ff87]' : 'bg-red-500/10 border-red-500/40 text-red-400'}`}>
-            <span className="text-[9px] md:text-[10px] uppercase font-bold block">3 MID</span>
-            <span className="text-xs md:text-sm font-black">{comp.midCount}/3</span>
-          </div>
-          <div className={`p-1.5 md:p-2.5 rounded-lg border ${comp.fwdCount === 2 ? 'bg-[#00ff87]/10 border-[#00ff87]/40 text-[#00ff87]' : 'bg-red-500/10 border-red-500/40 text-red-400'}`}>
-            <span className="text-[9px] md:text-[10px] uppercase font-bold block">2 FWD</span>
-            <span className="text-xs md:text-sm font-black">{comp.fwdCount}/2</span>
-          </div>
-        </div>
+        {/* Collapsible squad requirements breakdown */}
+        {showCompDetails && (
+          <div className="pt-2 border-t border-slate-100 dark:border-slate-800 animate-fade-in space-y-1.5">
+            <div className="grid grid-cols-4 gap-1.5 text-center text-xs">
+              <div className={`p-1 rounded-lg border ${comp.gkCount === 1 ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-700 dark:text-emerald-400' : 'bg-rose-500/10 border-rose-500/30 text-rose-600 dark:text-rose-400'}`}>
+                <span className="text-[9px] uppercase font-bold block text-slate-400">GK</span>
+                <span className="font-black">{comp.gkCount}/1</span>
+              </div>
+              <div className={`p-1 rounded-lg border ${comp.defCount === 3 ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-700 dark:text-emerald-400' : 'bg-rose-500/10 border-rose-500/30 text-rose-600 dark:text-rose-400'}`}>
+                <span className="text-[9px] uppercase font-bold block text-slate-400">DEF</span>
+                <span className="font-black">{comp.defCount}/3</span>
+              </div>
+              <div className={`p-1 rounded-lg border ${comp.midCount === 3 ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-700 dark:text-emerald-400' : 'bg-rose-500/10 border-rose-500/30 text-rose-600 dark:text-rose-400'}`}>
+                <span className="text-[9px] uppercase font-bold block text-slate-400">MID</span>
+                <span className="font-black">{comp.midCount}/3</span>
+              </div>
+              <div className={`p-1 rounded-lg border ${comp.fwdCount === 2 ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-700 dark:text-emerald-400' : 'bg-rose-500/10 border-rose-500/30 text-rose-600 dark:text-rose-400'}`}>
+                <span className="text-[9px] uppercase font-bold block text-slate-400">FWD</span>
+                <span className="font-black">{comp.fwdCount}/2</span>
+              </div>
+            </div>
 
-        {!comp.isValid && (
-          <div className="p-2 md:p-2.5 rounded-lg bg-[#e90052]/20 border border-[#e90052]/40 text-[#e90052] text-[10px] md:text-xs font-bold flex items-center gap-1.5 mt-0.5">
-            <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
-            <span>You can't play! Must have exact counts: 1 GK, 3 Defenders (mcveli), 3 Midfielders, and 2 Forwards bought.</span>
+            {comp.exceededClubs && comp.exceededClubs.length > 0 && (
+              <div className="p-2 rounded-lg bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-300 text-xs">
+                Max 2 players from the same class exceeded in: {comp.exceededClubs.map((ec) => `${ec.clubId.replace('SCH_', '')}`).join(', ')}
+              </div>
+            )}
           </div>
         )}
       </div>
 
-      {/* Transfer Notification banner */}
+      {/* Transfer Notification Banner */}
       {transferMessage && (
         <div
-          className={`p-2.5 md:p-3.5 rounded-xl text-xs md:text-sm font-bold flex items-center gap-2 ${
+          className={`p-2.5 rounded-xl text-xs font-bold flex items-center gap-2 ${
             transferMessage.type === 'success'
-              ? 'bg-[#00ff87]/20 text-[#00ff87] border border-[#00ff87]/40'
-              : 'bg-[#e90052]/20 text-[#e90052] border border-[#e90052]/40'
+              ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-800'
+              : 'bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-400 border border-rose-300 dark:border-rose-800'
           }`}
         >
-          {transferMessage.type === 'success' ? <Check className="w-4 h-4 md:w-5 md:h-5" /> : <AlertCircle className="w-4 h-4 md:w-5 md:h-5" />}
+          {transferMessage.type === 'success' ? <Check className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
           <span>{transferMessage.text}</span>
         </div>
       )}
 
-      {/* Comparison / Confirmation Card */}
+      {/* Active Transfer Comparison Card */}
       {outPlayer && inPlayer && (
-        <div className="p-3 md:p-4 rounded-xl bg-gradient-to-r from-[#2c0230] to-[#1e0022] border border-[#00ff87]/40 shadow-xl">
-          <div className="text-[11px] md:text-xs font-black uppercase text-gray-300 mb-2 flex items-center justify-between">
-            <span className="flex items-center gap-1.5 text-[#00ff87]">
-              <ArrowLeftRight className="w-3.5 h-3.5" /> Transfer Summary
+        <div className="p-3 rounded-2xl bg-white dark:bg-slate-900 border border-emerald-500/40 shadow-sm space-y-2">
+          <div className="text-xs font-bold flex items-center justify-between">
+            <span className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-extrabold uppercase">
+              <ArrowLeftRight className="w-3.5 h-3.5" /> Transfer Preview
             </span>
-            <span className={potentialBank >= 0 ? 'text-white font-bold' : 'text-red-400 font-bold'}>
+            <span className={potentialBank >= 0 ? 'text-slate-800 dark:text-slate-200 font-bold' : 'text-rose-600 font-bold'}>
               New Bank: £{potentialBank.toFixed(1)}m
             </span>
           </div>
 
-          <div className="flex items-center justify-between bg-black/30 p-2.5 rounded-lg text-xs md:text-sm">
-            <div className="flex items-center gap-2">
-              <span className="text-red-400 font-bold text-[10px] md:text-xs uppercase">OUT</span>
-              <span className="font-bold text-white">{outPlayer.webName}</span>
-              <span className="text-gray-400">(£{outPlayer.cost.toFixed(1)}m)</span>
+          <div className="flex items-center justify-between bg-slate-50 dark:bg-slate-800/60 p-2 rounded-xl text-xs">
+            <div className="flex items-center gap-1.5">
+              <span className="text-rose-600 font-extrabold text-[10px] uppercase">OUT</span>
+              <span className="font-bold text-slate-800 dark:text-white">{outPlayer.webName}</span>
+              <span className="text-slate-400">(£{outPlayer.cost.toFixed(1)}m)</span>
             </div>
-            <ArrowLeftRight className="w-3.5 h-3.5 md:w-4 md:h-4 text-gray-500" />
-            <div className="flex items-center gap-2">
-              <span className="text-[#00ff87] font-bold text-[10px] md:text-xs uppercase">IN</span>
-              <span className="font-bold text-white">{inPlayer.webName}</span>
-              <span className="text-gray-400">(£{inPlayer.cost.toFixed(1)}m)</span>
+            <ArrowLeftRight className="w-3.5 h-3.5 text-slate-400" />
+            <div className="flex items-center gap-1.5">
+              <span className="text-emerald-600 font-extrabold text-[10px] uppercase">IN</span>
+              <span className="font-bold text-slate-800 dark:text-white">{inPlayer.webName}</span>
+              <span className="text-slate-400">(£{inPlayer.cost.toFixed(1)}m)</span>
             </div>
           </div>
 
-          <div className="mt-3 flex gap-2">
+          <div className="flex gap-2">
             <button
               onClick={() => {
                 setOutPlayerId(null);
                 setInPlayerId(null);
               }}
-              className="w-1/3 py-2 md:py-2.5 rounded-lg text-xs md:text-sm font-bold text-gray-400 bg-white/5 hover:bg-white/10"
+              className="w-1/3 py-2 rounded-lg text-xs font-bold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700"
             >
               Cancel
             </button>
             <button
               disabled={potentialBank < 0}
               onClick={handleConfirmTransfer}
-              className={`flex-1 py-2 md:py-2.5 rounded-lg text-xs md:text-sm font-black uppercase tracking-wider transition-all ${
+              className={`flex-1 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${
                 potentialBank >= 0
-                  ? 'bg-gradient-to-r from-[#00ff87] to-[#00cc6a] text-[#37003c] shadow-glow-green'
-                  : 'bg-gray-700 text-gray-400 cursor-not-allowed'
+                  ? 'bg-emerald-500 hover:bg-emerald-600 text-white shadow-xs'
+                  : 'bg-slate-200 dark:bg-slate-800 text-slate-400 cursor-not-allowed'
               }`}
             >
               {potentialBank >= 0 ? 'Confirm Transfer' : 'Insufficient Funds'}
@@ -361,19 +351,19 @@ export const TransfersView: React.FC = () => {
         </div>
       )}
 
-      {/* Side-by-Side Responsive Grid for Desktop */}
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-3 md:gap-4 items-start">
-        {/* Step 1: Current Squad & Management (Left 5 Cols on Desktop) */}
-        <div className="md:col-span-5 rounded-xl bg-[#230026] border border-white/10 p-3 md:p-4">
+      {/* Side-by-Side Responsive Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-3 items-start">
+        {/* Step 1: Current Squad (Left 5 Cols on Desktop) */}
+        <div className="md:col-span-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs p-3 md:p-3.5">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs md:text-sm font-black uppercase text-gray-300 flex items-center gap-1.5">
-              <ShoppingBag className="w-3.5 h-3.5 text-[#00ff87]" />
+            <span className="text-xs font-bold uppercase text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+              <ShoppingBag className="w-3.5 h-3.5 text-emerald-500" />
               1. My Squad ({squad.players.filter((sp) => Boolean(players[sp.playerId])).length}/9)
             </span>
             {outPlayer && (
               <button
                 onClick={() => setOutPlayerId(null)}
-                className="text-[10px] md:text-xs text-gray-400 hover:text-white"
+                className="text-[10px] text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
               >
                 Clear
               </button>
@@ -381,15 +371,15 @@ export const TransfersView: React.FC = () => {
           </div>
 
           {squad.players.length === 0 ? (
-            <div className="p-4 rounded-lg bg-black/30 border border-dashed border-white/15 text-center space-y-1.5">
-              <span className="text-xs font-bold text-gray-300 block">Your squad is currently empty!</span>
-              <p className="text-[11px] text-gray-400">
-                Use your <strong className="text-[#00ff87]">£60.0m budget</strong> to buy 1 GK, 3 Defenders, 3 Midfielders, and 2 Forwards from the market.
+            <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-dashed border-slate-200 dark:border-slate-700 text-center space-y-1">
+              <span className="text-xs font-bold text-slate-700 dark:text-slate-300 block">Your squad is empty</span>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                Use your £60.0m budget to buy 9 players from the market.
               </p>
             </div>
           ) : (
             <div className="space-y-1.5 max-h-56 md:max-h-[580px] overflow-y-auto pr-1">
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-1 gap-1.5 md:gap-2">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-1 gap-1.5">
                 {squad.players.map((sp) => {
                   const p = players[sp.playerId];
                   if (!p) return null;
@@ -398,26 +388,26 @@ export const TransfersView: React.FC = () => {
                   return (
                     <div
                       key={p.id}
-                      className={`p-1.5 md:p-2 rounded-lg border text-left flex items-center justify-between gap-1.5 transition-all ${
+                      className={`p-1.5 md:p-2 rounded-xl border text-left flex items-center justify-between gap-1.5 transition-all ${
                         isSelected
-                          ? 'bg-red-500/20 border-red-500 text-white font-bold ring-1 ring-red-500'
-                          : 'bg-white/5 border-white/10 text-gray-300'
+                          ? 'bg-rose-50 dark:bg-rose-950/40 border-rose-400 text-rose-700 dark:text-rose-300 ring-1 ring-rose-400'
+                          : 'bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200'
                       }`}
                     >
                       <div
                         onClick={() => {
-                          if (squad.players.filter((sp) => Boolean(players[sp.playerId])).length === 9) {
+                          if (squad.players.filter((item) => Boolean(players[item.playerId])).length === 9) {
                             setOutPlayerId(p.id);
                             setInPlayerId(null);
                           }
                         }}
-                        className={`flex items-center gap-1.5 min-w-0 flex-1 ${squad.players.filter((sp) => Boolean(players[sp.playerId])).length === 9 ? 'cursor-pointer hover:opacity-80' : ''}`}
+                        className={`flex items-center gap-1.5 min-w-0 flex-1 ${squad.players.filter((item) => Boolean(players[item.playerId])).length === 9 ? 'cursor-pointer hover:opacity-80' : ''}`}
                       >
                         <KitJersey clubId={p.clubId} position={p.position} className="w-6 h-6 md:w-7 md:h-7 flex-shrink-0" />
                         <div className="min-w-0 flex-1">
-                          <div className="text-[11px] md:text-xs font-bold truncate">{p.webName}</div>
-                          <div className="text-[9px] md:text-[10px] text-gray-400 flex items-center gap-1">
-                            <span className="px-1 rounded bg-white/10 text-gray-300 font-bold">{p.position}</span>
+                          <div className="text-[11px] md:text-xs font-bold truncate text-slate-800 dark:text-slate-100">{p.webName}</div>
+                          <div className="text-[9px] text-slate-400 flex items-center gap-1">
+                            <span className="px-1 rounded bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold">{p.position}</span>
                             <span>£{p.cost.toFixed(1)}m</span>
                           </div>
                         </div>
@@ -428,8 +418,8 @@ export const TransfersView: React.FC = () => {
                           e.stopPropagation();
                           handleRemovePlayer(p.id);
                         }}
-                        className="p-1 md:p-1.5 rounded bg-red-500/10 hover:bg-red-500/30 text-red-400 text-[10px] flex-shrink-0"
-                        title="Sell player (refund to bank)"
+                        className="p-1 rounded bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/50 dark:hover:bg-rose-900 text-rose-600 text-[10px] flex-shrink-0"
+                        title="Sell player"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
@@ -439,62 +429,60 @@ export const TransfersView: React.FC = () => {
               </div>
 
               {squad.players.filter((sp) => Boolean(players[sp.playerId])).length < 9 && (
-                <div className="text-[10px] md:text-xs text-[#00ff87] text-center pt-1 border-t border-white/5 font-bold">
-                  {9 - squad.players.filter((sp) => Boolean(players[sp.playerId])).length} open slot(s) remaining • £{squad.bank.toFixed(1)}m in bank
+                <div className="text-[10px] text-emerald-600 dark:text-emerald-400 text-center pt-1 border-t border-slate-100 dark:border-slate-800 font-bold">
+                  {9 - squad.players.filter((sp) => Boolean(players[sp.playerId])).length} open slot(s) • £{squad.bank.toFixed(1)}m left
                 </div>
               )}
             </div>
           )}
         </div>
 
-        {/* Step 2: Transfer In Replacement Market (Right 7 Cols on Desktop) */}
-        <div className="md:col-span-7 rounded-xl bg-[#230026] border border-white/10 p-3 md:p-4">
+        {/* Step 2: Transfer In Market (Right 7 Cols on Desktop) */}
+        <div className="md:col-span-7 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs p-3 md:p-3.5">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs md:text-sm font-black uppercase text-gray-200 flex items-center gap-1.5">
-              <ArrowUpRight className="w-3.5 h-3.5 text-[#00ff87]" />
-              2. Choose Replacement ({outPlayer ? outPlayer.position : 'Market'})
+            <span className="text-xs font-bold uppercase text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+              <ArrowUpRight className="w-3.5 h-3.5 text-emerald-500" />
+              2. {outPlayer ? `Replace ${outPlayer.webName} (${outPlayer.position})` : 'Player Market'}
             </span>
             <div className="flex items-center gap-2">
-              <span className="text-[10px] md:text-xs text-gray-400 font-bold">
+              <span className="text-[10px] text-slate-400 font-medium">
                 {candidatePlayers.length} available
               </span>
               {hasActiveFilters && (
                 <button
                   onClick={handleResetFilters}
-                  className="text-[10px] md:text-xs font-bold text-[#00ff87] hover:underline flex items-center gap-1 bg-[#00ff87]/10 px-2 py-0.5 rounded-full border border-[#00ff87]/20 transition-colors"
+                  className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 hover:underline flex items-center gap-0.5"
                 >
-                  <RotateCcw className="w-2.5 h-2.5" />
-                  Reset
+                  <RotateCcw className="w-2.5 h-2.5" /> Reset
                 </button>
               )}
             </div>
           </div>
 
           {/* Filters, Search & Sorting Controls */}
-          <div className="space-y-2 mb-3 bg-black/30 p-2.5 rounded-xl border border-white/5">
-            {/* Search Bar with Instant Clear Button */}
+          <div className="space-y-1.5 mb-2.5 bg-slate-50 dark:bg-slate-950/60 p-2 rounded-xl border border-slate-200 dark:border-slate-800">
+            {/* Search Bar */}
             <div className="relative">
-              <Search className="w-4 h-4 text-gray-400 absolute left-2.5 top-2.5" />
+              <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2" />
               <input
                 type="text"
-                placeholder="Search by player or team name (e.g. 11/1, Futkara)..."
+                placeholder="Search player or class (e.g. 11/5, Zarno)..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-black/50 border border-white/10 rounded-lg pl-8 pr-8 py-1.5 md:py-2 text-xs md:text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#00ff87] transition-colors"
+                className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg pl-7 pr-7 py-1 text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-emerald-500 transition-colors"
               />
               {searchQuery && (
                 <button
                   onClick={() => setSearchQuery('')}
-                  className="absolute right-2.5 top-2.5 text-gray-400 hover:text-white"
-                  title="Clear search"
+                  className="absolute right-2 top-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-white"
                 >
-                  <X className="w-4 h-4" />
+                  <X className="w-3.5 h-3.5" />
                 </button>
               )}
             </div>
 
-            {/* Position Filter Buttons */}
-            <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5 text-[10px] md:text-xs font-bold scrollbar-none">
+            {/* Position Filter Pills */}
+            <div className="flex items-center gap-1 overflow-x-auto pb-0.5 text-[10px] font-bold scrollbar-none">
               {(
                 [
                   { id: 'ALL', label: `ALL (${positionCounts.ALL})` },
@@ -508,10 +496,10 @@ export const TransfersView: React.FC = () => {
                   key={tab.id}
                   disabled={!!outPlayer}
                   onClick={() => setPositionFilter(tab.id as Position | 'ALL')}
-                  className={`px-2.5 py-1 md:py-1.5 rounded-md whitespace-nowrap transition-colors ${
+                  className={`px-2.5 py-1 rounded-md whitespace-nowrap transition-colors ${
                     (outPlayer ? outPlayer.position === tab.id : positionFilter === tab.id)
-                      ? 'bg-[#00ff87] text-[#37003c] font-black shadow-glow-green'
-                      : 'bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white'
+                      ? 'bg-emerald-500 text-white font-extrabold shadow-xs'
+                      : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700/60 hover:bg-slate-100 dark:hover:bg-slate-700'
                   }`}
                 >
                   {tab.label}
@@ -519,77 +507,73 @@ export const TransfersView: React.FC = () => {
               ))}
             </div>
 
-            {/* Filtration & Sorting Row: Team Dropdown, Affordable Toggle, and Sort By */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-1.5 md:gap-2 pt-1 border-t border-white/10 text-[10px] md:text-xs">
-              {/* Team Filter */}
-              <div className="flex items-center gap-1 bg-black/40 border border-white/10 rounded-lg px-2 py-1">
-                <span className="text-gray-400 font-bold whitespace-nowrap">Team:</span>
+            {/* Sub-Filters: Team, Affordable, Sort */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-1.5 text-[10px]">
+              <div className="flex items-center gap-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg px-2 py-1">
+                <span className="text-slate-400 font-medium">Team:</span>
                 <select
                   value={clubFilter}
                   onChange={(e) => setClubFilter(e.target.value)}
-                  className="bg-transparent text-white w-full focus:outline-none font-semibold cursor-pointer truncate"
+                  className="bg-transparent text-slate-800 dark:text-slate-200 w-full focus:outline-none font-semibold cursor-pointer truncate"
                 >
-                  <option value="ALL" className="bg-[#1f0022] text-white">All Teams</option>
+                  <option value="ALL">All Teams</option>
                   {availableClubs.map((c) => (
-                    <option key={c.id} value={c.id} className="bg-[#1f0022] text-white">
+                    <option key={c.id} value={c.id}>
                       {c.shortName} - {c.name}
                     </option>
                   ))}
                 </select>
               </div>
 
-              {/* Affordable Only Toggle */}
               <button
                 type="button"
                 onClick={() => setAffordableOnly(!affordableOnly)}
-                className={`flex items-center justify-center gap-1.5 px-2 py-1 rounded-lg border font-bold transition-all ${
+                className={`flex items-center justify-center gap-1 px-2 py-1 rounded-lg border font-bold transition-all ${
                   affordableOnly
-                    ? 'bg-[#00ff87]/20 border-[#00ff87] text-[#00ff87] shadow-xs'
-                    : 'bg-black/40 border-white/10 text-gray-400 hover:text-white hover:border-white/20'
+                    ? 'bg-emerald-500/10 border-emerald-500 text-emerald-600 dark:text-emerald-400'
+                    : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400'
                 }`}
               >
-                <Coins className="w-3 h-3 text-[#00ff87]" />
-                <span>Affordable Only</span>
-                {affordableOnly && <Check className="w-3 h-3 text-[#00ff87]" />}
+                <Coins className="w-3 h-3 text-emerald-500" />
+                <span>Affordable</span>
+                {affordableOnly && <Check className="w-3 h-3" />}
               </button>
 
-              {/* Sort By Dropdown */}
-              <div className="flex items-center gap-1 bg-black/40 border border-white/10 rounded-lg px-2 py-1">
-                <ArrowUpDown className="w-3 h-3 text-gray-400 flex-shrink-0" />
+              <div className="flex items-center gap-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg px-2 py-1">
+                <ArrowUpDown className="w-3 h-3 text-slate-400 flex-shrink-0" />
                 <select
                   value={sortBy}
                   onChange={(e: any) => setSortBy(e.target.value)}
-                  className="bg-transparent text-white w-full focus:outline-none font-semibold cursor-pointer truncate"
+                  className="bg-transparent text-slate-800 dark:text-slate-200 w-full focus:outline-none font-semibold cursor-pointer truncate"
                 >
-                  <option value="points_desc" className="bg-[#1f0022] text-white">Points: High to Low</option>
-                  <option value="cost_desc" className="bg-[#1f0022] text-white">Price: High to Low</option>
-                  <option value="cost_asc" className="bg-[#1f0022] text-white">Price: Low to High</option>
-                  <option value="form_desc" className="bg-[#1f0022] text-white">Form: High to Low</option>
-                  <option value="selected_desc" className="bg-[#1f0022] text-white">Ownership: High to Low</option>
-                  <option value="name_asc" className="bg-[#1f0022] text-white">Name: A to Z</option>
+                  <option value="points_desc">Points: High to Low</option>
+                  <option value="cost_desc">Price: High to Low</option>
+                  <option value="cost_asc">Price: Low to High</option>
+                  <option value="form_desc">Form: High to Low</option>
+                  <option value="selected_desc">Ownership: High to Low</option>
+                  <option value="name_asc">Name: A to Z</option>
                 </select>
               </div>
             </div>
           </div>
 
           {/* Candidate Players List */}
-          <div className="space-y-1.5 max-h-64 md:max-h-[520px] overflow-y-auto pr-1">
+          <div className="space-y-1 max-h-64 md:max-h-[520px] overflow-y-auto pr-1">
             {candidatePlayers.length === 0 ? (
-              <div className="text-center py-10 px-4 rounded-xl bg-black/20 border border-dashed border-white/10 space-y-2">
-                <p className="text-xs md:text-sm text-gray-400 font-bold">No players found matching your filters.</p>
+              <div className="text-center py-8 px-4 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-dashed border-slate-200 dark:border-slate-700 space-y-1.5">
+                <p className="text-xs text-slate-500 dark:text-slate-400 font-bold">No players found</p>
                 {hasActiveFilters && (
                   <button
                     onClick={handleResetFilters}
-                    className="px-3 py-1.5 rounded-lg bg-[#00ff87] text-[#37003c] text-xs font-black shadow-glow-green hover:opacity-90"
+                    className="px-2.5 py-1 rounded-lg bg-emerald-500 text-white text-xs font-bold"
                   >
-                    Clear All Filters
+                    Clear Filters
                   </button>
                 )}
               </div>
             ) : (
               candidatePlayers.map((p) => {
                 const isSelected = inPlayerId === p.id;
-                const isStarterOut = outPlayer ? squad.players.find((sp) => sp.playerId === outPlayer.id)?.isStarter : true;
                 const affordable = outPlayer
                   ? squad.bank + outPlayer.cost >= p.cost
                   : squad.bank >= p.cost;
@@ -613,14 +597,15 @@ export const TransfersView: React.FC = () => {
                   posLimitReached
                     ? `${p.position === 'GKP' ? 'GK' : p.position} Full`
                     : classLimitReached
-                    ? 'Class Limit (2/2)'
+                    ? 'Max 2/Class'
                     : squad.players.filter((sp) => Boolean(players[sp.playerId])).length >= 9
-                    ? 'Squad Full (9/9)'
+                    ? 'Squad Full'
                     : squad.bank < p.cost
                     ? 'No funds'
                     : null;
 
                 const canBuyDirect = !buyBlockReason;
+                const pClub = clubs?.[p.clubId] || CLUBS[p.clubId];
 
                 return (
                   <div
@@ -628,34 +613,34 @@ export const TransfersView: React.FC = () => {
                     onClick={() => {
                       if (outPlayer && !classLimitReached && affordable) setInPlayerId(p.id);
                     }}
-                    className={`p-2 md:p-2.5 rounded-lg border flex items-center justify-between transition-all ${
-                      outPlayer ? (classLimitReached || !affordable ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:border-[#00ff87]/50') : ''
+                    className={`p-2 rounded-xl border flex items-center justify-between transition-all ${
+                      outPlayer ? (classLimitReached || !affordable ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer hover:border-emerald-500/50') : ''
                     } ${
                       isSelected
-                        ? 'bg-[#00ff87]/20 border-[#00ff87] ring-1 ring-[#00ff87]'
-                        : 'bg-white/5 border-white/5 hover:bg-white/10'
+                        ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-500 ring-1 ring-emerald-500'
+                        : 'bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800'
                     }`}
                   >
-                    <div className="flex items-center space-x-2.5 md:space-x-3">
-                      <KitJersey clubId={p.clubId} position={p.position} className="w-7 h-7 md:w-8 md:h-8" />
+                    <div className="flex items-center space-x-2 md:space-x-2.5">
+                      <KitJersey clubId={p.clubId} position={p.position} className="w-6 h-6 md:w-7 md:h-7" />
                       <div>
-                        <div className="flex items-center gap-1.5 md:gap-2">
-                          <span className="text-xs md:text-sm font-black text-white">{p.webName}</span>
-                          <span className="text-[9px] md:text-[10px] font-bold px-1 rounded bg-white/10 text-gray-300">
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-xs md:text-sm font-bold text-slate-900 dark:text-white">{p.webName}</span>
+                          <span className="text-[9px] font-bold px-1 rounded bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300">
                             {p.position}
                           </span>
-                          <span className="text-[9px] md:text-[10px] text-gray-400">{CLUBS[p.clubId]?.shortName}</span>
+                          <span className="text-[9px] text-slate-400">{pClub?.shortName}</span>
                         </div>
-                        <div className="text-[10px] md:text-xs text-gray-400 mt-0.5">
+                        <div className="text-[10px] text-slate-400">
                           {p.totalPoints} pts • {p.selectedByPercent}% sel
                         </div>
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-2 md:gap-3">
+                    <div className="flex items-center gap-2">
                       <span
-                        className={`text-xs md:text-sm font-black block ${
-                          affordable ? 'text-white' : 'text-red-400'
+                        className={`text-xs md:text-sm font-bold block ${
+                          affordable ? 'text-slate-800 dark:text-slate-200' : 'text-rose-500'
                         }`}
                       >
                         £{p.cost.toFixed(1)}m
@@ -663,11 +648,11 @@ export const TransfersView: React.FC = () => {
 
                       {outPlayer ? (
                         isSelected ? (
-                          <span className="text-[9px] md:text-xs font-black text-[#00ff87] uppercase">Selected</span>
+                          <span className="text-[9px] font-bold text-emerald-600 uppercase">Selected</span>
                         ) : classLimitReached ? (
-                          <span className="text-[9px] md:text-xs font-bold text-yellow-400 uppercase">Max 2 / Class</span>
+                          <span className="text-[9px] font-bold text-amber-500 uppercase">Class Max</span>
                         ) : !affordable ? (
-                          <span className="text-[9px] md:text-xs font-bold text-red-400 uppercase">No funds</span>
+                          <span className="text-[9px] font-bold text-rose-500 uppercase">No funds</span>
                         ) : null
                       ) : (
                         <button
@@ -676,15 +661,15 @@ export const TransfersView: React.FC = () => {
                             e.stopPropagation();
                             handleBuyPlayer(p.id);
                           }}
-                          className={`px-2.5 md:px-3 py-1 md:py-1.5 rounded-lg font-black uppercase text-[10px] md:text-xs transition-all flex items-center gap-1 ${
+                          className={`px-2.5 py-1 rounded-lg font-bold uppercase text-[10px] transition-all flex items-center gap-1 ${
                             canBuyDirect
-                              ? 'bg-[#00ff87] text-[#37003c] shadow-glow-green hover:opacity-95'
-                              : 'bg-white/5 text-gray-500 cursor-not-allowed border border-white/5'
+                              ? 'bg-emerald-500 hover:bg-emerald-600 text-white shadow-xs'
+                              : 'bg-slate-200 dark:bg-slate-800 text-slate-400 dark:text-slate-500 cursor-not-allowed'
                           }`}
                         >
                           {canBuyDirect ? (
                             <>
-                              <Plus className="w-3 h-3 md:w-3.5 md:h-3.5" />
+                              <Plus className="w-3 h-3" />
                               <span>Buy</span>
                             </>
                           ) : (

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useFPL } from '../../context/FPLContext';
 import { CLUBS } from '../../data/clubs';
-import { Calendar, ChevronLeft, ChevronRight, Clock } from 'lucide-react';
+import { Calendar, ChevronLeft, ChevronRight } from 'lucide-react';
 
 export const FixturesView: React.FC = () => {
   const { fixtures, clubs, currentGW, setActiveTab } = useFPL();
@@ -10,97 +10,101 @@ export const FixturesView: React.FC = () => {
   const gwFixtures = fixtures.filter((f) => f.gameweek === selectedGW);
 
   return (
-    <div className="flex flex-col space-y-3 pb-24 md:pb-12 px-2 md:px-6 pt-2 md:pt-4 select-none max-w-4xl lg:max-w-5xl mx-auto w-full">
+    <div className="flex flex-col space-y-3 pb-24 md:pb-12 px-2 sm:px-4 md:px-6 pt-1 md:pt-3 select-none max-w-4xl lg:max-w-5xl mx-auto w-full transition-colors duration-200">
       {/* Gameweek Navigator Header */}
-      <div className="p-3 md:p-4 rounded-2xl bg-[#28002d] border border-[#4d0c54] flex items-center justify-between">
+      <div className="p-2.5 md:p-3.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs flex items-center justify-between">
         <button
           onClick={() => setSelectedGW((prev) => Math.max(1, prev - 1))}
           disabled={selectedGW <= 1}
-          className="p-1.5 md:p-2 rounded-lg bg-white/5 hover:bg-white/10 disabled:opacity-30 text-white transition-colors"
+          className="p-1.5 md:p-2 rounded-xl bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 disabled:opacity-25 text-slate-700 dark:text-slate-200 transition-colors"
+          title="Previous Gameweek"
         >
           <ChevronLeft className="w-4 h-4 md:w-5 md:h-5" />
         </button>
 
         <div className="text-center">
-          <span className="text-[10px] md:text-xs text-gray-400 font-bold uppercase block">
-            Komarovi Charity League Fixtures
-          </span>
-          <span className="text-sm md:text-base font-black text-white">Gameweek {selectedGW}</span>
+          <div className="flex items-center justify-center gap-2">
+            <span className="text-sm md:text-base font-black text-slate-900 dark:text-white">
+              Gameweek {selectedGW}
+            </span>
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-slate-300">
+              {gwFixtures.length} Games
+            </span>
+          </div>
         </div>
 
         <button
           onClick={() => setSelectedGW((prev) => prev + 1)}
-          className="p-1.5 md:p-2 rounded-lg bg-white/5 hover:bg-white/10 text-white transition-colors"
+          className="p-1.5 md:p-2 rounded-xl bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 text-slate-700 dark:text-slate-200 transition-colors"
+          title="Next Gameweek"
         >
           <ChevronRight className="w-4 h-4 md:w-5 md:h-5" />
         </button>
       </div>
 
       {/* Fixtures List */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-3">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-2.5">
         {gwFixtures.length === 0 ? (
-          <div className="col-span-full p-8 md:p-12 text-center text-xs md:text-sm text-gray-400 bg-[#200024] rounded-2xl border border-white/5">
-            <Calendar className="w-8 h-8 md:w-10 md:h-10 text-gray-500 mx-auto mb-2 opacity-50" />
-            No fixtures scheduled for Gameweek {selectedGW} yet.
+          <div className="col-span-full p-8 md:p-10 text-center text-xs md:text-sm text-slate-500 dark:text-slate-400 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs">
+            <Calendar className="w-8 h-8 text-slate-400 mx-auto mb-2 opacity-50" />
+            No fixtures scheduled for Gameweek {selectedGW}.
             <div className="mt-3">
               <button
                 onClick={() => setActiveTab('dev')}
-                className="px-3 md:px-4 py-1.5 md:py-2 rounded-lg bg-[#00ff87] text-[#37003c] font-black text-xs md:text-sm hover:opacity-90 transition-opacity"
+                className="px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs shadow-xs transition-colors"
               >
-                + Add Games in Dev Portal
+                + Add Games in Dev Mode
               </button>
             </div>
           </div>
         ) : (
           gwFixtures.map((fix) => {
-            const homeClub = clubs[fix.homeClubId] || CLUBS[fix.homeClubId] || { name: fix.homeClubId, primaryColor: '#555' };
-            const awayClub = clubs[fix.awayClubId] || CLUBS[fix.awayClubId] || { name: fix.awayClubId, primaryColor: '#555' };
+            const homeClub = clubs[fix.homeClubId] || CLUBS[fix.homeClubId] || { name: fix.homeClubId, shortName: fix.homeClubId, primaryColor: '#555' };
+            const awayClub = clubs[fix.awayClubId] || CLUBS[fix.awayClubId] || { name: fix.awayClubId, shortName: fix.awayClubId, primaryColor: '#555' };
+
+            const homeDisplayName = homeClub.shortName || homeClub.name.replace(/^Team\s+/i, '');
+            const awayDisplayName = awayClub.shortName || awayClub.name.replace(/^Team\s+/i, '');
 
             return (
               <div
                 key={fix.id}
-                className="p-3 md:p-3.5 rounded-xl bg-[#200024] border border-white/10 flex items-center justify-between shadow-md hover:border-white/20 transition-colors"
+                className="p-2.5 md:p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs hover:border-slate-300 dark:hover:border-slate-700 transition-colors flex items-center justify-between"
               >
                 {/* Home Team */}
                 <div className="flex-1 flex items-center justify-end space-x-2 text-right">
-                  <span className="text-xs md:text-sm font-bold text-white truncate max-w-[105px] md:max-w-[140px]">
-                    {homeClub.name}
+                  <span className="text-xs md:text-sm font-bold text-slate-800 dark:text-slate-100 truncate max-w-[110px] md:max-w-[140px]">
+                    {homeDisplayName}
                   </span>
                   <div
-                    className="w-3.5 h-3.5 md:w-4 md:h-4 rounded-full border border-white/30 flex-shrink-0"
+                    className="w-3.5 h-3.5 rounded-full border border-slate-300 dark:border-white/20 flex-shrink-0 shadow-xs"
                     style={{ backgroundColor: homeClub.primaryColor }}
+                    title={homeClub.name}
                   />
                 </div>
 
-                {/* Score / Kickoff Center */}
-                <div className="mx-3 min-w-[76px] md:min-w-[90px] text-center">
+                {/* Score / Status Center */}
+                <div className="mx-3 min-w-[68px] md:min-w-[80px] text-center flex justify-center">
                   {fix.isFinished ? (
                     <div className="flex flex-col items-center">
-                      <div className="px-2.5 md:px-3 py-0.5 md:py-1 rounded bg-black/60 border border-white/10 font-black text-sm md:text-base text-[#00ff87]">
+                      <div className="px-2.5 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-black text-xs md:text-sm text-emerald-600 dark:text-emerald-400">
                         {fix.homeScore} - {fix.awayScore}
                       </div>
-                      <span className="text-[9px] md:text-[10px] font-bold text-gray-400 mt-0.5 uppercase">
+                      <span className="text-[8px] font-bold text-slate-400 mt-0.5 uppercase tracking-wider">
                         FT
                       </span>
                     </div>
                   ) : fix.isLive ? (
                     <div className="flex flex-col items-center">
-                      <div className="px-2.5 md:px-3 py-0.5 md:py-1 rounded bg-[#e90052]/20 border border-[#e90052] font-black text-sm md:text-base text-[#e90052]">
+                      <div className="px-2.5 py-0.5 rounded-md bg-rose-50 dark:bg-rose-950/40 border border-rose-300 dark:border-rose-800 font-black text-xs md:text-sm text-rose-600 dark:text-rose-400">
                         {fix.homeScore ?? 0} - {fix.awayScore ?? 0}
                       </div>
-                      <span className="text-[9px] md:text-[10px] font-black text-[#e90052] mt-0.5 animate-pulse uppercase">
+                      <span className="text-[8px] font-black text-rose-500 mt-0.5 animate-pulse uppercase tracking-wider">
                         LIVE
                       </span>
                     </div>
                   ) : (
-                    <div className="flex flex-col items-center">
-                      <span className="text-xs md:text-sm font-bold text-gray-200">
-                        {fix.kickoffTime}
-                      </span>
-                      <span className="text-[9px] md:text-[10px] text-gray-400 flex items-center gap-0.5">
-                        <Clock className="w-2.5 h-2.5 md:w-3 md:h-3" />
-                        Upcoming
-                      </span>
+                    <div className="px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-500 dark:text-slate-400 text-xs font-bold">
+                      vs
                     </div>
                   )}
                 </div>
@@ -108,11 +112,12 @@ export const FixturesView: React.FC = () => {
                 {/* Away Team */}
                 <div className="flex-1 flex items-center justify-start space-x-2 text-left">
                   <div
-                    className="w-3.5 h-3.5 md:w-4 md:h-4 rounded-full border border-white/30 flex-shrink-0"
+                    className="w-3.5 h-3.5 rounded-full border border-slate-300 dark:border-white/20 flex-shrink-0 shadow-xs"
                     style={{ backgroundColor: awayClub.primaryColor }}
+                    title={awayClub.name}
                   />
-                  <span className="text-xs md:text-sm font-bold text-white truncate max-w-[105px] md:max-w-[140px]">
-                    {awayClub.name}
+                  <span className="text-xs md:text-sm font-bold text-slate-800 dark:text-slate-100 truncate max-w-[110px] md:max-w-[140px]">
+                    {awayDisplayName}
                   </span>
                 </div>
               </div>

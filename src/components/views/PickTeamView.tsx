@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useFPL } from '../../context/FPLContext';
 import { PitchView } from '../pitch/PitchView';
 import { ChipType } from '../../types/fpl';
-import { Sparkles, Shield, Zap, RefreshCw, CheckCircle, Loader2, AlertCircle } from 'lucide-react';
+import { Sparkles, Shield, Zap, RefreshCw, CheckCircle, Loader2, AlertCircle, ChevronDown, ChevronUp } from 'lucide-react';
 import { validateSquadComposition } from '../../engine/scoring';
 import confetti from 'canvas-confetti';
 
@@ -13,31 +13,19 @@ export const PickTeamView: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const comp = validateSquadComposition(squad.players, players);
+  // Default expanded only if squad has players but is incomplete
+  const [showCompDetails, setShowCompDetails] = useState<boolean>(!comp.isValid && squad.players.length > 0);
 
-  const chips: { id: ChipType; label: string; desc: string; icon: any }[] = [
-    {
-      id: 'triple_captain',
-      label: 'Triple Captain',
-      desc: 'Captain scores 3x points',
-      icon: Sparkles,
-    },
-    {
-      id: 'bench_boost',
-      label: 'Bench Boost',
-      desc: 'Points from bench count',
-      icon: Shield,
-    },
-    {
-      id: 'free_hit',
-      label: 'Free Hit',
-      desc: 'Unlimited free transfers',
-      icon: RefreshCw,
-    },
+  const chips: { id: ChipType; label: string; icon: any }[] = [
+    { id: 'triple_captain', label: 'Triple Captain', icon: Sparkles },
+    { id: 'bench_boost', label: 'Bench Boost', icon: Shield },
+    { id: 'free_hit', label: 'Free Hit', icon: RefreshCw },
   ];
 
   const handleSaveTeam = async () => {
     if (!comp.isValid) {
-      setErrorMessage(comp.message || 'Cannot play: Must have 1 GK, 3 DEF, 3 MID, and 2 FWD!');
+      setErrorMessage(comp.message || 'Squad incomplete: Need 1 GK, 3 DEF, 3 MID, 2 FWD!');
+      setShowCompDetails(true);
       setTimeout(() => setErrorMessage(null), 4000);
       return;
     }
@@ -48,10 +36,10 @@ export const PickTeamView: React.FC = () => {
       if (res.success) {
         setSaveSuccess(true);
         confetti({
-          particleCount: 50,
-          spread: 60,
+          particleCount: 45,
+          spread: 55,
           origin: { y: 0.8 },
-          colors: ['#00ff87', '#37003c', '#04f5ff'],
+          colors: ['#10b981', '#38bdf8', '#fbbf24'],
         });
         setTimeout(() => setSaveSuccess(false), 2500);
       } else {
@@ -66,186 +54,166 @@ export const PickTeamView: React.FC = () => {
     }
   };
 
+  const validCount = squad.players.filter((sp) => Boolean(players[sp.playerId])).length;
+
   return (
-    <div className="flex flex-col space-y-3 pb-24 md:pb-12 px-2 md:px-6 pt-2 md:pt-4 max-w-4xl lg:max-w-5xl mx-auto w-full">
-      {/* Empty Squad Builder Callout */}
-      {squad.players.filter((sp) => Boolean(players[sp.playerId])).length === 0 && (
-        <div className="mx-0 p-4 md:p-6 rounded-2xl bg-gradient-to-br from-[#2a002e] to-[#3a0042] border-2 border-[#00ff87]/50 shadow-2xl space-y-3 text-center">
-          <div className="w-12 h-12 md:w-14 md:h-14 mx-auto rounded-full bg-[#00ff87]/20 flex items-center justify-center border border-[#00ff87]/40">
-            <Sparkles className="w-6 h-6 md:w-7 md:h-7 text-[#00ff87]" />
+    <div className="flex flex-col space-y-2.5 pb-24 md:pb-12 px-2 sm:px-4 md:px-6 pt-1 md:pt-3 max-w-4xl lg:max-w-5xl mx-auto w-full transition-colors duration-200">
+      {/* Empty Squad Callout */}
+      {validCount === 0 && (
+        <div className="p-4 md:p-5 rounded-2xl bg-white dark:bg-slate-900 border border-emerald-500/40 shadow-sm text-center space-y-2.5">
+          <div className="w-10 h-10 md:w-12 md:h-12 mx-auto rounded-full bg-emerald-500/10 flex items-center justify-center border border-emerald-500/30">
+            <Sparkles className="w-5 h-5 text-emerald-500" />
           </div>
           <div>
-            <h3 className="text-base md:text-lg font-black text-white">Create Your Fantasy Squad</h3>
-            <p className="text-xs md:text-sm text-gray-300 mt-1 max-w-md mx-auto">
-              You have a budget of <strong className="text-[#00ff87]">£60.0m</strong> to buy 9 footballers: 1 GK, 3 Defenders, 3 Midfielders, and 2 Forwards.
+            <h3 className="text-sm md:text-base font-bold text-slate-900 dark:text-white">Build Your Squad</h3>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+              Budget: <strong className="text-emerald-600 dark:text-emerald-400">£60.0m</strong> • 9 Players: 1 GK, 3 DEF, 3 MID, 2 FWD
             </p>
           </div>
           <button
             onClick={() => setActiveTab('transfers')}
-            className="w-full max-w-md mx-auto py-2.5 md:py-3 rounded-xl font-black text-xs md:text-sm uppercase tracking-wider bg-gradient-to-r from-[#00ff87] to-[#04f5ff] text-[#111] shadow-glow-green hover:opacity-95"
+            className="w-full max-w-xs mx-auto py-2 px-4 rounded-xl font-bold text-xs uppercase tracking-wider bg-emerald-500 hover:bg-emerald-600 text-white shadow-xs transition-colors"
           >
-            Start Buying Players (£60.0m Budget)
+            Go to Transfers
           </button>
         </div>
       )}
 
-      {/* In-Progress Squad Callout */}
-      {squad.players.filter((sp) => Boolean(players[sp.playerId])).length > 0 && squad.players.filter((sp) => Boolean(players[sp.playerId])).length < 9 && (
-        <div className="mx-0 p-3 md:p-4 rounded-xl bg-[#230026] border border-[#00ff87]/30 flex items-center justify-between">
-          <div>
-            <div className="text-xs md:text-sm font-black text-white">
-              Building Squad ({squad.players.filter((sp) => Boolean(players[sp.playerId])).length}/9 Players)
-            </div>
-            <div className="text-[10px] md:text-xs text-gray-400">
-              £{squad.bank.toFixed(1)}m remaining in bank
-            </div>
+      {/* In-Progress Callout */}
+      {validCount > 0 && validCount < 9 && (
+        <div className="p-2.5 md:p-3 rounded-xl bg-white dark:bg-slate-900 border border-amber-500/30 shadow-xs flex items-center justify-between">
+          <div className="text-xs text-slate-700 dark:text-slate-300">
+            <span className="font-bold text-amber-600 dark:text-amber-400">Building Squad:</span> {validCount}/9 Players
+            <span className="text-slate-400 ml-2">(£{squad.bank.toFixed(1)}m left)</span>
           </div>
           <button
             onClick={() => setActiveTab('transfers')}
-            className="px-3 md:px-4 py-1.5 md:py-2 rounded-lg bg-[#00ff87] text-[#111] font-black text-xs md:text-sm hover:opacity-90"
+            className="px-2.5 py-1 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs transition-colors"
           >
-            + Buy More Players
+            + Buy Players
           </button>
         </div>
       )}
-      {/* Team Info Strip */}
-      <div className="mx-0 p-2.5 md:p-3.5 rounded-xl bg-[#2a002e] border border-[#4d0c54] flex flex-col gap-2 text-xs md:text-sm">
-        <div className="flex items-center justify-between">
-          <div>
-            <span className="text-gray-400 block text-[10px] md:text-xs uppercase font-bold">Team Value</span>
-            <span className="text-sm md:text-base font-black text-white">£{teamValue.toFixed(1)}m</span>
-          </div>
-          <div>
-            <span className="text-gray-400 block text-[10px] md:text-xs uppercase font-bold">Budget</span>
-            <span className="text-sm md:text-base font-black text-white">£60.0m</span>
-          </div>
-          <div>
-            <span className="text-gray-400 block text-[10px] md:text-xs uppercase font-bold">In Bank</span>
-            <span className="text-sm md:text-base font-black text-gray-200">£{squad.bank.toFixed(1)}m</span>
-          </div>
-          <div>
-            <span className="text-gray-400 block text-[10px] md:text-xs uppercase font-bold">Free Transfers</span>
-            <span className="text-sm md:text-base font-black text-[#00ff87]">{freeTransfersRemaining}</span>
-          </div>
-        </div>
-        <div className="flex items-center justify-between pt-1.5 border-t border-white/10 text-[10px] md:text-xs text-gray-400">
-          <span className="font-bold text-[#00ff87]">6 Starters on Pitch • 3 Bench Reserves • Max 2 per Class</span>
-          <span className="text-gray-300">Total Squad Budget: £60.0m</span>
-        </div>
-      </div>
 
-      {/* Class Limit Exceeded Alert */}
-      {comp.exceededClubs && comp.exceededClubs.length > 0 && (
-        <div className="mx-0 p-3 md:p-3.5 rounded-xl bg-red-950/80 border border-red-500/50 text-red-200 text-xs flex items-center justify-between gap-2 shadow-lg">
-          <div className="flex items-center gap-2">
-            <AlertCircle className="w-4 h-4 text-red-400 flex-shrink-0" />
-            <span>
-              <strong>Class Limit Exceeded:</strong> Max 2 players from the same class. Exceeded in: {comp.exceededClubs.map((ec) => `${ec.clubId.replace('SCH_', '')} (${ec.count}/2)`).join(', ')}.
-            </span>
+      {/* Streamlined Team Status & Controls Bar */}
+      <div className="p-2.5 md:p-3 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-2">
+        <div className="flex items-center justify-between flex-wrap gap-2 text-xs">
+          {/* Quick Metrics */}
+          <div className="flex items-center gap-3 sm:gap-4">
+            <div>
+              <span className="text-[10px] uppercase font-bold text-slate-400 block">Value</span>
+              <span className="font-bold text-slate-800 dark:text-slate-200">£{teamValue.toFixed(1)}m</span>
+            </div>
+            <div>
+              <span className="text-[10px] uppercase font-bold text-slate-400 block">Bank</span>
+              <span className="font-bold text-slate-800 dark:text-slate-200">£{squad.bank.toFixed(1)}m</span>
+            </div>
+            <div>
+              <span className="text-[10px] uppercase font-bold text-slate-400 block">Transfers</span>
+              <span className="font-bold text-emerald-600 dark:text-emerald-400">{freeTransfersRemaining}</span>
+            </div>
           </div>
+
+          {/* Squad Status Chip with Progressive Disclosure */}
           <button
-            onClick={() => setActiveTab('transfers')}
-            className="px-2.5 py-1 bg-red-500 text-white font-bold rounded text-[11px] flex-shrink-0 hover:bg-red-600"
+            onClick={() => setShowCompDetails((prev) => !prev)}
+            className={`px-2.5 py-1 rounded-full text-xs font-bold border transition-colors flex items-center gap-1.5 ${
+              comp.isValid
+                ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-700 dark:text-emerald-400'
+                : 'bg-rose-500/10 border-rose-500/30 text-rose-600 dark:text-rose-400'
+            }`}
           >
-            Fix in Transfers
+            {comp.isValid ? (
+              <>
+                <CheckCircle className="w-3.5 h-3.5 text-emerald-500" />
+                <span>Ready to Play</span>
+              </>
+            ) : (
+              <>
+                <AlertCircle className="w-3.5 h-3.5 text-rose-500" />
+                <span>Squad Incomplete</span>
+              </>
+            )}
+            {showCompDetails ? <ChevronUp className="w-3 h-3 ml-0.5" /> : <ChevronDown className="w-3 h-3 ml-0.5" />}
           </button>
         </div>
-      )}
 
-      {/* Position Requirements Bar */}
-      <div className="mx-0 p-2.5 md:p-3.5 rounded-xl bg-[#230026] border border-[#520d5a] flex flex-col gap-1.5 text-xs md:text-sm">
-        <div className="flex items-center justify-between">
-          <span className="text-[10px] md:text-xs font-black uppercase text-gray-300 flex items-center gap-1.5">
-            <Shield className="w-3.5 h-3.5 text-[#00ff87]" />
-            Squad Composition Requirements
-          </span>
-          {comp.isValid ? (
-            <span className="text-[10px] md:text-xs font-extrabold text-[#00ff87] flex items-center gap-1 bg-[#00ff87]/15 px-2 py-0.5 rounded-full border border-[#00ff87]/30">
-              <CheckCircle className="w-3 h-3" /> Ready to Play
-            </span>
-          ) : (
-            <span className="text-[10px] md:text-xs font-extrabold text-[#e90052] flex items-center gap-1 bg-[#e90052]/15 px-2 py-0.5 rounded-full border border-[#e90052]/30">
-              <AlertCircle className="w-3 h-3" /> Ineligible to Play
-            </span>
-          )}
-        </div>
+        {/* Collapsible Squad Composition Details */}
+        {showCompDetails && (
+          <div className="pt-2 border-t border-slate-100 dark:border-slate-800/80 animate-fade-in space-y-2">
+            <div className="grid grid-cols-4 gap-1.5 text-center">
+              <div className={`p-1.5 rounded-lg border text-xs ${comp.gkCount === 1 ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-700 dark:text-emerald-400' : 'bg-rose-500/10 border-rose-500/30 text-rose-600 dark:text-rose-400'}`}>
+                <span className="text-[9px] uppercase font-bold block text-slate-500 dark:text-slate-400">GK</span>
+                <span className="font-black text-xs">{comp.gkCount}/1</span>
+              </div>
+              <div className={`p-1.5 rounded-lg border text-xs ${comp.defCount === 3 ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-700 dark:text-emerald-400' : 'bg-rose-500/10 border-rose-500/30 text-rose-600 dark:text-rose-400'}`}>
+                <span className="text-[9px] uppercase font-bold block text-slate-500 dark:text-slate-400">DEF</span>
+                <span className="font-black text-xs">{comp.defCount}/3</span>
+              </div>
+              <div className={`p-1.5 rounded-lg border text-xs ${comp.midCount === 3 ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-700 dark:text-emerald-400' : 'bg-rose-500/10 border-rose-500/30 text-rose-600 dark:text-rose-400'}`}>
+                <span className="text-[9px] uppercase font-bold block text-slate-500 dark:text-slate-400">MID</span>
+                <span className="font-black text-xs">{comp.midCount}/3</span>
+              </div>
+              <div className={`p-1.5 rounded-lg border text-xs ${comp.fwdCount === 2 ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-700 dark:text-emerald-400' : 'bg-rose-500/10 border-rose-500/30 text-rose-600 dark:text-rose-400'}`}>
+                <span className="text-[9px] uppercase font-bold block text-slate-500 dark:text-slate-400">FWD</span>
+                <span className="font-black text-xs">{comp.fwdCount}/2</span>
+              </div>
+            </div>
 
-        <div className="grid grid-cols-4 gap-1.5 md:gap-3 text-center pt-1 border-t border-white/5">
-          <div className={`p-1.5 md:p-2.5 rounded-lg border ${comp.gkCount === 1 ? 'bg-[#00ff87]/10 border-[#00ff87]/40 text-[#00ff87]' : 'bg-red-500/10 border-red-500/40 text-red-400'}`}>
-            <span className="text-[9px] md:text-[10px] uppercase font-bold block">1 GK</span>
-            <span className="text-xs md:text-sm font-black">{comp.gkCount}/1</span>
-          </div>
-          <div className={`p-1.5 md:p-2.5 rounded-lg border ${comp.defCount === 3 ? 'bg-[#00ff87]/10 border-[#00ff87]/40 text-[#00ff87]' : 'bg-red-500/10 border-red-500/40 text-red-400'}`}>
-            <span className="text-[9px] md:text-[10px] uppercase font-bold block">3 DEF (mcveli)</span>
-            <span className="text-xs md:text-sm font-black">{comp.defCount}/3</span>
-          </div>
-          <div className={`p-1.5 md:p-2.5 rounded-lg border ${comp.midCount === 3 ? 'bg-[#00ff87]/10 border-[#00ff87]/40 text-[#00ff87]' : 'bg-red-500/10 border-red-500/40 text-red-400'}`}>
-            <span className="text-[9px] md:text-[10px] uppercase font-bold block">3 MID</span>
-            <span className="text-xs md:text-sm font-black">{comp.midCount}/3</span>
-          </div>
-          <div className={`p-1.5 md:p-2.5 rounded-lg border ${comp.fwdCount === 2 ? 'bg-[#00ff87]/10 border-[#00ff87]/40 text-[#00ff87]' : 'bg-red-500/10 border-red-500/40 text-red-400'}`}>
-            <span className="text-[9px] md:text-[10px] uppercase font-bold block">2 FWD</span>
-            <span className="text-xs md:text-sm font-black">{comp.fwdCount}/2</span>
-          </div>
-        </div>
-
-        {!comp.isValid && (
-          <div className="p-2 md:p-2.5 rounded-lg bg-[#e90052]/20 border border-[#e90052]/40 text-[#e90052] text-[10px] md:text-xs font-bold flex items-center gap-1.5 mt-0.5">
-            <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
-            <span>You can't play! Must have exact counts: 1 GK, 3 Defenders (mcveli), 3 Midfielders, and 2 Forwards bought.</span>
+            {/* Class limit warning */}
+            {comp.exceededClubs && comp.exceededClubs.length > 0 && (
+              <div className="p-2 rounded-lg bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-300 text-xs flex items-center justify-between">
+                <span>Max 2 players per class exceeded in: {comp.exceededClubs.map((ec) => `${ec.clubId.replace('SCH_', '')}`).join(', ')}</span>
+                <button
+                  onClick={() => setActiveTab('transfers')}
+                  className="px-2 py-0.5 rounded bg-rose-600 text-white text-[10px] font-bold"
+                >
+                  Fix
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>
 
-      {/* Chips Selector Bar */}
-      <div className="mx-0 p-2.5 md:p-3.5 rounded-xl bg-gradient-to-r from-[#2a002e] via-[#35023a] to-[#250029] border border-[#520d5a]">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-[11px] md:text-xs font-black uppercase text-gray-200 flex items-center gap-1.5">
-            <Zap className="w-3.5 h-3.5 text-[#00ff87]" />
-            Chips Available
-          </span>
-          <span className="text-[10px] md:text-xs text-gray-400">1 chip per gameweek</span>
-        </div>
-
-        <div className="grid grid-cols-3 gap-2 md:gap-3">
+      {/* Compact Chips Bar */}
+      <div className="p-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs flex items-center justify-between gap-1.5">
+        <span className="text-[10px] md:text-xs font-bold text-slate-500 dark:text-slate-400 uppercase flex items-center gap-1 pl-1">
+          <Zap className="w-3.5 h-3.5 text-amber-500" />
+          <span className="hidden sm:inline">Available</span> Chips
+        </span>
+        <div className="flex items-center gap-1 sm:gap-2">
           {chips.map((chip) => {
             const isUsed = squad.usedChips[chip.id];
             const isActive = squad.activeChip === chip.id;
-            const Icon = chip.icon;
-
             return (
               <button
                 key={chip.id}
                 disabled={isUsed}
                 onClick={() => activateChip(chip.id)}
-                className={`py-2 md:py-3 px-1.5 md:px-3 rounded-lg border text-center transition-all flex flex-col items-center justify-center ${
+                className={`px-2 md:px-2.5 py-1 rounded-lg text-[10px] md:text-xs font-bold border transition-all ${
                   isActive
-                    ? 'bg-[#00ff87] text-[#37003c] border-[#00ff87] shadow-glow-green font-bold'
+                    ? 'bg-emerald-500 text-white border-emerald-500 shadow-xs'
                     : isUsed
-                    ? 'bg-black/40 text-gray-500 border-white/5 opacity-50 cursor-not-allowed'
-                    : 'bg-white/5 text-gray-200 border-white/10 hover:bg-white/10'
+                    ? 'bg-slate-100 dark:bg-slate-800 text-slate-400 border-transparent opacity-50 cursor-not-allowed'
+                    : 'bg-slate-50 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700'
                 }`}
               >
-                <Icon className={`w-4 h-4 md:w-5 md:h-5 mb-0.5 ${isActive ? 'text-[#37003c]' : isUsed ? 'text-gray-600' : 'text-[#00ff87]'}`} />
-                <span className="text-[10px] md:text-xs font-black leading-tight truncate w-full">
-                  {chip.label}
-                </span>
-                <span className="text-[8px] md:text-[9px] opacity-75 leading-none mt-0.5">
-                  {isUsed ? 'USED' : isActive ? 'ACTIVE' : 'PLAY'}
-                </span>
+                {chip.label}
+                {isUsed && ' (Used)'}
               </button>
             );
           })}
         </div>
       </div>
 
-      {/* Main Interactive Pitch View */}
+      {/* Football Pitch View */}
       <PitchView showPoints={false} />
 
       {/* Save Squad Button */}
-      <div className="px-0 flex flex-col gap-2">
+      <div className="flex flex-col gap-1.5 pt-1">
         {errorMessage && (
-          <div className="p-2.5 rounded-xl bg-[#e90052]/20 border border-[#e90052]/40 text-[#e90052] text-xs font-bold flex items-center gap-2">
+          <div className="p-2.5 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-300 dark:border-rose-800 text-rose-700 dark:text-rose-300 text-xs font-bold flex items-center gap-2">
             <AlertCircle className="w-4 h-4 flex-shrink-0" />
             <span>{errorMessage}</span>
           </div>
@@ -253,26 +221,21 @@ export const PickTeamView: React.FC = () => {
         <button
           onClick={handleSaveTeam}
           disabled={isSaving || !comp.isValid}
-          className={`w-full py-3.5 md:py-4 px-4 rounded-xl font-black text-sm md:text-base uppercase tracking-wider transition-all flex items-center justify-center gap-2 ${
+          className={`w-full py-3 px-4 rounded-xl font-bold text-xs md:text-sm uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-xs ${
             !comp.isValid
-              ? 'bg-red-950/60 border border-red-500/50 text-red-300 opacity-80 cursor-not-allowed'
-              : 'bg-gradient-to-r from-[#00ff87] to-[#00cc6a] text-[#37003c] shadow-glow-green hover:opacity-95 active:scale-98 disabled:opacity-75'
+              ? 'bg-slate-200 dark:bg-slate-800 text-slate-400 dark:text-slate-500 cursor-not-allowed'
+              : 'bg-emerald-500 hover:bg-emerald-600 active:scale-99 text-white font-black'
           }`}
         >
           {isSaving ? (
             <>
-              <Loader2 className="w-5 h-5 text-[#37003c] animate-spin" />
-              <span>Saving Lineup to Database...</span>
-            </>
-          ) : !comp.isValid ? (
-            <>
-              <AlertCircle className="w-5 h-5 text-red-400" />
-              <span>Cannot Play - Need 1 GK, 3 DEF, 3 MID, 2 FWD</span>
+              <Loader2 className="w-4 h-4 animate-spin text-white" />
+              <span>Saving Lineup...</span>
             </>
           ) : saveSuccess ? (
             <>
-              <CheckCircle className="w-5 h-5 text-[#37003c]" />
-              <span>Squad Saved Successfully!</span>
+              <CheckCircle className="w-4 h-4 text-white" />
+              <span>Squad Saved!</span>
             </>
           ) : (
             <span>Save Team Lineup</span>
