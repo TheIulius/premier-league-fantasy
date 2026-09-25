@@ -1,6 +1,7 @@
 import React from 'react';
 import { useFPL, TabType } from '../../context/FPLContext';
 import { Shirt, ArrowLeftRight, Zap, Trophy, Calendar, Wrench } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 interface TabItem {
   id: TabType;
@@ -21,8 +22,8 @@ export const BottomNav: React.FC = () => {
   const { activeTab, setActiveTab, isDevAuthenticated } = useFPL();
 
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-[#0c121e]/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 max-w-[480px] mx-auto select-none safe-bottom transition-colors duration-200 shadow-md">
-      <div className="flex items-center justify-around px-1 py-1">
+    <nav className="md:hidden fixed bottom-3 left-3 right-3 z-40 max-w-[420px] mx-auto select-none safe-bottom">
+      <div className="flex items-center justify-around p-1.5 rounded-2xl bg-slate-950/85 dark:bg-[#0c121e]/90 backdrop-blur-xl border border-white/[0.12] shadow-[0_12px_36px_rgba(0,0,0,0.45)]">
         {TABS.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
@@ -32,33 +33,31 @@ export const BottomNav: React.FC = () => {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`relative flex-1 py-1 px-0.5 flex flex-col items-center justify-center transition-all duration-150 group ${
-                isActive
-                  ? 'text-emerald-600 dark:text-emerald-400'
-                  : isDev && isDevAuthenticated
-                  ? 'text-rose-500'
-                  : 'text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300'
-              }`}
+              className="relative flex-1 py-1.5 px-1 flex flex-col items-center justify-center transition-colors group z-10"
             >
-              {/* Active Tab Indicator */}
+              {/* Framer Motion Spring-Animated Sliding Pill Indicator */}
               {isActive && (
-                <div className="absolute -top-1 w-6 h-0.5 rounded-full bg-emerald-500" />
+                <motion.div
+                  layoutId="activeDockPill"
+                  className="absolute inset-0 rounded-xl bg-emerald-500/20 border border-emerald-500/40 shadow-[0_0_12px_rgba(16,185,129,0.3)] -z-10"
+                  transition={{ type: 'spring', stiffness: 450, damping: 32 }}
+                />
               )}
 
               <div className="relative">
                 <Icon
-                  className={`w-5 h-5 transition-transform duration-150 ${
-                    isActive ? 'scale-105' : 'scale-100'
+                  className={`w-5 h-5 transition-transform duration-200 ${
+                    isActive ? 'scale-110 text-emerald-400' : 'text-slate-400 group-hover:text-slate-200'
                   }`}
                 />
                 {isDev && isDevAuthenticated && (
-                  <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-rose-500 ring-2 ring-white dark:ring-[#0c121e]" />
+                  <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-rose-500 ring-2 ring-slate-950" />
                 )}
               </div>
 
               <span
-                className={`text-[10px] mt-0.5 tracking-tight truncate max-w-[60px] ${
-                  isActive ? 'font-bold text-emerald-600 dark:text-emerald-400' : 'font-medium'
+                className={`text-[10px] mt-0.5 tracking-tight truncate max-w-[55px] transition-colors ${
+                  isActive ? 'font-black text-emerald-400' : 'font-medium text-slate-400'
                 }`}
               >
                 {tab.label}

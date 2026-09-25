@@ -197,6 +197,7 @@ export const PickTeamView: React.FC = () => {
         </span>
         <div className="flex items-center gap-1 sm:gap-2">
           {chips.map((chip) => {
+            const Icon = chip.icon;
             const isUsed = squad.usedChips[chip.id];
             const isActive = squad.activeChip === chip.id;
             return (
@@ -204,7 +205,7 @@ export const PickTeamView: React.FC = () => {
                 key={chip.id}
                 disabled={isUsed || isSquadLocked}
                 onClick={() => activateChip(chip.id)}
-                className={`px-2 md:px-2.5 py-1 rounded-lg text-[10px] md:text-xs font-bold border transition-all ${
+                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] md:text-xs font-bold border transition-all ${
                   isActive
                     ? 'bg-emerald-500 text-white border-emerald-500 shadow-xs'
                     : isUsed || isSquadLocked
@@ -212,7 +213,8 @@ export const PickTeamView: React.FC = () => {
                     : 'bg-slate-50 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700'
                 }`}
               >
-                {chip.label}
+                <Icon className="w-3.5 h-3.5 flex-shrink-0" />
+                <span>{chip.label}</span>
                 {isUsed && ' (Used)'}
               </button>
             );

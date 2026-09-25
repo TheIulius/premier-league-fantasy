@@ -19,13 +19,6 @@ export const MobileContainer: React.FC<MobileContainerProps> = ({ children }) =>
 
   return (
     <div className="min-h-screen w-full flex flex-col bg-slate-50 text-slate-900 dark:bg-[#090d16] dark:text-slate-100 select-none transition-colors duration-200">
-      {/* Top small Beta Version banner */}
-      <div className="w-full bg-slate-200/70 dark:bg-slate-900/80 border-b border-slate-300/50 dark:border-white/5 py-0.5 md:py-1 px-3 text-center select-none">
-        <span className="text-[10px] md:text-xs font-semibold text-slate-500 dark:text-slate-400 tracking-widest uppercase">
-          Beta Version
-        </span>
-      </div>
-
       {/* Top Header */}
       <TopHeader />
 

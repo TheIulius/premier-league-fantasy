@@ -132,24 +132,26 @@ export const TopHeader: React.FC = () => {
             )}
           </button>
 
-          {/* Account Login / Profile Button */}
+          {/* Account Login / Profile Button - Icon Focused */}
           <button
             onClick={() => setIsAuthModalOpen(true)}
-            className={`px-2.5 md:px-3 py-1 md:py-1.5 rounded-full text-[10px] md:text-xs font-bold border transition-all flex items-center gap-1.5 ${
+            className={`p-1.5 md:px-3 md:py-1.5 rounded-full text-xs font-bold border transition-all flex items-center gap-1.5 ${
               authUser
                 ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-600 dark:text-emerald-400'
                 : 'bg-slate-100 dark:bg-white/5 border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-white/10'
             }`}
-            title="Account"
+            title={authUser ? `Logged in as @${authUser.username}` : 'Sign In'}
+            aria-label="Account"
           >
-            <Users className="w-3 h-3 md:w-3.5 md:h-3.5" />
-            <span>{authUser ? authUser.managerName.split(' ')[0] : 'Sign In'}</span>
+            <Users className="w-4 h-4" />
+            <span className="hidden md:inline">{authUser ? authUser.managerName.split(' ')[0] : 'Sign In'}</span>
+            {authUser && <span className="md:hidden w-1.5 h-1.5 rounded-full bg-emerald-500" />}
           </button>
 
-          {/* Developer Portal shortcut button (mobile only) */}
+          {/* Developer Portal shortcut button (mobile only) - Icon Focused */}
           <button
             onClick={() => setActiveTab('dev')}
-            className={`md:hidden flex items-center space-x-1 px-2.5 py-1 rounded-full text-xs font-semibold transition-all border ${
+            className={`md:hidden p-1.5 rounded-full transition-all border ${
               activeTab === 'dev'
                 ? 'bg-emerald-500 text-slate-950 border-emerald-500 font-bold'
                 : isDevAuthenticated
@@ -157,9 +159,9 @@ export const TopHeader: React.FC = () => {
                 : 'bg-slate-100 dark:bg-white/5 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-white/10'
             }`}
             title="Dev Portal"
+            aria-label="Dev Portal"
           >
-            <Wrench className="w-3 h-3" />
-            <span className="text-[10px]">Dev</span>
+            <Wrench className="w-4 h-4" />
           </button>
         </div>
       </div>
@@ -195,35 +197,37 @@ export const TopHeader: React.FC = () => {
         </div>
       </nav>
 
-      {/* Gameweek Quick Metric Bar - streamlined & compact */}
-      <div className="w-full bg-slate-100/70 dark:bg-slate-900/60 border-t border-slate-200 dark:border-slate-800/60 py-1.5 md:py-2 text-center text-xs">
-        <div className="max-w-6xl mx-auto grid grid-cols-4 divide-x divide-slate-200 dark:divide-slate-800 px-1 md:px-6">
-          <div>
-            <span className="block text-[9px] md:text-[10px] text-slate-500 dark:text-slate-400 uppercase font-semibold">GW</span>
-            <span className="text-xs md:text-sm font-black text-emerald-600 dark:text-emerald-400">
-              {calculationResult.totalPoints}
-            </span>
-          </div>
-          <div>
-            <span className="block text-[9px] md:text-[10px] text-slate-500 dark:text-slate-400 uppercase font-semibold">Total</span>
-            <span className="text-xs md:text-sm font-black text-slate-900 dark:text-white">
-              {totalUserPoints}
-            </span>
-          </div>
-          <div>
-            <span className="block text-[9px] md:text-[10px] text-slate-500 dark:text-slate-400 uppercase font-semibold">Rank</span>
-            <span className="text-xs md:text-sm font-black text-sky-600 dark:text-sky-400">
-              {overallRank}
-            </span>
-          </div>
-          <div>
-            <span className="block text-[9px] md:text-[10px] text-slate-500 dark:text-slate-400 uppercase font-semibold">Bank</span>
-            <span className="text-xs md:text-sm font-bold text-slate-700 dark:text-slate-300">
-              £{squad.bank.toFixed(1)}m
-            </span>
+      {/* Gameweek Quick Metric Bar - hidden on Transfers tab to eliminate clutter and duplicate Bank */}
+      {activeTab !== 'transfers' && (
+        <div className="w-full bg-slate-100/70 dark:bg-slate-900/60 border-t border-slate-200 dark:border-slate-800/60 py-1.5 md:py-2 text-center text-xs">
+          <div className="max-w-6xl mx-auto grid grid-cols-4 divide-x divide-slate-200 dark:divide-slate-800 px-1 md:px-6">
+            <div>
+              <span className="block text-[9px] md:text-[10px] text-slate-500 dark:text-slate-400 uppercase font-semibold">GW</span>
+              <span className="text-xs md:text-sm font-black font-mono tabular-nums text-emerald-600 dark:text-emerald-400">
+                {calculationResult.totalPoints}
+              </span>
+            </div>
+            <div>
+              <span className="block text-[9px] md:text-[10px] text-slate-500 dark:text-slate-400 uppercase font-semibold">Total</span>
+              <span className="text-xs md:text-sm font-black font-mono tabular-nums text-slate-900 dark:text-white">
+                {totalUserPoints}
+              </span>
+            </div>
+            <div>
+              <span className="block text-[9px] md:text-[10px] text-slate-500 dark:text-slate-400 uppercase font-semibold">Rank</span>
+              <span className="text-xs md:text-sm font-black font-mono tabular-nums text-sky-600 dark:text-sky-400">
+                {overallRank}
+              </span>
+            </div>
+            <div>
+              <span className="block text-[9px] md:text-[10px] text-slate-500 dark:text-slate-400 uppercase font-semibold">Bank</span>
+              <span className="text-xs md:text-sm font-bold font-mono tabular-nums text-slate-700 dark:text-slate-300">
+                £{squad.bank.toFixed(1)}m
+              </span>
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* Chip active banner if any */}
       {squad.activeChip && (
