@@ -6986,25 +6986,7 @@
       "kickoffTime": "Matchday 4"
     }
   ],
-  "leagues": [
-    {
-      "id": "league_1790266146852",
-      "name": "231",
-      "code": "KCL-DLHD7",
-      "isGlobal": false,
-      "members": [
-        {
-          "id": "user_1",
-          "managerName": "Apex Manager",
-          "teamName": "Apex XI",
-          "totalPoints": 0,
-          "gwPoints": 0,
-          "rank": 1,
-          "previousRank": 1
-        }
-      ]
-    }
-  ],
+  "leagues": [],
   "managers": {
     "user_1": {
       "id": "user_1",
