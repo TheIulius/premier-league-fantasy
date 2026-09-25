@@ -6472,16 +6472,9 @@
             "benchOrder": 2,
             "isCaptain": false,
             "isViceCaptain": false
-          },
-          {
-            "playerId": "p_custom_1790166361242",
-            "isStarter": false,
-            "benchOrder": 3,
-            "isCaptain": false,
-            "isViceCaptain": false
           }
         ],
-        "bank": 9.9,
+        "bank": 16.9,
         "freeTransfers": 1,
         "transfersMadeThisGW": 0,
         "activeChip": null,
