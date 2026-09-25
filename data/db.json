@@ -6418,28 +6418,21 @@
         "managerName": "Ilia",
         "players": [
           {
-            "playerId": "p_10_1_gogsadze",
+            "playerId": "p_9_4_jafarashvili",
             "isStarter": true,
             "benchOrder": 0,
             "isCaptain": false,
             "isViceCaptain": false
           },
           {
-            "playerId": "p_zurashvili",
+            "playerId": "p_9_6_chelidze",
             "isStarter": true,
             "benchOrder": 0,
             "isCaptain": false,
             "isViceCaptain": false
           },
           {
-            "playerId": "p_9_7_broladze",
-            "isStarter": true,
-            "benchOrder": 0,
-            "isCaptain": false,
-            "isViceCaptain": false
-          },
-          {
-            "playerId": "p_custom_1790166342439",
+            "playerId": "p_10_5_gelashvili",
             "isStarter": true,
             "benchOrder": 0,
             "isCaptain": false,
@@ -6449,39 +6442,46 @@
             "playerId": "p_11_6_gardafxadze",
             "isStarter": true,
             "benchOrder": 0,
+            "isCaptain": true,
+            "isViceCaptain": false
+          },
+          {
+            "playerId": "p_9_2_gogichashvili",
+            "isStarter": true,
+            "benchOrder": 0,
             "isCaptain": false,
             "isViceCaptain": false
           },
           {
-            "playerId": "p_10_6_qeldishvili",
+            "playerId": "p_11_4_xucishvili",
             "isStarter": true,
             "benchOrder": 0,
             "isCaptain": true,
             "isViceCaptain": false
           },
           {
-            "playerId": "p_10_2_turkia",
+            "playerId": "p_11_6_amiko",
             "isStarter": false,
             "benchOrder": 1,
             "isCaptain": false,
             "isViceCaptain": false
           },
           {
-            "playerId": "p_custom_1790244156863",
+            "playerId": "p_custom_1790166342439",
             "isStarter": false,
             "benchOrder": 2,
             "isCaptain": false,
             "isViceCaptain": false
           },
           {
-            "playerId": "p_10_3_zurabiani",
+            "playerId": "p_custom_1790166361242",
             "isStarter": false,
             "benchOrder": 3,
             "isCaptain": false,
             "isViceCaptain": false
           }
         ],
-        "bank": 6.6,
+        "bank": 9.9,
         "freeTransfers": 1,
         "transfersMadeThisGW": 0,
         "activeChip": null,
