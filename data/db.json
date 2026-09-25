@@ -6416,8 +6416,37 @@
       "squad": {
         "teamName": "giorgievski's tractati",
         "managerName": "Ilia",
-        "players": [],
-        "bank": 60,
+        "players": [
+          {
+            "playerId": "p_11_6_gardafxadze",
+            "isStarter": true,
+            "benchOrder": 0,
+            "isCaptain": true,
+            "isViceCaptain": false
+          },
+          {
+            "playerId": "p_11_4_xucishvili",
+            "isStarter": true,
+            "benchOrder": 0,
+            "isCaptain": false,
+            "isViceCaptain": true
+          },
+          {
+            "playerId": "p_custom_1790166361242",
+            "isStarter": true,
+            "benchOrder": 0,
+            "isCaptain": false,
+            "isViceCaptain": false
+          },
+          {
+            "playerId": "p_9_2_gogichashvili",
+            "isStarter": true,
+            "benchOrder": 0,
+            "isCaptain": false,
+            "isViceCaptain": false
+          }
+        ],
+        "bank": 36.1,
         "freeTransfers": 1,
         "transfersMadeThisGW": 0,
         "activeChip": null,
