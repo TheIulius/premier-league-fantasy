@@ -54,6 +54,8 @@ app.get('/api/state', (req: Request, res: Response) => {
     }
   }
 
+  recalculateAllManagersLeaguePoints(data);
+
   const managersList = Object.values(data.managers).map((m) => ({
     id: m.id,
     managerName: m.managerName,
@@ -724,42 +726,118 @@ app.post('/api/admin/simulate', (req: Request, res: Response) => {
 
 function recalculateAllManagersLeaguePoints(data: any) {
   const currentGW = data.currentGW || 1;
-  Object.values(data.managers || {}).forEach((m: any) => {
+  if (!data.managers) data.managers = {};
+  if (!data.leagues) data.leagues = [];
+
+  // Ensure every registered user has a manager profile
+  Object.values(data.users || {}).forEach((u: any) => {
+    if (!data.managers[u.id]) {
+      data.managers[u.id] = {
+        id: u.id,
+        managerName: u.managerName || u.username,
+        teamName: u.teamName || `${u.username} XI`,
+        squad: {
+          teamName: u.teamName || `${u.username} XI`,
+          managerName: u.managerName || u.username,
+          players: [],
+          bank: 60.0,
+          freeTransfers: 1,
+          transfersMadeThisGW: 0,
+          activeChip: null,
+          usedChips: { triple_captain: false, bench_boost: false, free_hit: false },
+        },
+        joinedAt: u.createdAt || new Date().toISOString(),
+      };
+    }
+  });
+
+  // Ensure Global School League exists and contains every manager
+  let globalLeague = data.leagues.find((l: any) => l.isGlobal);
+  if (!globalLeague) {
+    globalLeague = {
+      id: 'league_global',
+      name: 'Komarovi Overall',
+      code: 'GLOBAL',
+      isGlobal: true,
+      members: [],
+    };
+    data.leagues.unshift(globalLeague);
+  }
+
+  Object.values(data.managers).forEach((m: any) => {
+    if (!globalLeague.members.some((mem: any) => mem.id === m.id)) {
+      globalLeague.members.push({
+        id: m.id,
+        managerName: m.managerName,
+        teamName: m.teamName,
+        totalPoints: 0,
+        gwPoints: 0,
+        rank: globalLeague.members.length + 1,
+        previousRank: globalLeague.members.length + 1,
+      });
+    }
+  });
+
+  Object.values(data.managers).forEach((m: any) => {
+    const squadPlayers = Array.isArray(m.squad?.players) ? m.squad.players : [];
     const currentCalc = calculateGameweekSquadPoints(
-      m.squad.players,
+      squadPlayers,
       data.players,
       currentGW,
-      m.squad.activeChip,
-      m.squad.transfersMadeThisGW,
-      m.squad.freeTransfers
+      m.squad?.activeChip || null,
+      m.squad?.transfersMadeThisGW || 0,
+      m.squad?.freeTransfers || 1
     );
 
     let cumulativeTotal = 0;
     for (let gw = 1; gw <= currentGW; gw++) {
       const gwCalc = calculateGameweekSquadPoints(
-        m.squad.players,
+        squadPlayers,
         data.players,
         gw,
-        gw === currentGW ? m.squad.activeChip : null,
-        gw === currentGW ? m.squad.transfersMadeThisGW : 0,
-        m.squad.freeTransfers
+        gw === currentGW ? m.squad?.activeChip || null : null,
+        gw === currentGW ? m.squad?.transfersMadeThisGW || 0 : 0,
+        m.squad?.freeTransfers || 1
       );
       cumulativeTotal += gwCalc.totalPoints;
     }
 
+    const lineupSummary = squadPlayers
+      .map((sp: any) => {
+        const p = data.players?.[sp.playerId];
+        if (!p) return null;
+        const bd = currentCalc.playerPointsBreakdown?.[sp.playerId];
+        return {
+          playerId: sp.playerId,
+          webName: p.webName,
+          clubId: p.clubId,
+          position: p.position,
+          isStarter: Boolean(sp.isStarter),
+          isCaptain: Boolean(sp.isCaptain),
+          isViceCaptain: Boolean(sp.isViceCaptain),
+          benchOrder: sp.benchOrder || 0,
+          points: bd ? bd.finalPoints : 0,
+        };
+      })
+      .filter(Boolean);
+
     (data.leagues || []).forEach((l: any) => {
       const member = l.members.find((mem: any) => mem.id === m.id);
       if (member) {
+        member.managerName = m.managerName;
+        member.teamName = m.teamName;
         member.gwPoints = currentCalc.totalPoints;
         member.totalPoints = cumulativeTotal;
+        member.activeChip = m.squad?.activeChip || null;
+        member.lineup = lineupSummary;
       }
     });
   });
 
   (data.leagues || []).forEach((l: any) => {
-    l.members.sort((a: any, b: any) => b.totalPoints - a.totalPoints);
+    l.members.sort((a: any, b: any) => b.totalPoints - a.totalPoints || b.gwPoints - a.gwPoints);
     l.members.forEach((mem: any, idx: number) => {
-      mem.previousRank = mem.rank;
+      mem.previousRank = mem.rank || idx + 1;
       mem.rank = idx + 1;
     });
   });
