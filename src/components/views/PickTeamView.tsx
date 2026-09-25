@@ -80,21 +80,18 @@ export const PickTeamView: React.FC = () => {
       {/* SECTION 1: UPPER CANVAS (Tactical Pitch & Quick Metrics) */}
       {/* ======================================================== */}
       <section className="flex flex-col space-y-2.5">
-        {/* Tournament Brand Logo with Ambient Neon Glow */}
+        {/* Tournament Brand Header */}
         <div className="flex flex-col items-center justify-center pt-1 pb-1">
-          <div className="relative group">
-            <div className="absolute -inset-2 bg-gradient-to-r from-emerald-500/40 via-teal-500/30 to-cyan-500/40 rounded-full blur-xl opacity-40 group-hover:opacity-75 transition duration-500" />
-            <img
-              src="/kcl-logo.png"
-              alt="KCL Logo"
-              className="relative w-16 h-16 sm:w-20 sm:h-20 drop-shadow-[0_0_25px_rgba(16,185,129,0.45)] object-contain transition-transform duration-300 hover:scale-105"
-            />
-          </div>
+          <img
+            src="/kcl-logo.png"
+            alt="Komarovi Champions League"
+            className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl border border-white/10 shadow-md object-contain"
+          />
           <div className="flex items-center gap-2 mt-1.5">
-            <span className="text-xs sm:text-sm font-black uppercase tracking-[0.25em] text-white">
-              KCL Charity League
+            <span className="text-xs sm:text-sm font-extrabold uppercase tracking-[0.2em] text-slate-200">
+              Komarovi Champions League
             </span>
-            <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/40">
+            <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded-md bg-white/[0.06] text-slate-300 border border-white/10">
               GW {currentGW}
             </span>
           </div>

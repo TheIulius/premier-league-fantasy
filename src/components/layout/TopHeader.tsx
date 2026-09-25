@@ -84,21 +84,21 @@ export const TopHeader: React.FC = () => {
           <div>
             <div className="flex items-center space-x-1.5 md:space-x-2">
               <h1 className="text-xs sm:text-sm md:text-base font-extrabold tracking-tight text-slate-900 dark:text-white uppercase flex items-center gap-1 font-display">
-                Komarovi <span className="text-emerald-600 dark:text-emerald-400">League</span>
+                Komarovi <span className="text-slate-500 dark:text-slate-300">League</span>
               </h1>
-              <span className="text-[10px] md:text-xs font-bold px-1.5 py-0.2 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+              <span className="text-[10px] md:text-xs font-mono font-bold px-2 py-0.5 rounded-md bg-slate-100 dark:bg-white/[0.06] text-slate-700 dark:text-slate-200 border border-slate-200/80 dark:border-white/[0.09]">
                 GW {currentGW}
               </span>
               {deadline && (
                 <span
-                  className={`text-[9px] md:text-xs font-bold px-1.5 py-0.2 rounded flex items-center gap-1 border ${
+                  className={`text-[9px] md:text-xs font-mono font-semibold px-2 py-0.5 rounded-md flex items-center gap-1 border ${
                     isSquadLocked
-                      ? 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/30'
-                      : 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30'
+                      ? 'bg-rose-500/10 text-rose-400 border-rose-500/25'
+                      : 'bg-slate-100 dark:bg-white/[0.04] text-slate-600 dark:text-slate-300 border-slate-200 dark:border-white/[0.08]'
                   }`}
                   title={`Deadline: ${new Date(deadline.deadlineTime).toLocaleString()}`}
                 >
-                  <Clock className="w-2.5 h-2.5 md:w-3 md:h-3" />
+                  <Clock className="w-2.5 h-2.5 md:w-3 md:h-3 text-amber-400/80" />
                   <span>{isSquadLocked ? 'Locked' : timeLeft}</span>
                 </span>
               )}
@@ -106,10 +106,10 @@ export const TopHeader: React.FC = () => {
             <div className="flex items-center gap-1.5">
               <button
                 onClick={() => setIsAuthModalOpen(true)}
-                className="text-[11px] md:text-xs font-medium text-slate-500 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 flex items-center gap-1 transition-colors text-left"
+                className="text-[11px] md:text-xs font-medium text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white flex items-center gap-1 transition-colors text-left"
               >
                 <span className="truncate max-w-[120px] md:max-w-[260px] font-semibold text-slate-700 dark:text-slate-300">{squad.teamName}</span>
-                <span className="text-[9px] bg-slate-100 dark:bg-white/10 px-1 py-0.2 rounded text-slate-500 dark:text-slate-400">
+                <span className="text-[9px] bg-slate-100 dark:bg-white/[0.06] px-1.5 py-0.2 rounded text-slate-500 dark:text-slate-400 border border-slate-200/60 dark:border-white/[0.06]">
                   {authUser ? `@${authUser.username}` : 'Sign In'}
                 </span>
               </button>
@@ -132,31 +132,25 @@ export const TopHeader: React.FC = () => {
             )}
           </button>
 
-          {/* Account Login / Profile Button - Icon Focused */}
+          {/* Account Login / Profile Button - Refined Slate Surface */}
           <button
             onClick={() => setIsAuthModalOpen(true)}
-            className={`p-1.5 md:px-3 md:py-1.5 rounded-full text-xs font-bold border transition-all flex items-center gap-1.5 ${
-              authUser
-                ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-600 dark:text-emerald-400'
-                : 'bg-slate-100 dark:bg-white/5 border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-white/10'
-            }`}
+            className="p-1.5 md:px-3 md:py-1.5 rounded-full text-xs font-semibold border transition-all flex items-center gap-1.5 bg-slate-100 dark:bg-white/[0.05] border-slate-200 dark:border-white/[0.09] text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-white/[0.09]"
             title={authUser ? `Logged in as @${authUser.username}` : 'Sign In'}
             aria-label="Account"
           >
-            <Users className="w-4 h-4" />
+            <Users className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
             <span className="hidden md:inline">{authUser ? authUser.managerName.split(' ')[0] : 'Sign In'}</span>
-            {authUser && <span className="md:hidden w-1.5 h-1.5 rounded-full bg-emerald-500" />}
+            {authUser && <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />}
           </button>
 
-          {/* Developer Portal shortcut button (mobile only) - Icon Focused */}
+          {/* Developer Portal shortcut button (mobile only) */}
           <button
             onClick={() => setActiveTab('dev')}
             className={`md:hidden p-1.5 rounded-full transition-all border ${
               activeTab === 'dev'
-                ? 'bg-emerald-500 text-slate-950 border-emerald-500 font-bold'
-                : isDevAuthenticated
-                ? 'bg-rose-500/10 text-rose-500 border-rose-500/30'
-                : 'bg-slate-100 dark:bg-white/5 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-white/10'
+                ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-950 border-transparent font-bold'
+                : 'bg-slate-100 dark:bg-white/[0.05] text-slate-600 dark:text-slate-300 border-slate-200 dark:border-white/[0.09]'
             }`}
             title="Dev Portal"
             aria-label="Dev Portal"
@@ -168,7 +162,7 @@ export const TopHeader: React.FC = () => {
 
       {/* Desktop Navigation Tabs Bar */}
       <nav className="hidden md:flex items-center justify-center bg-slate-50 dark:bg-[#070b12] border-t border-slate-200 dark:border-slate-800/80 select-none">
-        <div className="w-full max-w-6xl mx-auto flex items-center justify-center gap-2 px-6 py-2">
+        <div className="w-full max-w-6xl mx-auto flex items-center justify-center gap-1.5 px-6 py-1.5">
           {DESKTOP_TABS.map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
@@ -178,18 +172,16 @@ export const TopHeader: React.FC = () => {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-2 px-4 py-1.5 rounded-xl text-xs font-bold transition-all border ${
+                className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all border ${
                   isActive
-                    ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/30 font-extrabold shadow-xs'
-                    : isDev && isDevAuthenticated
-                    ? 'bg-rose-500/10 text-rose-500 border-rose-500/30'
-                    : 'bg-transparent text-slate-600 dark:text-slate-400 border-transparent hover:bg-slate-200/60 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-white'
+                    ? 'bg-slate-900 dark:bg-white/[0.09] text-white border-slate-900 dark:border-white/[0.14] font-bold shadow-xs'
+                    : 'bg-transparent text-slate-500 dark:text-slate-400 border-transparent hover:bg-slate-200/60 dark:hover:bg-white/[0.04] hover:text-slate-900 dark:hover:text-slate-200'
                 }`}
               >
-                <Icon className={`w-4 h-4 ${isActive ? 'text-emerald-600 dark:text-emerald-400' : ''}`} />
+                <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-emerald-400' : 'text-slate-400'}`} />
                 <span>{tab.label}</span>
                 {isDev && isDevAuthenticated && (
-                  <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-400/80" />
                 )}
               </button>
             );
