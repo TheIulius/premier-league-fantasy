@@ -1096,7 +1096,7 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const editPlayer = (playerId: string, data: Partial<Player>) => {
     const updates = { ...data };
     if (updates.cost !== undefined) {
-      updates.cost = Math.max(4.0, Math.round(updates.cost * 10) / 10);
+      updates.cost = Math.max(1.0, Math.round(updates.cost * 10) / 10);
     }
     setPlayers((prev) => {
       const existing = prev[playerId];

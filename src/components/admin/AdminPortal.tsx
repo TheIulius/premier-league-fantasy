@@ -1114,6 +1114,7 @@ export const AdminPortal: React.FC = () => {
           updatePlayerStats(pId, currentGW, s);
           return true;
         }}
+        onEditPlayer={editPlayer}
       />
     </div>
   );

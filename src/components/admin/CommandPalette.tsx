@@ -32,6 +32,7 @@ interface CommandPaletteProps {
   players: Record<string, Player>;
   currentGW: number;
   onUpdatePlayerStats: (playerId: string, stats: any) => Promise<boolean>;
+  onEditPlayer?: (playerId: string, data: Partial<Player>) => void;
 }
 
 export const CommandPalette: React.FC<CommandPaletteProps> = ({
@@ -40,10 +41,12 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
   players,
   currentGW,
   onUpdatePlayerStats,
+  onEditPlayer,
 }) => {
   const [query, setQuery] = useState('');
   const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null);
   const [floatingScores, setFloatingScores] = useState<FloatingScore[]>([]);
+  const [priceInput, setPriceInput] = useState<string>('');
 
   // Listen for ⌘K or Ctrl+K
   useEffect(() => {
@@ -78,6 +81,13 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
   }, [players, query]);
 
   const selectedPlayer = selectedPlayerId ? players[selectedPlayerId] : null;
+
+  useEffect(() => {
+    if (selectedPlayer) {
+      setPriceInput(selectedPlayer.cost.toFixed(1));
+    }
+  }, [selectedPlayerId, selectedPlayer?.cost]);
+
   const currentStats = selectedPlayer?.gwStats[currentGW] || {
     minutes: 0,
     goals: 0,
@@ -104,6 +114,29 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
     setTimeout(() => {
       setFloatingScores((prev) => prev.filter((item) => item.id !== id));
     }, 900);
+  };
+
+  const handlePriceDelta = (delta: number, e: React.MouseEvent) => {
+    if (!selectedPlayer || !onEditPlayer) return;
+    const nextCost = Math.max(1.0, Math.round((selectedPlayer.cost + delta) * 10) / 10);
+    setPriceInput(nextCost.toFixed(1));
+    onEditPlayer(selectedPlayer.id, { cost: nextCost });
+    spawnFloatingScore(
+      `£${nextCost.toFixed(1)}m (${delta > 0 ? '+' : ''}${delta.toFixed(1)})`,
+      delta > 0 ? 'bg-emerald-500 text-slate-950' : 'bg-amber-500 text-slate-950',
+      e
+    );
+  };
+
+  const handleDirectPriceSave = (e: React.FormEvent | React.MouseEvent) => {
+    e.preventDefault();
+    if (!selectedPlayer || !onEditPlayer) return;
+    const parsed = parseFloat(priceInput);
+    if (isNaN(parsed) || parsed < 1.0) return;
+    const nextCost = Math.round(parsed * 10) / 10;
+    setPriceInput(nextCost.toFixed(1));
+    onEditPlayer(selectedPlayer.id, { cost: nextCost });
+    spawnFloatingScore(`£${nextCost.toFixed(1)}m Saved`, 'bg-emerald-500 text-slate-950', e as React.MouseEvent);
   };
 
   const handleStatIncrement = async (
@@ -199,6 +232,9 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
                       <span className="text-[10px] px-1.5 py-0.5 rounded font-black bg-white/10 text-emerald-400">
                         {selectedPlayer.position}
                       </span>
+                      <span className="text-[11px] font-mono font-black text-amber-400 bg-amber-500/10 border border-amber-500/25 px-1.5 py-0.5 rounded">
+                        £{selectedPlayer.cost.toFixed(1)}m
+                      </span>
                     </div>
                     <span className="text-xs text-zinc-400">{selectedPlayer.name}</span>
                   </div>
@@ -210,6 +246,70 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
                   ← Back to Search
                 </button>
               </div>
+
+              {/* Player Price Editor Row */}
+              {onEditPlayer && (
+                <div className="p-2.5 rounded-xl bg-zinc-950/80 border border-white/10 flex flex-wrap items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] uppercase font-bold text-zinc-400 tracking-wider">
+                      Market Price (£m)
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      type="button"
+                      onClick={(e) => handlePriceDelta(-0.5, e)}
+                      className="px-2 py-1 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-[11px] font-mono font-bold text-rose-400 transition-colors"
+                    >
+                      -0.5
+                    </button>
+                    <button
+                      type="button"
+                      onClick={(e) => handlePriceDelta(-0.1, e)}
+                      className="px-2 py-1 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-[11px] font-mono font-bold text-rose-300 transition-colors"
+                    >
+                      -0.1
+                    </button>
+
+                    <form onSubmit={handleDirectPriceSave} className="flex items-center gap-1">
+                      <div className="relative flex items-center">
+                        <span className="absolute left-2 text-xs font-mono font-bold text-emerald-400">£</span>
+                        <input
+                          type="number"
+                          step="0.1"
+                          min="1.0"
+                          max="20.0"
+                          value={priceInput}
+                          onChange={(e) => setPriceInput(e.target.value)}
+                          className="w-20 pl-5 pr-4 py-1 rounded-lg bg-zinc-900 border border-emerald-500/40 text-xs font-mono font-black text-white text-center outline-none focus:border-emerald-400"
+                        />
+                        <span className="absolute right-1.5 text-[10px] font-mono font-bold text-zinc-400">m</span>
+                      </div>
+                      <button
+                        type="submit"
+                        className="px-2.5 py-1 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-[11px] font-black transition-colors"
+                      >
+                        Set
+                      </button>
+                    </form>
+
+                    <button
+                      type="button"
+                      onClick={(e) => handlePriceDelta(0.1, e)}
+                      className="px-2 py-1 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-[11px] font-mono font-bold text-emerald-300 transition-colors"
+                    >
+                      +0.1
+                    </button>
+                    <button
+                      type="button"
+                      onClick={(e) => handlePriceDelta(0.5, e)}
+                      className="px-2 py-1 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-[11px] font-mono font-bold text-emerald-400 transition-colors"
+                    >
+                      +0.5
+                    </button>
+                  </div>
+                </div>
+              )}
 
               {/* Current Match Metrics Dashboard */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center">
