@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import { useFPL } from '../../context/FPLContext';
 import { PitchView } from '../pitch/PitchView';
 import { ChipType } from '../../types/fpl';
-import { Sparkles, Shield, Zap, RefreshCw, CheckCircle, Loader2, AlertCircle, ChevronDown, ChevronUp, Lock } from 'lucide-react';
+import { Sparkles, Zap, CheckCircle, Loader2, AlertCircle, ChevronDown, ChevronUp, Lock } from 'lucide-react';
 import { validateSquadComposition } from '../../engine/scoring';
 import confetti from 'canvas-confetti';
+import { TripleCaptainIcon, BenchBoostIcon, FreeHitIcon } from '../icons/ChipIcons';
 
 export const PickTeamView: React.FC = () => {
   const { squad, players, activateChip, teamValue, freeTransfersRemaining, saveSquad, setActiveTab, isSquadLocked } = useFPL();
@@ -16,10 +17,10 @@ export const PickTeamView: React.FC = () => {
   // Default expanded only if squad has players but is incomplete
   const [showCompDetails, setShowCompDetails] = useState<boolean>(!comp.isValid && squad.players.length > 0);
 
-  const chips: { id: ChipType; label: string; icon: any }[] = [
-    { id: 'triple_captain', label: 'Triple Captain', icon: Sparkles },
-    { id: 'bench_boost', label: 'Bench Boost', icon: Shield },
-    { id: 'free_hit', label: 'Free Hit', icon: RefreshCw },
+  const chips: { id: ChipType; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
+    { id: 'triple_captain', label: 'Triple Captain', icon: TripleCaptainIcon },
+    { id: 'bench_boost', label: 'Bench Boost', icon: BenchBoostIcon },
+    { id: 'free_hit', label: 'Free Hit', icon: FreeHitIcon },
   ];
 
   const handleSaveTeam = async () => {
