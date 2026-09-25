@@ -10,20 +10,11 @@ import {
   Check,
   AlertCircle,
   Plus,
-  Trash2,
   X,
-  RotateCcw,
-  ArrowUpDown,
-  ChevronDown,
-  ChevronUp,
   Lock,
   List,
-  LayoutGrid,
   Calendar,
-  Sparkles,
-  ChevronRight,
   Coins,
-  Shield,
 } from 'lucide-react';
 import { validateSquadComposition } from '../../engine/scoring';
 import confetti from 'canvas-confetti';
@@ -64,13 +55,11 @@ export const TransfersView: React.FC = () => {
   const [sortBy, setSortBy] = useState<SortOption>('points_desc');
   const [affordableOnly, setAffordableOnly] = useState<boolean>(false);
 
-  // Drawer expansion state: 'collapsed' (peek), 'expanded' (full)
-  const [drawerExpanded, setDrawerExpanded] = useState<boolean>(false);
+  // Default to Calendar view
   const [viewMode, setViewMode] = useState<'list' | 'classes'>('classes');
 
   // Feedback notifications
   const [transferMessage, setTransferMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
-  const drawerRef = useRef<HTMLDivElement>(null);
 
   // Listen to transferOutPlayerId queued from pitch/action sheet
   useEffect(() => {
@@ -79,7 +68,6 @@ export const TransfersView: React.FC = () => {
       const outP = players[transferOutPlayerId];
       if (outP) {
         setPositionFilter(outP.position);
-        setDrawerExpanded(true);
       }
       setTransferOutPlayerId(null);
     }
@@ -119,74 +107,105 @@ export const TransfersView: React.FC = () => {
 
   // Candidate players in the market
   const candidatePlayers = useMemo(() => {
+    const maxAvailableSpend = outPlayer ? squad.bank + outPlayer.cost : squad.bank;
+
     return Object.values(players)
-      .filter((p) => !squadPlayerIds.has(p.id))
       .filter((p) => {
-        if (outPlayer) return p.position === outPlayer.position;
-        if (positionFilter === 'ALL') return true;
-        return p.position === positionFilter;
-      })
-      .filter((p) => {
-        if (clubFilter === 'ALL') return true;
-        const norm = p.clubId === 'SCH' ? 'SCH_11_5' : p.clubId;
-        return norm === clubFilter;
-      })
-      .filter((p) => {
-        if (!searchQuery.trim()) return true;
-        const q = searchQuery.toLowerCase().trim();
-        const pClub = clubs?.[p.clubId] || CLUBS[p.clubId];
-        const clubName = pClub?.name.toLowerCase() || '';
-        const clubShort = pClub?.shortName.toLowerCase() || '';
-        return (
-          p.name.toLowerCase().includes(q) ||
-          p.webName.toLowerCase().includes(q) ||
-          clubName.includes(q) ||
-          clubShort.includes(q)
-        );
-      })
-      .filter((p) => {
-        if (!affordableOnly) return true;
-        const maxSpend = outPlayer ? squad.bank + outPlayer.cost : squad.bank;
-        return p.cost <= maxSpend;
+        if (squadPlayerIds.has(p.id) && (!outPlayer || p.id !== outPlayer.id)) return false;
+        if (outPlayer && p.position !== outPlayer.position) return false;
+        if (positionFilter !== 'ALL' && p.position !== positionFilter) return false;
+        if (clubFilter !== 'ALL') {
+          const normClub = p.clubId === 'SCH' ? 'SCH_11_5' : p.clubId;
+          if (normClub !== clubFilter) return false;
+        }
+        if (affordableOnly && p.cost > maxAvailableSpend) return false;
+        if (searchQuery.trim()) {
+          const q = searchQuery.toLowerCase().trim();
+          const matchName = p.name.toLowerCase().includes(q);
+          const matchWebName = p.webName.toLowerCase().includes(q);
+          const club = clubs[p.clubId] || CLUBS[p.clubId];
+          const matchClub =
+            club &&
+            (club.shortName.toLowerCase().includes(q) ||
+              club.name.toLowerCase().includes(q) ||
+              p.clubId.toLowerCase().includes(q));
+          return matchName || matchWebName || matchClub;
+        }
+        return true;
       })
       .sort((a, b) => {
-        if (sortBy === 'points_desc') return b.totalPoints - a.totalPoints;
-        if (sortBy === 'cost_desc') return b.cost - a.cost;
-        if (sortBy === 'cost_asc') return a.cost - b.cost;
-        if (sortBy === 'form_desc') return b.form - a.form;
-        if (sortBy === 'selected_desc') return b.selectedByPercent - a.selectedByPercent;
-        if (sortBy === 'name_asc') return a.webName.localeCompare(b.webName);
-        return b.cost - a.cost;
+        switch (sortBy) {
+          case 'points_desc':
+            return b.totalPoints - a.totalPoints;
+          case 'cost_desc':
+            return b.cost - a.cost;
+          case 'cost_asc':
+            return a.cost - b.cost;
+          case 'form_desc':
+            return b.form - a.form;
+          case 'selected_desc':
+            return b.selectedByPercent - a.selectedByPercent;
+          case 'name_asc':
+            return a.webName.localeCompare(b.webName);
+          default:
+            return 0;
+        }
       });
-  }, [players, squadPlayerIds, outPlayer, positionFilter, clubFilter, searchQuery, affordableOnly, sortBy, clubs]);
+  }, [
+    players,
+    squadPlayerIds,
+    outPlayer,
+    positionFilter,
+    clubFilter,
+    affordableOnly,
+    searchQuery,
+    sortBy,
+    clubs,
+    squad.bank,
+  ]);
 
-  // Grouped players for class-based view
-  const classPlayersMap = useMemo(() => {
-    const map: Record<string, Player[]> = {};
-    Object.values(players).forEach((p) => {
-      const normClub = p.clubId === 'SCH' ? 'SCH_11_5' : p.clubId;
-      if (!map[normClub]) map[normClub] = [];
-      map[normClub].push(p);
-    });
-    Object.values(map).forEach((arr) => arr.sort((a, b) => b.cost - a.cost));
-    return map;
-  }, [players]);
-
-  // Direct Buy Player handler
+  // Buy player directly with validation
   const handleBuyPlayer = (playerId: string) => {
     if (isSquadLocked) return;
+    const target = players[playerId];
+    if (!target) return;
+
+    const normClub = target.clubId === 'SCH' ? 'SCH_11_5' : target.clubId;
+    const currentClubCount = squad.players.filter((sp) => {
+      const p = players[sp.playerId];
+      return p && (p.clubId === 'SCH' ? 'SCH_11_5' : p.clubId) === normClub;
+    }).length;
+
+    if (currentClubCount >= 2) {
+      setTransferMessage({
+        type: 'error',
+        text: `Cannot buy ${target.webName}: Max 2 players from Class ${clubs[normClub]?.shortName || normClub} allowed!`,
+      });
+      setTimeout(() => setTransferMessage(null), 3500);
+      return;
+    }
+
+    if (squad.bank < target.cost) {
+      setTransferMessage({
+        type: 'error',
+        text: `Insufficient bank funds for ${target.webName} (£${target.cost.toFixed(1)}m required, £${squad.bank.toFixed(1)}m in bank)`,
+      });
+      setTimeout(() => setTransferMessage(null), 3500);
+      return;
+    }
+
     const res = buyPlayer(playerId);
     if (res.success) {
-      confetti({ particleCount: 35, spread: 50, origin: { y: 0.7 } });
-      setTransferMessage({ type: 'success', text: `Added ${players[playerId]?.webName || 'player'} to squad!` });
+      confetti({ particleCount: 40, spread: 60, origin: { y: 0.7 } });
+      setTransferMessage({ type: 'success', text: `Added ${target.webName} to squad!` });
       setTimeout(() => setTransferMessage(null), 3000);
     } else {
-      setTransferMessage({ type: 'error', text: res.message || 'Cannot add player' });
-      setTimeout(() => setTransferMessage(null), 4000);
+      setTransferMessage({ type: 'error', text: res.message || 'Failed to buy player' });
+      setTimeout(() => setTransferMessage(null), 3500);
     }
   };
 
-  // 1-for-1 Transfer Replacement handler
+  // 1-for-1 Swap confirmation
   const handleConfirmTransfer = () => {
     if (isSquadLocked || !outPlayerId || !inPlayerId) return;
     const res = transferPlayer(outPlayerId, inPlayerId);
@@ -219,18 +238,12 @@ export const TransfersView: React.FC = () => {
     }
   };
 
-  // Tapping an unfilled slot automatically focuses drawer and filters to position
   const handleSelectEmptySlot = (pos: Position) => {
     setPositionFilter(pos);
     setOutPlayerId(null);
     setInPlayerId(null);
-    setDrawerExpanded(true);
-    if (drawerRef.current) {
-      drawerRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
   };
 
-  // Tapping a filled slot marks it as the outgoing player to replace
   const handleSelectSquadPlayer = (p: Player) => {
     if (outPlayerId === p.id) {
       setOutPlayerId(null);
@@ -239,7 +252,6 @@ export const TransfersView: React.FC = () => {
       setOutPlayerId(p.id);
       setPositionFilter(p.position);
       setInPlayerId(null);
-      setDrawerExpanded(true);
     }
   };
 
@@ -247,8 +259,8 @@ export const TransfersView: React.FC = () => {
 
   return (
     <div className="relative min-h-[calc(100vh-60px)] pb-28 select-none font-sans text-slate-900 dark:text-slate-100">
-      {/* 1. Sleek Sticky HUD (Max 52px height) with frosted glass & backdrop-blur */}
-      <header className="sticky top-0 z-30 h-12 max-h-[52px] w-full px-3 sm:px-6 flex items-center justify-between bg-white/80 dark:bg-[#090d16]/85 backdrop-blur-xl border-b border-slate-200/80 dark:border-white/[0.08] shadow-xs">
+      {/* 1. Sleek Sticky HUD with frosted glass & backdrop-blur */}
+      <header className="sticky top-0 z-30 h-12 max-h-[52px] w-full px-3 sm:px-6 flex items-center justify-between bg-white/85 dark:bg-[#090d16]/90 backdrop-blur-xl border-b border-slate-200/80 dark:border-white/[0.08] shadow-xs">
         <div className="flex items-center gap-2 min-w-0">
           <span className="font-extrabold text-xs sm:text-sm tracking-tight truncate max-w-[130px] sm:max-w-[200px] text-slate-800 dark:text-white">
             {squad.teamName}
@@ -258,7 +270,7 @@ export const TransfersView: React.FC = () => {
           </span>
         </div>
 
-        {/* Squad Progress Indicator */}
+        {/* Squad Progress & Bank Budget Metric */}
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-bold bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10">
             <span className={comp.isValid ? 'text-emerald-500' : 'text-amber-500'}>
@@ -267,7 +279,6 @@ export const TransfersView: React.FC = () => {
             <span className="text-[10px] text-slate-400 font-medium">Slots</span>
           </div>
 
-          {/* Consolidated Bank Budget Metric (Monospace / Tabular-nums) */}
           <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/25">
             <Coins className="w-3.5 h-3.5 text-emerald-500" />
             <span className="text-xs font-mono tabular-nums font-black text-emerald-600 dark:text-emerald-400">
@@ -306,94 +317,6 @@ export const TransfersView: React.FC = () => {
           <span>{transferMessage.text}</span>
         </motion.div>
       )}
-
-      {/* 2. Top Section: Interactive Tactical Formation Pitch (1 GK, 3 DEF, 3 MID, 2 FWD) */}
-      <motion.section
-        animate={{
-          scale: drawerExpanded ? 0.94 : 1,
-          opacity: drawerExpanded ? 0.7 : 1,
-          filter: drawerExpanded ? 'blur(1.5px)' : 'blur(0px)',
-        }}
-        transition={{ duration: 0.25, ease: 'easeInOut' }}
-        className="w-full max-w-2xl mx-auto px-3 sm:px-6 pt-3 pb-2 transition-all"
-      >
-        <div className="relative rounded-3xl bg-gradient-to-b from-emerald-950/30 via-slate-900/60 to-emerald-950/40 dark:from-emerald-950/40 dark:via-[#09111c] dark:to-emerald-950/30 border border-white/[0.08] shadow-lg p-3 sm:p-5 overflow-hidden">
-          {/* Subtle Turf Pitch Markings */}
-          <div className="absolute inset-0 pointer-events-none opacity-20">
-            <div className="absolute top-0 left-1/4 right-1/4 h-12 border-b border-x border-white/40 rounded-b-xl" />
-            <div className="absolute bottom-0 left-1/4 right-1/4 h-12 border-t border-x border-white/40 rounded-t-xl" />
-            <div className="absolute top-1/2 left-0 right-0 border-t border-white/40" />
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-24 h-24 border border-white/40 rounded-full" />
-          </div>
-
-          <div className="relative z-10 flex flex-col justify-between gap-3 min-h-[310px] sm:min-h-[350px]">
-            {/* GK Row (1 slot) */}
-            <div className="flex justify-center">
-              <SlotCard
-                position="GKP"
-                label="GK"
-                player={squadByPosition.GKP[0]}
-                isOutPlayer={squadByPosition.GKP[0]?.id === outPlayerId}
-                onSelectEmpty={() => handleSelectEmptySlot('GKP')}
-                onSelectPlayer={handleSelectSquadPlayer}
-                onRemovePlayer={handleRemovePlayer}
-                isLocked={isSquadLocked}
-              />
-            </div>
-
-            {/* DEF Row (3 slots) */}
-            <div className="flex justify-around gap-1.5 sm:gap-4">
-              {[0, 1, 2].map((idx) => (
-                <SlotCard
-                  key={`def-${idx}`}
-                  position="DEF"
-                  label={`DEF ${idx + 1}`}
-                  player={squadByPosition.DEF[idx]}
-                  isOutPlayer={squadByPosition.DEF[idx]?.id === outPlayerId}
-                  onSelectEmpty={() => handleSelectEmptySlot('DEF')}
-                  onSelectPlayer={handleSelectSquadPlayer}
-                  onRemovePlayer={handleRemovePlayer}
-                  isLocked={isSquadLocked}
-                />
-              ))}
-            </div>
-
-            {/* MID Row (3 slots) */}
-            <div className="flex justify-around gap-1.5 sm:gap-4">
-              {[0, 1, 2].map((idx) => (
-                <SlotCard
-                  key={`mid-${idx}`}
-                  position="MID"
-                  label={`MID ${idx + 1}`}
-                  player={squadByPosition.MID[idx]}
-                  isOutPlayer={squadByPosition.MID[idx]?.id === outPlayerId}
-                  onSelectEmpty={() => handleSelectEmptySlot('MID')}
-                  onSelectPlayer={handleSelectSquadPlayer}
-                  onRemovePlayer={handleRemovePlayer}
-                  isLocked={isSquadLocked}
-                />
-              ))}
-            </div>
-
-            {/* FWD Row (2 slots) */}
-            <div className="flex justify-center gap-6 sm:gap-12">
-              {[0, 1].map((idx) => (
-                <SlotCard
-                  key={`fwd-${idx}`}
-                  position="FWD"
-                  label={`FWD ${idx + 1}`}
-                  player={squadByPosition.FWD[idx]}
-                  isOutPlayer={squadByPosition.FWD[idx]?.id === outPlayerId}
-                  onSelectEmpty={() => handleSelectEmptySlot('FWD')}
-                  onSelectPlayer={handleSelectSquadPlayer}
-                  onRemovePlayer={handleRemovePlayer}
-                  isLocked={isSquadLocked}
-                />
-              ))}
-            </div>
-          </div>
-        </div>
-      </motion.section>
 
       {/* Floating 1-for-1 Transfer Confirmation Card */}
       <AnimatePresence>
@@ -445,305 +368,389 @@ export const TransfersView: React.FC = () => {
         )}
       </AnimatePresence>
 
-      {/* 3. Bottom Section: Expandable Bottom-Sheet Drawer for Player Market */}
-      <div
-        ref={drawerRef}
-        className={`w-full max-w-2xl mx-auto px-3 sm:px-6 transition-all duration-300 ${
-          drawerExpanded ? 'mt-2' : 'mt-1'
-        }`}
-      >
-        <div className="rounded-3xl bg-white/90 dark:bg-[#0c1322]/90 backdrop-blur-2xl border border-slate-200/80 dark:border-white/[0.08] shadow-xl overflow-hidden">
-          {/* Drawer Drag / Expand Header Bar */}
-          <div
-            onClick={() => setDrawerExpanded((prev) => !prev)}
-            className="w-full py-2.5 px-4 flex flex-col items-center cursor-pointer hover:bg-black/5 dark:hover:bg-white/5 transition-colors border-b border-slate-200/60 dark:border-white/[0.06]"
-          >
-            <div className="w-10 h-1 rounded-full bg-slate-300 dark:bg-slate-700 mb-1.5" />
-            <div className="w-full flex items-center justify-between text-xs">
-              <div className="flex items-center gap-2">
-                <span className="font-extrabold text-slate-900 dark:text-white uppercase tracking-wider text-[11px]">
-                  {outPlayer ? `Replace ${outPlayer.webName} (${outPlayer.position})` : 'Player Market'}
+      {/* ========================================================================= */}
+      {/* SIDE-BY-SIDE LAYOUT: My Team Selection (Left) & Player Market (Right)     */}
+      {/* Player Market is NOT scrollable — fully displays everything!               */}
+      {/* ========================================================================= */}
+      <div className="w-full max-w-[1400px] mx-auto px-3 sm:px-6 pt-3 pb-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+          {/* ------------------------------------------------------------- */}
+          {/* LEFT COLUMN: MY TEAM SELECTION (TACTICAL FORMATION PITCH)     */}
+          {/* ------------------------------------------------------------- */}
+          <div className="lg:col-span-5 lg:sticky lg:top-16 space-y-3">
+            <div className="flex items-center justify-between px-1">
+              <h2 className="text-xs font-black uppercase tracking-wider text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                <span>My Squad Lineup</span>
+                <span className="font-normal font-mono text-[10px] text-slate-400">
+                  ({validSquadCount}/9 selected)
                 </span>
-                <span className="text-[10px] text-slate-500 dark:text-slate-400 font-mono tabular-nums">
-                  ({candidatePlayers.length})
-                </span>
+              </h2>
+
+              {outPlayer && (
+                <button
+                  onClick={() => {
+                    setOutPlayerId(null);
+                    setInPlayerId(null);
+                  }}
+                  className="text-[10px] font-bold text-rose-500 hover:underline"
+                >
+                  Clear Selection
+                </button>
+              )}
+            </div>
+
+            {/* Tactical Pitch with 9 squad slots */}
+            <div className="relative rounded-3xl bg-gradient-to-b from-emerald-950/30 via-slate-900/60 to-emerald-950/40 dark:from-emerald-950/40 dark:via-[#09111c] dark:to-emerald-950/30 border border-white/[0.08] shadow-lg p-3 sm:p-5 overflow-hidden">
+              {/* Subtle Turf Pitch Markings */}
+              <div className="absolute inset-0 pointer-events-none opacity-20">
+                <div className="absolute top-0 left-1/4 right-1/4 h-12 border-b border-x border-white/40 rounded-b-xl" />
+                <div className="absolute bottom-0 left-1/4 right-1/4 h-12 border-t border-x border-white/40 rounded-t-xl" />
+                <div className="absolute top-1/2 left-0 right-0 border-t border-white/40" />
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-24 h-24 border border-white/40 rounded-full" />
               </div>
 
-              <div className="flex items-center gap-2">
-                <div className="flex items-center gap-1 text-[10px] text-slate-500 dark:text-slate-400">
-                  <span>{freeTransfersRemaining} Free Tr.</span>
+              <div className="relative z-10 flex flex-col justify-between gap-3 min-h-[310px] sm:min-h-[350px]">
+                {/* GK Row (1 slot) */}
+                <div className="flex justify-center">
+                  <SlotCard
+                    position="GKP"
+                    label="GK"
+                    player={squadByPosition.GKP[0]}
+                    isOutPlayer={squadByPosition.GKP[0]?.id === outPlayerId}
+                    onSelectEmpty={() => handleSelectEmptySlot('GKP')}
+                    onSelectPlayer={handleSelectSquadPlayer}
+                    onRemovePlayer={handleRemovePlayer}
+                    isLocked={isSquadLocked}
+                  />
                 </div>
-                {drawerExpanded ? (
-                  <ChevronDown className="w-4 h-4 text-slate-400" />
-                ) : (
-                  <ChevronUp className="w-4 h-4 text-slate-400" />
-                )}
+
+                {/* DEF Row (3 slots) */}
+                <div className="flex justify-around gap-1.5 sm:gap-4">
+                  {[0, 1, 2].map((idx) => (
+                    <SlotCard
+                      key={`def-${idx}`}
+                      position="DEF"
+                      label={`DEF ${idx + 1}`}
+                      player={squadByPosition.DEF[idx]}
+                      isOutPlayer={squadByPosition.DEF[idx]?.id === outPlayerId}
+                      onSelectEmpty={() => handleSelectEmptySlot('DEF')}
+                      onSelectPlayer={handleSelectSquadPlayer}
+                      onRemovePlayer={handleRemovePlayer}
+                      isLocked={isSquadLocked}
+                    />
+                  ))}
+                </div>
+
+                {/* MID Row (3 slots) */}
+                <div className="flex justify-around gap-1.5 sm:gap-4">
+                  {[0, 1, 2].map((idx) => (
+                    <SlotCard
+                      key={`mid-${idx}`}
+                      position="MID"
+                      label={`MID ${idx + 1}`}
+                      player={squadByPosition.MID[idx]}
+                      isOutPlayer={squadByPosition.MID[idx]?.id === outPlayerId}
+                      onSelectEmpty={() => handleSelectEmptySlot('MID')}
+                      onSelectPlayer={handleSelectSquadPlayer}
+                      onRemovePlayer={handleRemovePlayer}
+                      isLocked={isSquadLocked}
+                    />
+                  ))}
+                </div>
+
+                {/* FWD Row (2 slots) */}
+                <div className="flex justify-center gap-6 sm:gap-12">
+                  {[0, 1].map((idx) => (
+                    <SlotCard
+                      key={`fwd-${idx}`}
+                      position="FWD"
+                      label={`FWD ${idx + 1}`}
+                      player={squadByPosition.FWD[idx]}
+                      isOutPlayer={squadByPosition.FWD[idx]?.id === outPlayerId}
+                      onSelectEmpty={() => handleSelectEmptySlot('FWD')}
+                      onSelectPlayer={handleSelectSquadPlayer}
+                      onRemovePlayer={handleRemovePlayer}
+                      isLocked={isSquadLocked}
+                    />
+                  ))}
+                </div>
               </div>
+            </div>
+
+            {/* Hint Box */}
+            <div className="p-3 rounded-2xl bg-slate-100 dark:bg-white/[0.04] border border-slate-200 dark:border-white/10 text-xs text-slate-500 dark:text-slate-400">
+              <span className="font-bold text-slate-800 dark:text-white">Tip: </span>
+              {outPlayer ? (
+                <span>
+                  Tap a player on the right to replace <strong className="text-rose-500">{outPlayer.webName}</strong>.
+                </span>
+              ) : (
+                <span>Tap any empty slot or player to replace, or browse the calendar market on the right.</span>
+              )}
             </div>
           </div>
 
-          {/* Controls: Search, View Mode Toggle, Position Filters with Framer Motion Sliding Pill */}
-          <div className="p-3 sm:p-4 space-y-2.5">
-            {/* Search Bar + View Mode Toggle */}
-            <div className="flex items-center gap-2">
-              <div className="relative flex-1">
-                <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
-                <input
-                  type="text"
-                  placeholder="Search player or class (e.g. 11/5, Zarno)..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-9 pr-8 py-2 rounded-xl text-xs bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 focus:border-emerald-500 dark:focus:border-emerald-500 outline-none text-slate-900 dark:text-white placeholder-slate-400 transition-colors"
-                />
-                {searchQuery && (
+          {/* ------------------------------------------------------------- */}
+          {/* RIGHT COLUMN: PLAYER MARKET (NOT SCROLLABLE - FULL DISPLAY)    */}
+          {/* ------------------------------------------------------------- */}
+          <div className="lg:col-span-7 space-y-4">
+            <div className="rounded-3xl bg-white/90 dark:bg-[#0c1322]/90 backdrop-blur-2xl border border-slate-200/80 dark:border-white/[0.08] shadow-xl p-4 sm:p-6 space-y-4">
+              {/* Header Title & Mode Toggle */}
+              <div className="flex items-center justify-between flex-wrap gap-2 pb-1 border-b border-slate-200/60 dark:border-white/[0.06]">
+                <div className="flex items-center gap-2">
+                  <h2 className="font-black text-sm sm:text-base text-slate-900 dark:text-white uppercase tracking-tight">
+                    {outPlayer ? `Replacing ${outPlayer.webName} (${outPlayer.position})` : 'Player Market'}
+                  </h2>
+                  <span className="text-xs text-slate-400 font-mono">
+                    ({candidatePlayers.length} players)
+                  </span>
+                </div>
+
+                {/* View Mode Toggle: Calendar vs List */}
+                <div className="flex items-center p-0.5 rounded-xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-xs">
                   <button
-                    onClick={() => setSearchQuery('')}
-                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200"
+                    onClick={() => setViewMode('classes')}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors font-bold ${
+                      viewMode === 'classes'
+                        ? 'bg-emerald-500 text-slate-950 font-black shadow-xs'
+                        : 'text-slate-400 hover:text-slate-200'
+                    }`}
+                    title="10th Grade Calendar View"
                   >
-                    <X className="w-3.5 h-3.5" />
+                    <Calendar className="w-3.5 h-3.5" />
+                    <span>Calendar</span>
                   </button>
-                )}
-              </div>
-
-              {/* View Mode Toggle: Calendar vs List */}
-              <div className="flex items-center p-0.5 rounded-xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-xs">
-                <button
-                  onClick={() => setViewMode('classes')}
-                  className={`flex items-center gap-1 px-2.5 py-1 rounded-lg transition-colors font-bold ${
-                    viewMode === 'classes'
-                      ? 'bg-emerald-500 text-slate-950 font-black shadow-xs'
-                      : 'text-slate-400 hover:text-slate-200'
-                  }`}
-                  title="Calendar (Years / Months / Field)"
-                >
-                  <Calendar className="w-3.5 h-3.5" />
-                  <span className="hidden sm:inline">Calendar</span>
-                </button>
-                <button
-                  onClick={() => setViewMode('list')}
-                  className={`flex items-center gap-1 px-2.5 py-1 rounded-lg transition-colors font-bold ${
-                    viewMode === 'list'
-                      ? 'bg-emerald-500 text-slate-950 font-black shadow-xs'
-                      : 'text-slate-400 hover:text-slate-200'
-                  }`}
-                  title="List View"
-                >
-                  <List className="w-3.5 h-3.5" />
-                  <span className="hidden sm:inline">List</span>
-                </button>
-              </div>
-            </div>
-
-            {/* Position Filter Pills with Framer Motion Spring Indicator */}
-            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
-              {(['ALL', 'GKP', 'DEF', 'MID', 'FWD'] as const).map((pos) => {
-                const label = pos === 'GKP' ? 'GK' : pos;
-                const isSelected = outPlayer ? outPlayer.position === pos : positionFilter === pos;
-                const isDisabled = Boolean(outPlayer && outPlayer.position !== pos);
-
-                return (
                   <button
-                    key={pos}
-                    disabled={isDisabled}
-                    onClick={() => {
-                      if (!outPlayer) setPositionFilter(pos);
-                    }}
-                    className={`relative px-3 py-1.5 rounded-full text-xs font-bold transition-colors z-10 flex-shrink-0 ${
-                      isDisabled
-                        ? 'opacity-40 cursor-not-allowed text-slate-400'
-                        : isSelected
-                        ? 'text-white'
-                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                    onClick={() => setViewMode('list')}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors font-bold ${
+                      viewMode === 'list'
+                        ? 'bg-emerald-500 text-slate-950 font-black shadow-xs'
+                        : 'text-slate-400 hover:text-slate-200'
+                    }`}
+                    title="List View"
+                  >
+                    <List className="w-3.5 h-3.5" />
+                    <span>List</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Search Bar & Position Filter */}
+              <div className="space-y-2.5">
+                <div className="relative">
+                  <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                  <input
+                    type="text"
+                    placeholder="Search player or class (e.g. 10/1, Zarno)..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full pl-9 pr-8 py-2 rounded-xl text-xs bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 focus:border-emerald-500 outline-none text-slate-900 dark:text-white placeholder-slate-400 transition-colors"
+                  />
+                  {searchQuery && (
+                    <button
+                      onClick={() => setSearchQuery('')}
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+                </div>
+
+                {/* Position Filters */}
+                <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+                  {(['ALL', 'GKP', 'DEF', 'MID', 'FWD'] as const).map((pos) => {
+                    const label = pos === 'GKP' ? 'GK' : pos;
+                    const isSelected = outPlayer ? outPlayer.position === pos : positionFilter === pos;
+                    const isDisabled = Boolean(outPlayer && outPlayer.position !== pos);
+
+                    return (
+                      <button
+                        key={pos}
+                        disabled={isDisabled}
+                        onClick={() => {
+                          if (!outPlayer) setPositionFilter(pos);
+                        }}
+                        className={`relative px-3 py-1.5 rounded-full text-xs font-bold transition-colors z-10 flex-shrink-0 ${
+                          isDisabled
+                            ? 'opacity-40 cursor-not-allowed text-slate-400'
+                            : isSelected
+                            ? 'text-white'
+                            : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                        }`}
+                      >
+                        {isSelected && (
+                          <motion.div
+                            layoutId="activePositionPill"
+                            className="absolute inset-0 rounded-full bg-emerald-500 -z-10 shadow-xs"
+                            transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+                          />
+                        )}
+                        <span>{label}</span>
+                      </button>
+                    );
+                  })}
+
+                  <button
+                    onClick={() => setAffordableOnly((prev) => !prev)}
+                    className={`ml-auto flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold border transition-colors flex-shrink-0 ${
+                      affordableOnly
+                        ? 'bg-emerald-500/15 border-emerald-500/40 text-emerald-600 dark:text-emerald-400'
+                        : 'bg-transparent border-slate-200 dark:border-white/10 text-slate-500 hover:text-slate-300'
                     }`}
                   >
-                    {isSelected && (
-                      <motion.div
-                        layoutId="activePositionPill"
-                        className="absolute inset-0 rounded-full bg-emerald-500 -z-10 shadow-xs"
-                        transition={{ type: 'spring', stiffness: 500, damping: 35 }}
-                      />
-                    )}
-                    <span>{label}</span>
+                    <Coins className="w-3 h-3" />
+                    <span>Affordable</span>
                   </button>
-                );
-              })}
-
-              {/* Affordable Only Filter Toggle */}
-              <button
-                onClick={() => setAffordableOnly((prev) => !prev)}
-                className={`ml-auto flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold border transition-colors flex-shrink-0 ${
-                  affordableOnly
-                    ? 'bg-emerald-500/15 border-emerald-500/40 text-emerald-600 dark:text-emerald-400'
-                    : 'bg-transparent border-slate-200 dark:border-white/10 text-slate-500 hover:text-slate-300'
-                }`}
-              >
-                <Coins className="w-3 h-3" />
-                <span>Affordable</span>
-              </button>
-            </div>
-
-            {/* Sort & Club Dropdown (List Mode) */}
-            {viewMode === 'list' && (
-              <div className="grid grid-cols-2 gap-2 text-xs">
-                <select
-                  value={clubFilter}
-                  onChange={(e) => setClubFilter(e.target.value)}
-                  className="w-full py-1.5 px-2.5 rounded-xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-800 dark:text-slate-200 text-xs outline-none"
-                >
-                  <option value="ALL">All Classes (28)</option>
-                  {sortedClubs.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.shortName} ({c.name})
-                    </option>
-                  ))}
-                </select>
-
-                <select
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value as SortOption)}
-                  className="w-full py-1.5 px-2.5 rounded-xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-800 dark:text-slate-200 text-xs outline-none"
-                >
-                  <option value="points_desc">Points: High to Low</option>
-                  <option value="cost_desc">Price: High to Low</option>
-                  <option value="cost_asc">Price: Low to High</option>
-                  <option value="form_desc">Form: High to Low</option>
-                  <option value="name_asc">Name: A to Z</option>
-                </select>
-              </div>
-            )}
-          </div>
-
-          {/* Candidate Market Listing */}
-          <div className={`max-h-[440px] sm:max-h-[520px] overflow-y-auto px-3 sm:px-4 pb-4 ${viewMode === 'list' ? 'divide-y divide-slate-100 dark:divide-white/[0.04]' : ''}`}>
-            {viewMode === 'list' ? (
-              candidatePlayers.length > 0 ? (
-                candidatePlayers.map((p) => {
-                  const normClub = p.clubId === 'SCH' ? 'SCH_11_5' : p.clubId;
-                  const currentClubCount = squad.players.filter((sp) => {
-                    if (outPlayer && sp.playerId === outPlayer.id) return false;
-                    const spP = players[sp.playerId];
-                    return spP && (spP.clubId === 'SCH' ? 'SCH_11_5' : spP.clubId) === normClub;
-                  }).length;
-                  const isClassLimitReached = currentClubCount >= 2;
-                  const maxAvailableSpend = outPlayer ? squad.bank + outPlayer.cost : squad.bank;
-                  const isAffordable = p.cost <= maxAvailableSpend;
-                  const isSelectedInPlayer = inPlayerId === p.id;
-                  const isIllegal = isClassLimitReached || !isAffordable;
-
-                  return (
-                    <motion.div
-                      key={p.id}
-                      layout
-                      className={`py-2 px-2 flex items-center justify-between rounded-xl transition-all ${
-                        isSelectedInPlayer
-                          ? 'bg-emerald-500/15 border border-emerald-500/40'
-                          : isIllegal
-                          ? 'opacity-40'
-                          : 'hover:bg-slate-100/60 dark:hover:bg-white/[0.03]'
-                      }`}
-                    >
-                      <div className="flex items-center gap-2.5 min-w-0">
-                        <KitJersey clubId={p.clubId} position={p.position} className="w-7 h-7 flex-shrink-0" />
-                        <div className="min-w-0">
-                          <div className="flex items-center gap-1.5">
-                            <span
-                              className={`text-xs font-bold truncate ${
-                                isClassLimitReached ? 'line-through text-slate-400' : 'text-slate-900 dark:text-white'
-                              }`}
-                            >
-                              {p.webName}
-                            </span>
-                            <span className="text-[10px] px-1 py-0.2 rounded font-bold bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-slate-300">
-                              {p.position === 'GKP' ? 'GK' : p.position}
-                            </span>
-                            <span className="text-[10px] text-slate-400">
-                              {CLUBS[p.clubId]?.shortName || p.clubId}
-                            </span>
-                          </div>
-
-                          {/* Illegality & Cost badges */}
-                          <div className="flex items-center gap-2 mt-0.5">
-                            <span className="text-[11px] font-mono tabular-nums font-bold text-emerald-600 dark:text-emerald-400">
-                              £{p.cost.toFixed(1)}m
-                            </span>
-                            <span className="text-[10px] font-mono tabular-nums text-slate-400">
-                              {p.totalPoints} pts
-                            </span>
-                            {isClassLimitReached && (
-                              <span className="text-[9px] font-bold text-rose-500 bg-rose-500/10 px-1 py-0.2 rounded border border-rose-500/20">
-                                🚫 Class Limit
-                              </span>
-                            )}
-                            {!isAffordable && (
-                              <span className="text-[9px] font-bold text-amber-500 bg-amber-500/10 px-1 py-0.2 rounded border border-amber-500/20">
-                                💰 Over Budget
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Action Button: Replace or Buy */}
-                      <div className="flex-shrink-0 ml-2">
-                        {outPlayer ? (
-                          <button
-                            onClick={() => {
-                              if (isIllegal) return;
-                              setInPlayerId(isSelectedInPlayer ? null : p.id);
-                            }}
-                            disabled={isIllegal || isSquadLocked}
-                            className={`px-3 py-1 rounded-xl text-xs font-bold transition-all ${
-                              isSelectedInPlayer
-                                ? 'bg-emerald-500 text-slate-950 font-black'
-                                : isIllegal
-                                ? 'bg-slate-200 dark:bg-slate-800 text-slate-400 cursor-not-allowed'
-                                : 'bg-emerald-500/15 hover:bg-emerald-500 text-emerald-600 dark:text-emerald-400 hover:text-slate-950 border border-emerald-500/30'
-                            }`}
-                          >
-                            {isSelectedInPlayer ? 'Selected' : 'Replace'}
-                          </button>
-                        ) : (
-                          <button
-                            onClick={() => handleBuyPlayer(p.id)}
-                            disabled={isIllegal || isSquadLocked || validSquadCount >= 9}
-                            className={`px-3 py-1 rounded-xl text-xs font-bold transition-all flex items-center gap-1 ${
-                              validSquadCount >= 9
-                                ? 'bg-slate-200 dark:bg-slate-800 text-slate-400 cursor-not-allowed'
-                                : isIllegal
-                                ? 'bg-slate-200 dark:bg-slate-800 text-slate-400 cursor-not-allowed'
-                                : 'bg-emerald-500 hover:bg-emerald-600 text-white font-black shadow-xs'
-                            }`}
-                          >
-                            <Plus className="w-3.5 h-3.5" />
-                            <span>Buy</span>
-                          </button>
-                        )}
-                      </div>
-                    </motion.div>
-                  );
-                })
-              ) : (
-                <div className="py-8 text-center text-xs text-slate-400">
-                  No matching players found. Try adjusting filters or budget.
                 </div>
-              )
-            ) : (
-              /* Interactive Calendar Zoom & Grade Shuffler View */
-              <ClassCalendarView
-                players={players}
-                clubs={clubs}
-                squad={squad}
-                outPlayer={outPlayer}
-                inPlayerId={inPlayerId}
-                onSelectInPlayer={setInPlayerId}
-                onBuyPlayer={handleBuyPlayer}
-                isSquadLocked={isSquadLocked}
-                validSquadCount={validSquadCount}
-                searchQuery={searchQuery}
-                positionFilter={positionFilter}
-                affordableOnly={affordableOnly}
-              />
-            )}
+
+                {/* Dropdowns in List mode */}
+                {viewMode === 'list' && (
+                  <div className="grid grid-cols-2 gap-2 text-xs pt-1">
+                    <select
+                      value={clubFilter}
+                      onChange={(e) => setClubFilter(e.target.value)}
+                      className="w-full py-1.5 px-2.5 rounded-xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-800 dark:text-slate-200 text-xs outline-none"
+                    >
+                      <option value="ALL">All Classes (28)</option>
+                      {sortedClubs.map((c) => (
+                        <option key={c.id} value={c.id}>
+                          {c.shortName} ({c.name})
+                        </option>
+                      ))}
+                    </select>
+
+                    <select
+                      value={sortBy}
+                      onChange={(e) => setSortBy(e.target.value as SortOption)}
+                      className="w-full py-1.5 px-2.5 rounded-xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-800 dark:text-slate-200 text-xs outline-none"
+                    >
+                      <option value="points_desc">Points: High to Low</option>
+                      <option value="cost_desc">Price: High to Low</option>
+                      <option value="cost_asc">Price: Low to High</option>
+                      <option value="form_desc">Form: High to Low</option>
+                      <option value="name_asc">Name: A to Z</option>
+                    </select>
+                  </div>
+                )}
+              </div>
+
+              {/* ========================================================= */}
+              {/* MARKET CONTENT: FULLY DISPLAYED WITHOUT INTERNAL SCROLL   */}
+              {/* ========================================================= */}
+              <div className="w-full pt-1">
+                {viewMode === 'list' ? (
+                  candidatePlayers.length > 0 ? (
+                    <div className="divide-y divide-slate-100 dark:divide-white/[0.04]">
+                      {candidatePlayers.map((p) => {
+                        const normClub = p.clubId === 'SCH' ? 'SCH_11_5' : p.clubId;
+                        const currentClubCount = squad.players.filter((sp) => {
+                          if (outPlayer && sp.playerId === outPlayer.id) return false;
+                          const spP = players[sp.playerId];
+                          return spP && (spP.clubId === 'SCH' ? 'SCH_11_5' : spP.clubId) === normClub;
+                        }).length;
+                        const isClassLimitReached = currentClubCount >= 2;
+                        const maxAvailableSpend = outPlayer ? squad.bank + outPlayer.cost : squad.bank;
+                        const isAffordable = p.cost <= maxAvailableSpend;
+                        const isSelectedInPlayer = inPlayerId === p.id;
+                        const isIllegal = isClassLimitReached || !isAffordable;
+
+                        return (
+                          <div
+                            key={p.id}
+                            className={`py-2 px-2 flex items-center justify-between rounded-xl transition-all ${
+                              isSelectedInPlayer
+                                ? 'bg-emerald-500/15 border border-emerald-500/40'
+                                : isIllegal
+                                ? 'opacity-40'
+                                : 'hover:bg-slate-100/60 dark:hover:bg-white/[0.03]'
+                            }`}
+                          >
+                            <div className="flex items-center gap-2.5 min-w-0">
+                              <KitJersey clubId={p.clubId} position={p.position} className="w-8 h-8 flex-shrink-0" />
+                              <div className="min-w-0">
+                                <div className="flex items-center gap-1.5">
+                                  <span className="text-xs font-bold truncate text-slate-900 dark:text-white">
+                                    {p.webName}
+                                  </span>
+                                  <span className="text-[10px] px-1 py-0.2 rounded font-bold bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-slate-300">
+                                    {p.position}
+                                  </span>
+                                  <span className="text-[10px] text-slate-400">
+                                    {clubs[p.clubId]?.shortName || p.clubId}
+                                  </span>
+                                </div>
+                                <div className="flex items-center gap-2 mt-0.5">
+                                  <span className="text-[11px] font-mono tabular-nums font-bold text-emerald-600 dark:text-emerald-400">
+                                    £{p.cost.toFixed(1)}m
+                                  </span>
+                                  <span className="text-[10px] font-mono tabular-nums text-slate-400">
+                                    {p.totalPoints} pts
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="flex-shrink-0 ml-2">
+                              {outPlayer ? (
+                                <button
+                                  onClick={() => {
+                                    if (isIllegal) return;
+                                    setInPlayerId(isSelectedInPlayer ? null : p.id);
+                                  }}
+                                  disabled={isIllegal || isSquadLocked}
+                                  className={`px-3 py-1 rounded-xl text-xs font-bold transition-all ${
+                                    isSelectedInPlayer
+                                      ? 'bg-emerald-500 text-slate-950 font-black'
+                                      : isIllegal
+                                      ? 'bg-slate-200 dark:bg-slate-800 text-slate-400 cursor-not-allowed'
+                                      : 'bg-emerald-500/15 hover:bg-emerald-500 text-emerald-600 dark:text-emerald-400 hover:text-slate-950 border border-emerald-500/30'
+                                  }`}
+                                >
+                                  {isSelectedInPlayer ? 'Selected' : 'Replace'}
+                                </button>
+                              ) : (
+                                <button
+                                  onClick={() => handleBuyPlayer(p.id)}
+                                  disabled={isIllegal || isSquadLocked || validSquadCount >= 9}
+                                  className={`px-3 py-1 rounded-xl text-xs font-bold transition-all flex items-center gap-1 ${
+                                    validSquadCount >= 9 || isIllegal
+                                      ? 'bg-slate-200 dark:bg-slate-800 text-slate-400 cursor-not-allowed'
+                                      : 'bg-emerald-500 hover:bg-emerald-600 text-white font-black shadow-xs'
+                                  }`}
+                                >
+                                  <Plus className="w-3.5 h-3.5" />
+                                  <span>Buy</span>
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <div className="py-8 text-center text-xs text-slate-400">
+                      No matching players found.
+                    </div>
+                  )
+                ) : (
+                    /* Calendar Style (10th Grade Photo style: GKP | DEF | MID | FWD) */
+                    <ClassCalendarView
+                      players={players}
+                      clubs={clubs}
+                      squad={squad}
+                      outPlayer={outPlayer}
+                      inPlayerId={inPlayerId}
+                      onSelectInPlayer={setInPlayerId}
+                      onBuyPlayer={handleBuyPlayer}
+                      isSquadLocked={isSquadLocked}
+                      validSquadCount={validSquadCount}
+                      searchQuery={searchQuery}
+                      positionFilter={positionFilter}
+                      affordableOnly={affordableOnly}
+                    />
+                  )}
+              </div>
+            </div>
           </div>
         </div>
       </div>
