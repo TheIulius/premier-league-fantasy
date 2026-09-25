@@ -76,9 +76,11 @@ interface FPLContextType {
   updateFixture: (fixtureId: string, data: Partial<Fixture>) => Promise<void>;
   deleteFixture: (fixtureId: string) => Promise<void>;
   simulateGameweek: (gw: number) => void;
-  finalizeGameweek: () => void;
-  advanceGameweek: () => void;
-  resetToDefaults: () => void;
+  finalizeGameweek: () => Promise<void>;
+  advanceGameweek: () => Promise<void>;
+  resetCurrentGameweek: (gw?: number) => Promise<void>;
+  setGameweekNumber: (gw: number) => Promise<void>;
+  resetToDefaults: () => Promise<void>;
   createLeague: (name: string) => Promise<string>;
   joinLeague: (code: string) => Promise<boolean>;
   deleteLeague: (leagueId: string) => Promise<void>;
@@ -1256,22 +1258,54 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       await refreshServerState();
     } catch {
       // Local fallback
+    }
+  };
+
+  const advanceGameweek = async () => {
+    try {
+      const res = await api.adminGameweekApi('advance');
+      if (res.currentGW) setCurrentGW(res.currentGW);
+      await refreshServerState();
+    } catch {
       setCurrentGW((prev) => prev + 1);
     }
   };
 
-  const advanceGameweek = () => {
-    setCurrentGW((prev) => prev + 1);
+  const resetCurrentGameweek = async (gw?: number) => {
+    try {
+      await api.adminGameweekApi('reset_current_gw', gw ?? currentGW);
+      await refreshServerState();
+    } catch {
+      const targetGw = gw ?? currentGW;
+      setFixtures((prev) =>
+        prev.map((f) =>
+          f.gameweek === targetGw
+            ? { ...f, homeScore: null, awayScore: null, isFinished: false, isLive: false }
+            : f
+        )
+      );
+    }
+  };
+
+  const setGameweekNumber = async (gw: number) => {
+    const targetGw = Math.max(1, gw);
+    try {
+      await api.adminGameweekApi('set_gw', targetGw);
+      setCurrentGW(targetGw);
+      await refreshServerState();
+    } catch {
+      setCurrentGW(targetGw);
+    }
   };
 
   // Reset to default seed data
   const resetToDefaults = async () => {
     try {
-      await api.adminResetApi();
+      await api.adminGameweekApi('reset_all_gws');
       await refreshServerState();
     } catch {
-      localStorage.clear();
-      window.location.reload();
+      await api.adminResetApi().catch(() => {});
+      await refreshServerState();
     }
   };
 
@@ -1368,6 +1402,8 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         simulateGameweek,
         finalizeGameweek,
         advanceGameweek,
+        resetCurrentGameweek,
+        setGameweekNumber,
         resetToDefaults,
         createLeague,
         joinLeague,

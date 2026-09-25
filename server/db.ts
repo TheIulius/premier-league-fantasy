@@ -224,6 +224,7 @@ class Database {
         f.awayScore = null;
         f.isFinished = false;
         f.isLive = false;
+        f.events = [];
       });
     }
     if (this.data.players) {
@@ -236,8 +237,6 @@ class Database {
     if (this.data.managers) {
       Object.values(this.data.managers).forEach((m) => {
         if (m.squad) {
-          m.squad.bank = 60.0;
-          m.squad.players = [];
           m.squad.transfersMadeThisGW = 0;
           m.squad.freeTransfers = 1;
           m.squad.activeChip = null;
@@ -247,6 +246,16 @@ class Database {
             free_hit: false,
           };
         }
+      });
+    }
+    if (Array.isArray(this.data.leagues)) {
+      this.data.leagues.forEach((l) => {
+        l.members.forEach((mem, idx) => {
+          mem.gwPoints = 0;
+          mem.totalPoints = 0;
+          mem.rank = idx + 1;
+          mem.previousRank = idx + 1;
+        });
       });
     }
     this.save();

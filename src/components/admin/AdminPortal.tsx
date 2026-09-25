@@ -16,6 +16,7 @@ import {
   Trash2,
   Edit2,
   RefreshCw,
+  RotateCcw,
   Zap,
   Check,
   AlertCircle,
@@ -75,6 +76,8 @@ export const AdminPortal: React.FC = () => {
     deleteFixture,
     finalizeGameweek,
     advanceGameweek,
+    resetCurrentGameweek,
+    setGameweekNumber,
     resetToDefaults,
     deadline,
     setDeadline,
@@ -925,7 +928,45 @@ export const AdminPortal: React.FC = () => {
               )}
             </div>
 
-            {/* Destructive Action: Finalize Gameweek */}
+            {/* Active Gameweek Switcher */}
+            <div className="p-4 rounded-2xl bg-zinc-900 border border-white/10 flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <h4 className="font-black text-sm text-white">Active Gameweek Selector</h4>
+                <p className="text-[11px] text-zinc-400">
+                  Switch active matchweek back or forward at any time without losing player or user data.
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  disabled={currentGW <= 1}
+                  onClick={async () => {
+                    const prev = Math.max(1, currentGW - 1);
+                    await setGameweekNumber(prev);
+                    showNotification(`Switched active Gameweek to GW ${prev}`);
+                  }}
+                  className="px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 disabled:opacity-40 border border-white/10 text-xs font-bold text-zinc-300"
+                >
+                  ← GW {Math.max(1, currentGW - 1)}
+                </button>
+                <span className="px-3 py-1.5 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-xs font-mono font-black text-emerald-400">
+                  GW {currentGW}
+                </span>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    const next = currentGW + 1;
+                    await setGameweekNumber(next);
+                    showNotification(`Switched active Gameweek to GW ${next}`);
+                  }}
+                  className="px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-bold text-zinc-300"
+                >
+                  GW {currentGW + 1} →
+                </button>
+              </div>
+            </div>
+
+            {/* Award Gameweek Points */}
             <div className="p-5 rounded-2xl bg-zinc-900 border border-white/10 space-y-3">
               <h4 className="font-black text-sm text-white">Award Gameweek Points</h4>
               <p className="text-xs text-zinc-400">
@@ -936,7 +977,7 @@ export const AdminPortal: React.FC = () => {
                 confirmLabel="Gameweek Finalized!"
                 variant="emerald"
                 onConfirm={async () => {
-                  finalizeGameweek();
+                  await finalizeGameweek();
                   showNotification(`Gameweek ${currentGW} finalized and points awarded!`);
                   confetti({ particleCount: 70, spread: 60, origin: { y: 0.6 } });
                 }}
@@ -954,9 +995,52 @@ export const AdminPortal: React.FC = () => {
                 confirmLabel={`Advanced to GW ${currentGW + 1}`}
                 variant="warning"
                 onConfirm={async () => {
-                  advanceGameweek();
-                  showNotification(`Advanced to Gameweek ${currentGW + 1}!`);
+                  const nextGw = currentGW + 1;
+                  await advanceGameweek();
+                  showNotification(`Advanced to Gameweek ${nextGw}!`);
                   confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 } });
+                }}
+              />
+            </div>
+
+            {/* Reset Current Gameweek Stats & Scores */}
+            <div className="p-5 rounded-2xl bg-zinc-900 border border-rose-500/25 space-y-3">
+              <div className="flex items-center justify-between">
+                <h4 className="font-black text-sm text-rose-400 flex items-center gap-2">
+                  <RotateCcw className="w-4 h-4" />
+                  <span>Reset Current Gameweek (GW {currentGW})</span>
+                </h4>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                  Keeps Users &amp; Squads Safe
+                </span>
+              </div>
+              <p className="text-xs text-zinc-400">
+                Resets all match scores and player stats (goals, assists, saves, cards) for GW {currentGW} back to 0 and recalculates league points.
+              </p>
+              <SlideToConfirm
+                label={`Slide to Reset GW ${currentGW} Stats & Scores`}
+                confirmLabel={`GW ${currentGW} Reset to 0!`}
+                variant="danger"
+                onConfirm={async () => {
+                  await resetCurrentGameweek(currentGW);
+                  showNotification(`Gameweek ${currentGW} stats and scores have been reset to 0!`);
+                }}
+              />
+            </div>
+
+            {/* Reset Entire Season Back to GW 1 */}
+            <div className="p-5 rounded-2xl bg-zinc-900 border border-rose-500/20 space-y-3">
+              <h4 className="font-black text-sm text-rose-300">Reset Season Back to GW 1</h4>
+              <p className="text-xs text-zinc-400">
+                Resets counter back to GW 1 and clears all gameweek points/stats across the season while preserving all registered accounts and their picked squads.
+              </p>
+              <SlideToConfirm
+                label="Slide to Reset Season to GW 1"
+                confirmLabel="Season Reset to GW 1!"
+                variant="danger"
+                onConfirm={async () => {
+                  await resetToDefaults();
+                  showNotification('Season reset to Gameweek 1! All user accounts and squads preserved.');
                 }}
               />
             </div>

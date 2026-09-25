@@ -1,6 +1,5 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { motion, useMotionValue, useTransform } from 'framer-motion';
-import { ChevronRight, Check, AlertTriangle, Loader2 } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { ChevronRight, Check, Loader2 } from 'lucide-react';
 
 interface SlideToConfirmProps {
   label: string;
@@ -13,92 +12,98 @@ interface SlideToConfirmProps {
 
 export const SlideToConfirm: React.FC<SlideToConfirmProps> = ({
   label,
-  confirmLabel = 'Confirmed',
+  confirmLabel = 'Confirmed!',
   onConfirm,
   isLoading = false,
   variant = 'danger',
   disabled = false,
 }) => {
-  const containerRef = useRef<HTMLDivElement>(null);
+  const [sliderVal, setSliderVal] = useState(0);
   const [confirmed, setConfirmed] = useState(false);
-  const [maxDrag, setMaxDrag] = useState(200);
-
-  const x = useMotionValue(0);
-
-  useEffect(() => {
-    if (containerRef.current) {
-      // 52px is handle width
-      const width = containerRef.current.clientWidth - 52 - 8;
-      setMaxDrag(Math.max(width, 100));
-    }
-  }, []);
+  const [armed, setArmed] = useState(false);
 
   const variantStyles = {
     danger: {
-      bg: 'bg-rose-950/40 border-rose-800/60',
-      track: 'bg-rose-500/25',
+      bg: 'bg-rose-950/40 border-rose-800/60 hover:border-rose-500/60',
+      track: 'bg-rose-500/30',
       handle: 'bg-rose-500 text-white shadow-rose-500/30',
       text: 'text-rose-300',
+      btn: 'bg-rose-500/20 hover:bg-rose-500 text-rose-200 hover:text-white border-rose-500/40',
     },
     warning: {
-      bg: 'bg-amber-950/40 border-amber-800/60',
-      track: 'bg-amber-500/25',
+      bg: 'bg-amber-950/40 border-amber-800/60 hover:border-amber-500/60',
+      track: 'bg-amber-500/30',
       handle: 'bg-amber-500 text-slate-950 shadow-amber-500/30',
       text: 'text-amber-300',
+      btn: 'bg-amber-500/20 hover:bg-amber-500 text-amber-200 hover:text-slate-950 border-amber-500/40',
     },
     emerald: {
-      bg: 'bg-emerald-950/40 border-emerald-800/60',
-      track: 'bg-emerald-500/25',
+      bg: 'bg-emerald-950/40 border-emerald-800/60 hover:border-emerald-500/60',
+      track: 'bg-emerald-500/30',
       handle: 'bg-emerald-500 text-slate-950 shadow-emerald-500/30',
       text: 'text-emerald-300',
+      btn: 'bg-emerald-500/20 hover:bg-emerald-500 text-emerald-200 hover:text-slate-950 border-emerald-500/40',
     },
   }[variant];
 
-  const handleDragEnd = () => {
-    if (disabled || isLoading) return;
-    if (x.get() >= maxDrag * 0.85) {
-      setConfirmed(true);
-      x.set(maxDrag);
-      try {
-        onConfirm();
-      } catch (e) {
-        setConfirmed(false);
-        x.set(0);
-      }
-    } else {
-      x.set(0);
+  const triggerConfirm = async () => {
+    if (disabled || isLoading || confirmed) return;
+    setConfirmed(true);
+    setArmed(false);
+    setSliderVal(100);
+    try {
+      await onConfirm();
+    } catch {
+      setConfirmed(false);
+      setSliderVal(0);
     }
   };
 
-  // Reset confirmation if loading finishes and we want to allow retry
+  const handleRangeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (disabled || isLoading || confirmed) return;
+    const val = Number(e.target.value);
+    setSliderVal(val);
+    if (val >= 85) {
+      triggerConfirm();
+    }
+  };
+
+  const handleRelease = () => {
+    if (disabled || isLoading || confirmed) return;
+    if (sliderVal >= 70) {
+      triggerConfirm();
+    } else {
+      setSliderVal(0);
+    }
+  };
+
   useEffect(() => {
     if (!isLoading && confirmed) {
       const timer = setTimeout(() => {
         setConfirmed(false);
-        x.set(0);
+        setSliderVal(0);
       }, 2500);
       return () => clearTimeout(timer);
     }
-  }, [isLoading, confirmed, x]);
+  }, [isLoading, confirmed]);
 
   return (
     <div
-      ref={containerRef}
       className={`relative h-13 w-full rounded-2xl border p-1 select-none overflow-hidden transition-all ${
         disabled
           ? 'opacity-40 pointer-events-none bg-slate-900 border-white/5'
           : variantStyles.bg
       }`}
     >
-      {/* Background Track Fill */}
-      <motion.div
-        className={`absolute inset-y-0 left-0 rounded-xl ${variantStyles.track}`}
-        style={{ width: useTransform(x, (val) => `${val + 52}px`) }}
+      {/* Background Track Progress Fill */}
+      <div
+        className={`absolute inset-y-0 left-0 rounded-xl transition-all duration-75 ${variantStyles.track}`}
+        style={{ width: `${Math.max(sliderVal, confirmed ? 100 : 8)}%` }}
       />
 
       {/* Center Prompt Label */}
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-        <span className={`text-xs font-black uppercase tracking-wider ${variantStyles.text} flex items-center gap-1.5`}>
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none px-14">
+        <span className={`text-xs font-black uppercase tracking-wider ${variantStyles.text} flex items-center gap-1.5 truncate`}>
           {confirmed || isLoading ? (
             isLoading ? (
               <>
@@ -111,6 +116,11 @@ export const SlideToConfirm: React.FC<SlideToConfirmProps> = ({
                 <span>{confirmLabel}</span>
               </>
             )
+          ) : armed ? (
+            <>
+              <span>Tap Confirm or Slide to Execute</span>
+              <ChevronRight className="w-3.5 h-3.5 animate-bounce" />
+            </>
           ) : (
             <>
               <span>{label}</span>
@@ -120,20 +130,53 @@ export const SlideToConfirm: React.FC<SlideToConfirmProps> = ({
         </span>
       </div>
 
-      {/* Draggable Thumb / Handle */}
+      {/* Visual Thumb Handle */}
       {!confirmed && !isLoading && (
-        <motion.div
-          drag="x"
-          dragConstraints={{ left: 0, right: maxDrag }}
-          dragElastic={0.05}
-          dragMomentum={false}
-          style={{ x }}
-          onDragEnd={handleDragEnd}
-          whileTap={{ scale: 1.05 }}
-          className={`h-11 w-11 rounded-xl ${variantStyles.handle} shadow-lg cursor-grab active:cursor-grabbing flex items-center justify-center z-10`}
+        <div
+          style={{
+            left: `calc(${sliderVal}% - ${(sliderVal * 44) / 100}px + 4px)`,
+          }}
+          className={`absolute top-1 h-11 w-11 rounded-xl ${variantStyles.handle} shadow-lg flex items-center justify-center pointer-events-none transition-all duration-75 z-10`}
         >
           <ChevronRight className="w-5 h-5 font-black" />
-        </motion.div>
+        </div>
+      )}
+
+      {/* Native Range Input Overlay for 100% Reliable Touch & Mouse Dragging */}
+      {!confirmed && !isLoading && (
+        <input
+          type="range"
+          min={0}
+          max={100}
+          value={sliderVal}
+          onChange={handleRangeChange}
+          onMouseUp={handleRelease}
+          onTouchEnd={handleRelease}
+          onClick={() => {
+            if (sliderVal < 15) {
+              if (armed) {
+                triggerConfirm();
+              } else {
+                setArmed(true);
+              }
+            }
+          }}
+          className="absolute inset-0 w-full h-full opacity-0 cursor-grab active:cursor-grabbing z-20"
+        />
+      )}
+
+      {/* Quick Confirm Button on the Right when clicked/hovered */}
+      {!confirmed && !isLoading && (
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            triggerConfirm();
+          }}
+          className={`absolute right-1.5 top-1.5 bottom-1.5 px-3 rounded-xl border text-[10px] font-black uppercase tracking-wider transition-all z-30 ${variantStyles.btn}`}
+        >
+          {armed ? 'Confirm ✓' : 'Run'}
+        </button>
       )}
     </div>
   );

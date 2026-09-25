@@ -722,14 +722,10 @@ app.post('/api/admin/simulate', (req: Request, res: Response) => {
   res.json({ success: true, currentGW: gw });
 });
 
-// 9. Developer Admin: Finalize Gameweek across ALL managers
-app.post('/api/admin/finalize', (req: Request, res: Response) => {
-  const data = db.getData();
-  const currentGW = data.currentGW;
-
-  // Process all managers
-  Object.values(data.managers).forEach((m) => {
-    const calc = calculateGameweekSquadPoints(
+function recalculateAllManagersLeaguePoints(data: any) {
+  const currentGW = data.currentGW || 1;
+  Object.values(data.managers || {}).forEach((m: any) => {
+    const currentCalc = calculateGameweekSquadPoints(
       m.squad.players,
       data.players,
       currentGW,
@@ -738,37 +734,124 @@ app.post('/api/admin/finalize', (req: Request, res: Response) => {
       m.squad.freeTransfers
     );
 
-    if (m.squad.activeChip) {
-      m.squad.usedChips[m.squad.activeChip] = true;
-      m.squad.activeChip = null;
+    let cumulativeTotal = 0;
+    for (let gw = 1; gw <= currentGW; gw++) {
+      const gwCalc = calculateGameweekSquadPoints(
+        m.squad.players,
+        data.players,
+        gw,
+        gw === currentGW ? m.squad.activeChip : null,
+        gw === currentGW ? m.squad.transfersMadeThisGW : 0,
+        m.squad.freeTransfers
+      );
+      cumulativeTotal += gwCalc.totalPoints;
     }
-    m.squad.transfersMadeThisGW = 0;
-    m.squad.freeTransfers = Math.min(5, m.squad.freeTransfers + 1);
 
-    // Update manager's league entry
-    data.leagues.forEach((l) => {
-      const member = l.members.find((mem) => mem.id === m.id);
+    (data.leagues || []).forEach((l: any) => {
+      const member = l.members.find((mem: any) => mem.id === m.id);
       if (member) {
-        member.gwPoints = calc.totalPoints;
-        member.totalPoints += calc.totalPoints;
+        member.gwPoints = currentCalc.totalPoints;
+        member.totalPoints = cumulativeTotal;
       }
     });
   });
 
-  // Re-rank leagues
-  data.leagues.forEach((l) => {
-    l.members.sort((a, b) => b.totalPoints - a.totalPoints);
-    l.members.forEach((mem, idx) => {
+  (data.leagues || []).forEach((l: any) => {
+    l.members.sort((a: any, b: any) => b.totalPoints - a.totalPoints);
+    l.members.forEach((mem: any, idx: number) => {
       mem.previousRank = mem.rank;
       mem.rank = idx + 1;
     });
   });
+}
 
-  data.currentGW += 1;
+// 9. Developer Admin: Finalize Gameweek across ALL managers
+app.post('/api/admin/finalize', (req: Request, res: Response) => {
+  const data = db.getData();
+  const currentGW = data.currentGW;
+
+  recalculateAllManagersLeaguePoints(data);
+
   db.save();
-  scheduleAutoSyncToGitHub(`Finalized GW ${currentGW} to GW ${data.currentGW}`);
+  scheduleAutoSyncToGitHub(`Finalized GW ${currentGW} standings`);
 
-  res.json({ success: true, nextGW: data.currentGW });
+  res.json({ success: true, currentGW: data.currentGW });
+});
+
+// 9b. Developer Admin: Gameweek Controls (Advance, Set GW, Reset Current GW, Reset Season to GW 1)
+app.post('/api/admin/gameweek', (req: Request, res: Response) => {
+  const { action, gw } = req.body;
+  const data = db.getData();
+
+  if (action === 'advance') {
+    recalculateAllManagersLeaguePoints(data);
+    Object.values(data.managers || {}).forEach((m: any) => {
+      if (m.squad.activeChip) {
+        m.squad.usedChips[m.squad.activeChip] = true;
+        m.squad.activeChip = null;
+      }
+      m.squad.transfersMadeThisGW = 0;
+      m.squad.freeTransfers = Math.min(5, (m.squad.freeTransfers || 1) + 1);
+    });
+    data.currentGW = (data.currentGW || 1) + 1;
+    db.save();
+    scheduleAutoSyncToGitHub(`Advanced to GW ${data.currentGW}`);
+    return res.json({ success: true, currentGW: data.currentGW });
+  }
+
+  if (action === 'set_gw') {
+    const targetGw = Math.max(1, Number(gw || 1));
+    data.currentGW = targetGw;
+    recalculateAllManagersLeaguePoints(data);
+    db.save();
+    scheduleAutoSyncToGitHub(`Set current Gameweek to GW ${targetGw}`);
+    return res.json({ success: true, currentGW: data.currentGW });
+  }
+
+  if (action === 'reset_current_gw') {
+    const targetGw = Math.max(1, Number(gw || data.currentGW || 1));
+    // Reset fixtures for targetGw
+    (data.fixtures || []).forEach((f: any) => {
+      if (f.gameweek === targetGw) {
+        f.homeScore = null;
+        f.awayScore = null;
+        f.isFinished = false;
+        f.isLive = false;
+        f.events = [];
+      }
+    });
+    // Reset player stats for targetGw and recalculate totalPoints
+    Object.values(data.players || {}).forEach((p: any) => {
+      if (p.gwStats && p.gwStats[targetGw]) {
+        delete p.gwStats[targetGw];
+      }
+      if (targetGw === data.currentGW) {
+        p.gwPoints = 0;
+      }
+      let total = 0;
+      Object.entries(p.gwStats || {}).forEach(([gKey, st]: [string, any]) => {
+        const gNum = Number(gKey);
+        const fix = (data.fixtures || []).find(
+          (fx: any) => fx.gameweek === gNum && (fx.homeClubId === p.clubId || fx.awayClubId === p.clubId)
+        );
+        const bd = calculatePlayerPoints(p.position, st, fix?.venue);
+        total += bd.total;
+      });
+      p.totalPoints = total;
+    });
+    recalculateAllManagersLeaguePoints(data);
+    db.save();
+    scheduleAutoSyncToGitHub(`Reset GW ${targetGw} scores and stats`);
+    return res.json({ success: true, currentGW: data.currentGW });
+  }
+
+  if (action === 'reset_all_gws') {
+    db.reset();
+    scheduleAutoSyncToGitHub('Reset all Gameweeks to GW 1 (preserved squads & users)');
+    return res.json({ success: true, currentGW: 1 });
+  }
+
+  return res.status(400).json({ error: 'Unknown gameweek action' });
 });
 
 // 10. Developer Admin: Add / Edit / Delete Player

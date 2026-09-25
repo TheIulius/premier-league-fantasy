@@ -151,6 +151,16 @@ export async function adminFinalizeApi() {
   return res.json();
 }
 
+export async function adminGameweekApi(action: 'advance' | 'set_gw' | 'reset_current_gw' | 'reset_all_gws', gw?: number) {
+  const res = await fetch(`${API_BASE}/api/admin/gameweek`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action, gw }),
+  });
+  if (!res.ok) throw new Error('Failed gameweek action');
+  return res.json();
+}
+
 export async function adminPlayerApi(payload: any) {
   const res = await fetch(`${API_BASE}/api/admin/player`, {
     method: 'POST',
