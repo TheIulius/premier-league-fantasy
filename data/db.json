@@ -5149,15 +5149,37 @@
           "gwPoints": 0,
           "rank": 8,
           "previousRank": 8,
-          "activeChip": null,
+          "activeChip": "bench_boost",
           "lineup": [
+            {
+              "playerId": "p_10_1_shengelia",
+              "webName": "N. Shengelia",
+              "clubId": "SCH_10_1",
+              "position": "FWD",
+              "isStarter": true,
+              "isCaptain": true,
+              "isViceCaptain": false,
+              "benchOrder": 0,
+              "points": 0
+            },
             {
               "playerId": "p_chaga",
               "webName": "Chaga",
               "clubId": "SCH_11_5",
               "position": "FWD",
               "isStarter": true,
-              "isCaptain": true,
+              "isCaptain": false,
+              "isViceCaptain": true,
+              "benchOrder": 0,
+              "points": 0
+            },
+            {
+              "playerId": "p_custom_1790194618189",
+              "webName": "Tsiskara",
+              "clubId": "SCH_11_5",
+              "position": "MID",
+              "isStarter": true,
+              "isCaptain": false,
               "isViceCaptain": false,
               "benchOrder": 0,
               "points": 0
@@ -5169,7 +5191,7 @@
               "position": "GKP",
               "isStarter": true,
               "isCaptain": false,
-              "isViceCaptain": true,
+              "isViceCaptain": false,
               "benchOrder": 0,
               "points": 0
             }
@@ -5752,10 +5774,24 @@
         "managerName": "Nika",
         "players": [
           {
-            "playerId": "p_chaga",
+            "playerId": "p_10_1_shengelia",
             "isStarter": true,
             "benchOrder": 0,
             "isCaptain": true,
+            "isViceCaptain": false
+          },
+          {
+            "playerId": "p_chaga",
+            "isStarter": true,
+            "benchOrder": 0,
+            "isCaptain": false,
+            "isViceCaptain": true
+          },
+          {
+            "playerId": "p_custom_1790194618189",
+            "isStarter": true,
+            "benchOrder": 0,
+            "isCaptain": false,
             "isViceCaptain": false
           },
           {
@@ -5763,13 +5799,13 @@
             "isStarter": true,
             "benchOrder": 0,
             "isCaptain": false,
-            "isViceCaptain": true
+            "isViceCaptain": false
           }
         ],
-        "bank": 46.8,
+        "bank": 28.7,
         "freeTransfers": 1,
         "transfersMadeThisGW": 0,
-        "activeChip": null,
+        "activeChip": "bench_boost",
         "usedChips": {
           "triple_captain": false,
           "bench_boost": false,
@@ -5893,7 +5929,7 @@
       "salt": "bf561a201267f9bc1552d255a30d0ce4",
       "managerName": "Ilia",
       "teamName": "giorgievski's tractati",
-      "token": "cfe472799da0ca890c39fe8baf9fb9153c45ac387e95db33f64e7244ac2a073a",
+      "token": "56f16c096b2bffe866f400db3df3a13bfe4a94aceb7eaac486c284d157b85d71",
       "createdAt": "2026-09-25T16:18:23.548Z",
       "role": "admin",
       "isAdmin": true
