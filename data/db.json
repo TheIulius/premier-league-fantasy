@@ -5433,8 +5433,8 @@
           "teamName": "giorgievski's tractati",
           "totalPoints": 9,
           "gwPoints": 9,
-          "rank": 3,
-          "previousRank": 3,
+          "rank": 2,
+          "previousRank": 2,
           "activeChip": null,
           "lineup": [
             {
@@ -5544,8 +5544,8 @@
           "teamName": "11/5",
           "totalPoints": 0,
           "gwPoints": 0,
-          "rank": 7,
-          "previousRank": 7,
+          "rank": 3,
+          "previousRank": 3,
           "activeChip": null,
           "lineup": []
         },
@@ -5555,8 +5555,19 @@
           "teamName": "Samada",
           "totalPoints": 0,
           "gwPoints": 0,
-          "rank": 8,
-          "previousRank": 8,
+          "rank": 4,
+          "previousRank": 4,
+          "activeChip": null,
+          "lineup": []
+        },
+        {
+          "id": "user_1790449130368",
+          "managerName": "Aleksandre",
+          "teamName": "Sirebi FC",
+          "totalPoints": 0,
+          "gwPoints": 0,
+          "rank": 5,
+          "previousRank": 5,
           "activeChip": null,
           "lineup": []
         }
@@ -5771,6 +5782,26 @@
         }
       },
       "joinedAt": "2026-09-26T12:50:11.159Z"
+    },
+    "user_1790449130368": {
+      "id": "user_1790449130368",
+      "managerName": "Aleksandre",
+      "teamName": "Sirebi FC",
+      "squad": {
+        "teamName": "Sirebi FC",
+        "managerName": "Aleksandre",
+        "players": [],
+        "bank": 60,
+        "freeTransfers": 1,
+        "transfersMadeThisGW": 0,
+        "activeChip": null,
+        "usedChips": {
+          "triple_captain": false,
+          "bench_boost": false,
+          "wildcard": false
+        }
+      },
+      "joinedAt": "2026-09-26T18:58:50.369Z"
     }
   },
   "users": {
@@ -5822,6 +5853,20 @@
       "token": "a7ba25439f7320ca1c8514055dd2f3afedff207a2fb8d2451800a511ec05c68f",
       "createdAt": "2026-09-26T12:50:11.159Z",
       "isApproved": true
+    },
+    "user_1790449130368": {
+      "id": "user_1790449130368",
+      "username": "masser",
+      "email": "aphutkaradze1803@gmail.com",
+      "passwordHash": "5a4ef509335fc34256cd041bbde1dfca7693e40257c42ae70834d2316f55df9109f5438e22d36939a10c21fa915b945660d7aabedfa8b1487c58b52beb80ed0e",
+      "salt": "f666c85a753b753773c01d762566b97f",
+      "managerName": "Aleksandre",
+      "teamName": "Sirebi FC",
+      "token": "ef2fe203734d128d9f3736d77de8e663f510ae8261a306134c1fc1f2e2a6d855",
+      "createdAt": "2026-09-26T18:58:50.369Z",
+      "role": "user",
+      "isAdmin": false,
+      "isApproved": false
     }
   },
   "deadline": {
