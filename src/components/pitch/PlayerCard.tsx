@@ -165,15 +165,13 @@ export const PlayerCard: React.FC<PlayerCardProps> = ({
         <span className="truncate">{player.webName}</span>
       </div>
 
-      {/* Value / Points Plate (Bottom half) */}
+      {/* Value / Points Plate (Bottom half) - Price and Points side-by-side */}
       <div
-        className={`w-full text-center px-1 md:px-1.5 py-[1px] md:py-0.5 rounded-b text-[10px] md:text-[11px] font-extrabold border-x border-b tracking-tight transition-colors ${
-          showPoints
-            ? 'bg-slate-950 text-emerald-400 border-slate-700'
-            : 'bg-slate-900 text-slate-200 border-slate-800'
-        }`}
+        className="w-full text-center px-1 md:px-1.5 py-[1px] md:py-0.5 rounded-b text-[9.5px] sm:text-[10px] md:text-[11px] font-extrabold border-x border-b tracking-tight transition-colors bg-slate-900/95 text-slate-200 border-slate-800 flex items-center justify-center gap-1"
       >
-        {showPoints ? `${pts} pts` : `£${player.cost.toFixed(1)}m`}
+        <span className="font-mono">£{player.cost.toFixed(1)}m</span>
+        <span className="text-slate-500 font-normal text-[8px]">•</span>
+        <span className="font-mono text-emerald-400 font-bold">{pts}pts</span>
       </div>
     </div>
   );

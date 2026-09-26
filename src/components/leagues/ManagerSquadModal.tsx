@@ -2,11 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { useFPL } from '../../context/FPLContext';
 import { fetchManagerSquadApi } from '../../services/api';
 import { Squad } from '../../types/fpl';
-import { GameweekCalculationResult } from '../../engine/scoring';
+import { GameweekCalculationResult, calculateGameweekSquadPoints } from '../../engine/scoring';
 import { getFormationLayout } from '../../engine/formations';
 import { KitJersey } from '../pitch/KitJersey';
 import { CLUBS } from '../../data/clubs';
-import { ArrowLeft, Award, Activity, Sparkles, X, AlertCircle, Loader2 } from 'lucide-react';
+import { ArrowLeft, Award, Activity, Sparkles, X, AlertCircle, Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface ManagerSquadModalProps {
   managerId: string | null;
@@ -16,6 +16,7 @@ interface ManagerSquadModalProps {
 export const ManagerSquadModal: React.FC<ManagerSquadModalProps> = ({ managerId, onClose }) => {
   const { players, currentGW } = useFPL();
   const [loading, setLoading] = useState(true);
+  const [selectedGW, setSelectedGW] = useState<number>(currentGW);
   const [managerData, setManagerData] = useState<{
     id: string;
     managerName: string;
@@ -24,6 +25,10 @@ export const ManagerSquadModal: React.FC<ManagerSquadModalProps> = ({ managerId,
   } | null>(null);
   const [calcResult, setCalcResult] = useState<GameweekCalculationResult | null>(null);
   const [selectedPlayerForSheet, setSelectedPlayerForSheet] = useState<string | null>(null);
+
+  useEffect(() => {
+    setSelectedGW(currentGW);
+  }, [currentGW, managerId]);
 
   useEffect(() => {
     if (!managerId) return;
@@ -40,6 +45,21 @@ export const ManagerSquadModal: React.FC<ManagerSquadModalProps> = ({ managerId,
         setLoading(false);
       });
   }, [managerId]);
+
+  // Recalculate if user selects a past Gameweek
+  useEffect(() => {
+    if (managerData && selectedGW) {
+      const pastCalc = calculateGameweekSquadPoints(
+        managerData.squad.players,
+        players,
+        selectedGW,
+        selectedGW === currentGW ? managerData.squad.activeChip : null,
+        selectedGW === currentGW ? managerData.squad.transfersMadeThisGW : 0,
+        managerData.squad.freeTransfers
+      );
+      setCalcResult(pastCalc);
+    }
+  }, [selectedGW, managerData, players, currentGW]);
 
   if (!managerId) return null;
 
@@ -86,10 +106,26 @@ export const ManagerSquadModal: React.FC<ManagerSquadModalProps> = ({ managerId,
             <span>Standings</span>
           </button>
 
-          <div className="text-right">
-            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-              GW {currentGW} Team
+          <div className="flex items-center gap-1.5 bg-slate-100 dark:bg-white/[0.06] border border-slate-200 dark:border-white/10 rounded-xl px-2 py-0.5">
+            <button
+              type="button"
+              disabled={selectedGW <= 1}
+              onClick={() => setSelectedGW((prev) => Math.max(1, prev - 1))}
+              className="p-0.5 rounded text-slate-400 hover:text-slate-900 dark:hover:text-white disabled:opacity-30"
+            >
+              <ChevronLeft className="w-3.5 h-3.5" />
+            </button>
+            <span className="text-[11px] font-mono font-bold text-slate-800 dark:text-slate-200">
+              GW {selectedGW} {selectedGW === currentGW ? '(Live)' : ''}
             </span>
+            <button
+              type="button"
+              disabled={selectedGW >= currentGW}
+              onClick={() => setSelectedGW((prev) => Math.min(currentGW, prev + 1))}
+              className="p-0.5 rounded text-slate-400 hover:text-slate-900 dark:hover:text-white disabled:opacity-30"
+            >
+              <ChevronRight className="w-3.5 h-3.5" />
+            </button>
           </div>
         </div>
 
@@ -114,7 +150,7 @@ export const ManagerSquadModal: React.FC<ManagerSquadModalProps> = ({ managerId,
 
                 <div className="text-right border-l border-slate-200 dark:border-slate-800 pl-3">
                   <span className="text-[9px] uppercase font-bold text-slate-400 block">
-                    GW {currentGW}
+                    GW {selectedGW}
                   </span>
                   <div className="flex items-baseline justify-end gap-1">
                     <span className="text-2xl font-black text-emerald-600 dark:text-emerald-400">

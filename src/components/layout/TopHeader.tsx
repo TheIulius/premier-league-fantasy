@@ -9,10 +9,9 @@ interface TabItem {
 }
 
 const DESKTOP_TABS: TabItem[] = [
-  { id: 'team', label: 'Pick Team', icon: Shirt },
+  { id: 'team', label: 'Team', icon: Shirt },
   { id: 'transfers', label: 'Transfers', icon: ArrowLeftRight },
-  { id: 'points', label: 'Points', icon: Zap },
-  { id: 'leagues', label: 'Leagues', icon: Trophy },
+  { id: 'standings', label: 'Standings', icon: Trophy },
   { id: 'fixtures', label: 'Fixtures', icon: Calendar },
   { id: 'dev', label: 'Dev Mode', icon: Wrench },
 ];

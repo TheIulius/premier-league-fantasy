@@ -22,7 +22,7 @@ import {
 import { canSwapPlayers, normalizeSquadLineup, isValidFormation } from '../engine/formations';
 import * as api from '../services/api';
 
-export type TabType = 'team' | 'transfers' | 'points' | 'leagues' | 'fixtures' | 'dev';
+export type TabType = 'team' | 'transfers' | 'standings' | 'leagues' | 'fixtures' | 'dev';
 
 export interface ManagerSummary {
   id: string;
