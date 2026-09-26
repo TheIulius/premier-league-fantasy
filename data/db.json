@@ -5641,8 +5641,7 @@
       "teamName": "giorgievski's tractati",
       "createdAt": "2026-09-25T16:18:23.548Z",
       "role": "admin",
-      "isAdmin": true,
-      "token": "cb9b6b36fd6ff4601780b75381b599ed51f9df3ea1e176b3d28821fc9e8211ff"
+      "isAdmin": true
     },
     "user_1790357898196": {
       "id": "user_1790357898196",
@@ -5677,8 +5676,7 @@
       "managerName": "Daviti",
       "teamName": "Samada",
       "token": "a7ba25439f7320ca1c8514055dd2f3afedff207a2fb8d2451800a511ec05c68f",
-      "createdAt": "2026-09-26T12:50:11.159Z",
-      "isApproved": true
+      "createdAt": "2026-09-26T12:50:11.159Z"
     }
   },
   "deadline": {
