@@ -4762,10 +4762,10 @@
               "webName": "N. Xachidze",
               "clubId": "SCH_10_2",
               "position": "FWD",
-              "isStarter": true,
-              "isCaptain": true,
+              "isStarter": false,
+              "isCaptain": false,
               "isViceCaptain": false,
-              "benchOrder": 0,
+              "benchOrder": 1,
               "points": 0
             },
             {
@@ -4776,7 +4776,7 @@
               "isStarter": false,
               "isCaptain": false,
               "isViceCaptain": false,
-              "benchOrder": 1,
+              "benchOrder": 2,
               "points": 0
             },
             {
@@ -4787,7 +4787,7 @@
               "isStarter": false,
               "isCaptain": false,
               "isViceCaptain": false,
-              "benchOrder": 2,
+              "benchOrder": 3,
               "points": 0
             },
             {
@@ -4795,10 +4795,10 @@
               "webName": "N. Shengelia",
               "clubId": "SCH_10_1",
               "position": "FWD",
-              "isStarter": false,
-              "isCaptain": false,
+              "isStarter": true,
+              "isCaptain": true,
               "isViceCaptain": false,
-              "benchOrder": 3,
+              "benchOrder": 0,
               "points": 0
             }
           ]
@@ -5168,30 +5168,30 @@
           },
           {
             "playerId": "p_10_2_xachidze",
-            "isStarter": true,
-            "benchOrder": 0,
-            "isCaptain": true,
-            "isViceCaptain": false
-          },
-          {
-            "playerId": "p_11_6_amiko",
             "isStarter": false,
             "benchOrder": 1,
             "isCaptain": false,
             "isViceCaptain": false
           },
           {
-            "playerId": "p_custom_1790166342439",
+            "playerId": "p_11_6_amiko",
             "isStarter": false,
             "benchOrder": 2,
             "isCaptain": false,
             "isViceCaptain": false
           },
           {
-            "playerId": "p_10_1_shengelia",
+            "playerId": "p_custom_1790166342439",
             "isStarter": false,
             "benchOrder": 3,
             "isCaptain": false,
+            "isViceCaptain": false
+          },
+          {
+            "playerId": "p_10_1_shengelia",
+            "isStarter": true,
+            "benchOrder": 0,
+            "isCaptain": true,
             "isViceCaptain": false
           }
         ],
