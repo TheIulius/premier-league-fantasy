@@ -5593,17 +5593,6 @@
               "points": 0
             }
           ]
-        },
-        {
-          "id": "user_1790450814853",
-          "managerName": "axali",
-          "teamName": "axali",
-          "totalPoints": 0,
-          "gwPoints": 0,
-          "rank": 4,
-          "previousRank": 4,
-          "activeChip": null,
-          "lineup": []
         }
       ]
     }
@@ -5825,26 +5814,6 @@
         }
       },
       "joinedAt": "2026-09-26T18:58:50.369Z"
-    },
-    "user_1790450814853": {
-      "id": "user_1790450814853",
-      "managerName": "axali",
-      "teamName": "axali",
-      "squad": {
-        "teamName": "axali",
-        "managerName": "axali",
-        "players": [],
-        "bank": 60,
-        "freeTransfers": 1,
-        "transfersMadeThisGW": 0,
-        "activeChip": null,
-        "usedChips": {
-          "triple_captain": false,
-          "bench_boost": false,
-          "wildcard": false
-        }
-      },
-      "joinedAt": "2026-09-26T19:26:54.854Z"
     }
   },
   "users": {
@@ -5887,19 +5856,6 @@
       "role": "user",
       "isAdmin": false,
       "isApproved": true
-    },
-    "user_1790450814853": {
-      "id": "user_1790450814853",
-      "username": "axali",
-      "email": "axali@gmail.com",
-      "passwordHash": "7b9f271a8127ce68d104701d39c61e1f5b8fa9457b972e38c5c8e8beb59582a463f32207781530c2e4bc98f1d4c19beb4153acda7e9c4be2a8714873c569f0eb",
-      "salt": "4f5cc1bfcc92b314ad854499840b05f7",
-      "managerName": "axali",
-      "teamName": "axali",
-      "createdAt": "2026-09-26T19:26:54.854Z",
-      "role": "user",
-      "isAdmin": false,
-      "isApproved": true
     }
   },
   "deadline": {
@@ -5918,6 +5874,7 @@
     "user_1790449499450",
     "user_1790427011158",
     "user_1790426603326",
-    "user_1790448778211"
+    "user_1790448778211",
+    "user_1790450814853"
   ]
 }
