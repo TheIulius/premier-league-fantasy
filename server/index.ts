@@ -145,7 +145,7 @@ app.get('/api/manager/:id', (req: Request, res: Response) => {
 // --- AUTHENTICATION & SEPARATE ACCOUNTS ---
 
 // Register Account with Password (Supports 3 GEL Charity BOG/TBC Activation Codes)
-app.post('/api/auth/register', (req: Request, res: Response) => {
+app.post('/api/auth/register', async (req: Request, res: Response) => {
   const { username, email, password, managerName, teamName, activationCode } = req.body;
 
   if (!username || !password || !managerName || !teamName) {
@@ -154,6 +154,13 @@ app.post('/api/auth/register', (req: Request, res: Response) => {
 
   if (password.length < 4) {
     return res.status(400).json({ error: 'Password must be at least 4 characters' });
+  }
+
+  // Pre-sync with GitHub to catch any remote registrations
+  try {
+    await syncDatabaseFromGitHub();
+  } catch (e) {
+    // Non-blocking fallback
   }
 
   const data = db.getData();
@@ -266,6 +273,7 @@ app.post('/api/auth/register', (req: Request, res: Response) => {
   }
 
   db.save();
+  scheduleAutoSyncToGitHub(`New user registered: @${cleanUser}`);
 
   res.json({
     success: true,
@@ -284,20 +292,73 @@ app.post('/api/auth/register', (req: Request, res: Response) => {
   });
 });
 
-// Log In with Username/Email & Password
-app.post('/api/auth/login', (req: Request, res: Response) => {
+// Helper: match user by username, email, manager name, team name, or known typo aliases
+export function findUserByLogin(loginInput: string, users: Record<string, UserAccount>): UserAccount | undefined {
+  if (!users || !loginInput) return undefined;
+  const clean = loginInput.trim().toLowerCase();
+  if (!clean) return undefined;
+
+  // 1. Direct username or email match
+  let found = Object.values(users).find(
+    (u) =>
+      (u.username && u.username.toLowerCase() === clean) ||
+      (u.email && u.email.toLowerCase() === clean)
+  );
+  if (found) return found;
+
+  // 2. Manager name or team name match (case-insensitive)
+  found = Object.values(users).find(
+    (u) =>
+      (u.managerName && u.managerName.toLowerCase() === clean) ||
+      (u.teamName && u.teamName.toLowerCase() === clean)
+  );
+  if (found) return found;
+
+  // 3. Typo/alias tolerance (e.g. axali <-> axalli)
+  found = Object.values(users).find((u) => {
+    const uName = (u.username || '').toLowerCase();
+    const uEmail = (u.email || '').toLowerCase();
+    if (
+      (clean === 'axali' && (uName === 'axalli' || uEmail.startsWith('axalli'))) ||
+      (clean === 'axalli' && (uName === 'axali' || uEmail.startsWith('axali'))) ||
+      (clean.startsWith('axalli') && uName === 'axali') ||
+      (clean.startsWith('axali') && uName === 'axalli')
+    ) {
+      return true;
+    }
+    return false;
+  });
+  if (found) return found;
+
+  // 4. Exact user ID match
+  if (users[clean]) return users[clean];
+
+  return undefined;
+}
+
+// Log In with Username/Email & Password (with on-demand GitHub sync fallback)
+app.post('/api/auth/login', async (req: Request, res: Response) => {
   const { login, password } = req.body;
   if (!login || !password) {
     return res.status(400).json({ error: 'Login and password are required' });
   }
 
-  const data = db.getData();
+  let data = db.getData();
   if (!data.users) data.users = {};
 
-  const clean = login.trim().toLowerCase();
-  const user = Object.values(data.users).find(
-    (u) => u.username.toLowerCase() === clean || (u.email && u.email.toLowerCase() === clean)
-  );
+  let user = findUserByLogin(login, data.users);
+
+  // If user not found in local memory, immediately sync with latest GitHub database
+  if (!user) {
+    try {
+      console.log(`[Auth Login] User "${login}" not found in local cache. Syncing latest data from GitHub...`);
+      await syncDatabaseFromGitHub();
+      data = db.getData();
+      user = findUserByLogin(login, data.users || {});
+    } catch (e) {
+      console.warn('[Auth Login] GitHub fallback sync error:', e);
+    }
+  }
 
   if (!user) {
     return res.status(401).json({ error: 'Account not found. Please register.' });
@@ -355,7 +416,7 @@ app.post('/api/auth/login', (req: Request, res: Response) => {
 });
 
 // Check Session / Current Logged In User
-app.get('/api/auth/me', (req: Request, res: Response) => {
+app.get('/api/auth/me', async (req: Request, res: Response) => {
   const authHeader = req.headers.authorization;
   const token = authHeader?.startsWith('Bearer ')
     ? authHeader.substring(7)
@@ -365,10 +426,20 @@ app.get('/api/auth/me', (req: Request, res: Response) => {
     return res.status(401).json({ error: 'No token provided' });
   }
 
-  const data = db.getData();
+  let data = db.getData();
   if (!data.users) data.users = {};
 
-  const user = Object.values(data.users).find((u) => u.token === token);
+  let user = Object.values(data.users).find((u) => u.token === token);
+  if (!user) {
+    try {
+      await syncDatabaseFromGitHub();
+      data = db.getData();
+      user = Object.values(data.users || {}).find((u) => u.token === token);
+    } catch (e) {
+      // Non-blocking fallback
+    }
+  }
+
   if (!user) {
     return res.status(401).json({ error: 'Invalid or expired session' });
   }
