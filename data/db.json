@@ -5405,6 +5405,17 @@
               "isViceCaptain": false,
               "benchOrder": 0,
               "points": 0
+            },
+            {
+              "playerId": "p_11_6_barbaqadze",
+              "webName": "Barbaqadze",
+              "clubId": "SCH_11_6",
+              "position": "GKP",
+              "isStarter": true,
+              "isCaptain": false,
+              "isViceCaptain": false,
+              "benchOrder": 0,
+              "points": 0
             }
           ]
         },
@@ -6394,9 +6405,16 @@
             "benchOrder": 0,
             "isCaptain": false,
             "isViceCaptain": false
+          },
+          {
+            "playerId": "p_11_6_barbaqadze",
+            "isStarter": true,
+            "benchOrder": 0,
+            "isCaptain": false,
+            "isViceCaptain": false
           }
         ],
-        "bank": 37.7,
+        "bank": 31.7,
         "freeTransfers": 1,
         "transfersMadeThisGW": 0,
         "activeChip": null,
