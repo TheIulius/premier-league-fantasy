@@ -5149,7 +5149,7 @@
           "gwPoints": 0,
           "rank": 8,
           "previousRank": 8,
-          "activeChip": "bench_boost",
+          "activeChip": null,
           "lineup": [
             {
               "playerId": "p_9_2_yvavadze",
@@ -5895,7 +5895,7 @@
         "bank": 9,
         "freeTransfers": 1,
         "transfersMadeThisGW": 0,
-        "activeChip": "bench_boost",
+        "activeChip": null,
         "usedChips": {
           "triple_captain": false,
           "bench_boost": false,
