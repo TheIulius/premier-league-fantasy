@@ -4758,9 +4758,9 @@
               "points": 0
             },
             {
-              "playerId": "p_11_4_xucishvili",
-              "webName": "Xucishvili",
-              "clubId": "SCH_11_4",
+              "playerId": "p_10_4_meskhi",
+              "webName": "Meskhi",
+              "clubId": "SCH_10_4",
               "position": "FWD",
               "isStarter": true,
               "isCaptain": true,
@@ -5167,7 +5167,7 @@
             "isViceCaptain": false
           },
           {
-            "playerId": "p_11_4_xucishvili",
+            "playerId": "p_10_4_meskhi",
             "isStarter": true,
             "benchOrder": 0,
             "isCaptain": true,
@@ -5195,9 +5195,9 @@
             "isViceCaptain": false
           }
         ],
-        "bank": 7.9,
+        "bank": 6.3,
         "freeTransfers": 1,
-        "transfersMadeThisGW": 0,
+        "transfersMadeThisGW": 1,
         "activeChip": null,
         "usedChips": {
           "triple_captain": false,
