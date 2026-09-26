@@ -5373,6 +5373,17 @@
           "previousRank": 15,
           "activeChip": null,
           "lineup": []
+        },
+        {
+          "id": "user_1790447645556",
+          "managerName": "axali user",
+          "teamName": "axali user",
+          "totalPoints": 0,
+          "gwPoints": 0,
+          "rank": 16,
+          "previousRank": 16,
+          "activeChip": null,
+          "lineup": []
         }
       ]
     }
@@ -6083,6 +6094,26 @@
         }
       },
       "joinedAt": "2026-09-26T18:24:32.395Z"
+    },
+    "user_1790447645556": {
+      "id": "user_1790447645556",
+      "managerName": "axali user",
+      "teamName": "axali user",
+      "squad": {
+        "teamName": "axali user",
+        "managerName": "axali user",
+        "players": [],
+        "bank": 60,
+        "freeTransfers": 1,
+        "transfersMadeThisGW": 0,
+        "activeChip": null,
+        "usedChips": {
+          "triple_captain": false,
+          "bench_boost": false,
+          "wildcard": false
+        }
+      },
+      "joinedAt": "2026-09-26T18:34:05.557Z"
     }
   },
   "users": {
@@ -6205,6 +6236,20 @@
       "managerName": "new_acc",
       "teamName": "Fc new_acc",
       "createdAt": "2026-09-26T18:24:32.395Z",
+      "role": "user",
+      "isAdmin": false,
+      "isApproved": false
+    },
+    "user_1790447645556": {
+      "id": "user_1790447645556",
+      "username": "axali user",
+      "email": "axali user@fantasy.pl",
+      "passwordHash": "8b13d4f6712001af8d6996a556312fe4089b7c65b1b74ed9a492ab63d49cae09206a7ae680a84b678b3e7ab9016fe00fffd413b348c197f90593143e1f03d1f0",
+      "salt": "a67ca50f96f735764172f10509b1b583",
+      "managerName": "axali user",
+      "teamName": "axali user",
+      "token": "2674136a610c8855bd3c38781c73a5ec81fb47a4e2cc5d5b5b22bfaa1a288249",
+      "createdAt": "2026-09-26T18:34:05.557Z",
       "role": "user",
       "isAdmin": false,
       "isApproved": false
