@@ -4312,12 +4312,14 @@
       "gameweek": 1,
       "homeClubId": "SCH_12_3",
       "awayClubId": "SCH_9_6",
-      "homeScore": null,
-      "awayScore": null,
-      "isFinished": false,
+      "homeScore": 0,
+      "awayScore": 0,
+      "isFinished": true,
       "isLive": false,
       "kickoffTime": "Matchday 1",
-      "events": []
+      "events": [],
+      "venue": "parki",
+      "goalScorers": []
     },
     {
       "id": "fix_gw1_6",
