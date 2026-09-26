@@ -5,7 +5,7 @@ import { PlayerCard } from '../pitch/PlayerCard';
 import { PlayerActionSheet } from '../pitch/PlayerActionSheet';
 import { getFormationLayout } from '../../engine/formations';
 import { ChipType } from '../../types/fpl';
-import { Zap, CheckCircle, Loader2, AlertCircle, ChevronDown, ChevronUp, Lock } from 'lucide-react';
+import { Zap, CheckCircle, Loader2, AlertCircle, ChevronDown, ChevronUp, Lock, ArrowLeft, ArrowRight } from 'lucide-react';
 import { validateSquadComposition } from '../../engine/scoring';
 import confetti from 'canvas-confetti';
 import { TripleCaptainIcon, BenchBoostIcon, WildcardIcon } from '../icons/ChipIcons';
@@ -22,6 +22,7 @@ export const PickTeamView: React.FC = () => {
     isSquadLocked,
     isDemoMode,
     currentGW,
+    reorderBenchPlayer,
   } = useFPL();
 
   const [activeSheetPlayerId, setActiveSheetPlayerId] = useState<string | null>(null);
@@ -217,7 +218,7 @@ export const PickTeamView: React.FC = () => {
                 Substitutes ({layout.bench.length}/3)
               </span>
               <span className="text-[9px] font-mono text-slate-400">
-                Order: Sub 1 → 2 → 3
+                Priority: Sub 1 enters 1st
               </span>
             </div>
 
@@ -226,7 +227,49 @@ export const PickTeamView: React.FC = () => {
                 const sp = layout.bench.find((b) => b.benchOrder === order) || layout.bench[order - 1];
                 if (sp) {
                   return (
-                    <div key={sp.playerId} className="flex justify-center">
+                    <div key={sp.playerId} className="flex flex-col items-center">
+                      {/* Priority Tag Header & Reorder Controls */}
+                      <div className="w-full flex items-center justify-between mb-1 px-1">
+                        <span className={`text-[9px] font-black uppercase tracking-tight px-1.5 py-0.5 rounded-md ${
+                          order === 1
+                            ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40'
+                            : order === 2
+                            ? 'bg-sky-500/20 text-sky-400 border border-sky-500/40'
+                            : 'bg-amber-500/20 text-amber-400 border border-amber-500/40'
+                        }`}>
+                          {order === 1 ? '1st Sub ★' : order === 2 ? '2nd Sub' : '3rd Sub'}
+                        </span>
+                        {/* Quick Reorder Arrow Buttons */}
+                        {!isSquadLocked && layout.bench.length > 1 && (
+                          <div className="flex items-center gap-1">
+                            {order > 1 && (
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  reorderBenchPlayer(sp.playerId, order - 1);
+                                }}
+                                title={`Promote to Sub ${order - 1}`}
+                                className="p-1 rounded bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white transition-all active:scale-90"
+                              >
+                                <ArrowLeft className="w-3 h-3" />
+                              </button>
+                            )}
+                            {order < layout.bench.length && (
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  reorderBenchPlayer(sp.playerId, order + 1);
+                                }}
+                                title={`Demote to Sub ${order + 1}`}
+                                className="p-1 rounded bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white transition-all active:scale-90"
+                              >
+                                <ArrowRight className="w-3 h-3" />
+                              </button>
+                            )}
+                          </div>
+                        )}
+                      </div>
+
                       <PlayerCard
                         playerId={sp.playerId}
                         isStarter={false}

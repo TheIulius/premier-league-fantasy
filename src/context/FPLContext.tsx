@@ -49,6 +49,7 @@ interface FPLContextType {
   selectedPlayerForSwap: string | null;
   setSelectedPlayerForSwap: (id: string | null) => void;
   substitutePlayers: (playerAId: string, playerBId: string) => { success: boolean; message?: string };
+  reorderBenchPlayer: (playerId: string, targetOrder: number) => { success: boolean; message?: string };
   saveSquad: (customPlayers?: SquadPlayer[], validateComplete?: boolean) => Promise<{ success: boolean; message?: string }>;
   buyPlayer: (playerId: string) => { success: boolean; message?: string };
   removePlayer: (playerId: string) => { success: boolean; message?: string };
@@ -379,16 +380,25 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   }, [paymentSettings]);
 
 
-  // Sync state from server API
-  const refreshServerState = useCallback(async () => {
+  // Keep currentManagerId in sync with authUser
+  useEffect(() => {
+    if (authUser?.id && authUser.id !== currentManagerId) {
+      setCurrentManagerId(authUser.id);
+      localStorage.setItem(STORAGE_KEY_MANAGER_ID, authUser.id);
+    }
+  }, [authUser, currentManagerId]);
+
+  // Sync state from server API with squad protection
+  const refreshServerState = useCallback(async (managerIdOverride?: string) => {
     try {
-      const data = await api.fetchAppState(currentManagerId);
+      const activeId = managerIdOverride || authUser?.id || currentManagerId || 'user_1';
+      const data = await api.fetchAppState(activeId);
       if (data) {
         if (data.clubs) setClubs(data.clubs);
         if (data.players) {
           const seedMap: Record<string, Player> = {};
           SEED_PLAYERS.forEach((p) => { seedMap[p.id] = p; });
-          setPlayers({ ...seedMap, ...data.players });
+          setPlayers((prev) => ({ ...seedMap, ...prev, ...data.players }));
         }
         if (data.fixtures) setFixtures(data.fixtures);
         if (data.leagues) setLeagues(data.leagues);
@@ -405,30 +415,40 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           if (data.activeManager.squad) {
             let activeSq = data.activeManager.squad;
             const allP = data.players || players;
-            if (activeSq.players && allP && Object.keys(allP).length > 0) {
-              const validPlayers = activeSq.players.filter((sp: SquadPlayer) => Boolean(allP[sp.playerId]));
-              const hadGhost = validPlayers.length !== activeSq.players.length;
-              let bank = activeSq.bank;
-              if (hadGhost) {
-                const totalCost = validPlayers.reduce((sum: number, sp: SquadPlayer) => sum + (allP[sp.playerId]?.cost || 0), 0);
-                bank = Math.max(0, Math.round((60.0 - totalCost) * 10) / 10);
+
+            // CRITICAL SQUAD PROTECTION:
+            // Never overwrite an existing populated local squad with an empty/wiped squad from server
+            if (
+              (!activeSq.players || activeSq.players.length === 0) &&
+              squad &&
+              Array.isArray(squad.players) &&
+              squad.players.length > 0
+            ) {
+              console.warn('Server returned empty squad while client has a squad. Preserving local squad and syncing to server.');
+              api.saveSquadApi(activeId, squad.players, squad.teamName, squad.bank).catch(() => {});
+            } else if (activeSq.players && activeSq.players.length > 0) {
+              if (allP && Object.keys(allP).length >= 50) {
+                const validPlayers = activeSq.players.filter((sp: SquadPlayer) => Boolean(allP[sp.playerId]));
+                if (validPlayers.length >= activeSq.players.length) {
+                  const normalized = normalizeSquadLineup(validPlayers, allP);
+                  activeSq = { ...activeSq, players: normalized };
+                } else if (validPlayers.length > 0) {
+                  const totalCost = validPlayers.reduce((sum: number, sp: SquadPlayer) => sum + (allP[sp.playerId]?.cost || 0), 0);
+                  const bank = Math.max(0, Math.round((60.0 - totalCost) * 10) / 10);
+                  const normalized = normalizeSquadLineup(validPlayers, allP);
+                  activeSq = { ...activeSq, players: normalized, bank };
+                }
               }
-              const normalized = normalizeSquadLineup(validPlayers, allP);
-              activeSq = {
-                ...activeSq,
-                players: normalized,
-                bank,
-              };
+              setSquad(activeSq);
+              localStorage.setItem(STORAGE_KEY_SQUAD, JSON.stringify(activeSq));
             }
-            setSquad(activeSq);
-            localStorage.setItem(STORAGE_KEY_SQUAD, JSON.stringify(activeSq));
           }
         }
       }
     } catch (err) {
       // Offline fallback: continue using local state
     }
-  }, [currentManagerId, players]);
+  }, [authUser, currentManagerId, players, squad]);
 
   // Verify auth session on mount
   useEffect(() => {
@@ -441,35 +461,40 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           localStorage.setItem(STORAGE_KEY_MANAGER_ID, res.user.id);
           if (res.squad) {
             let userSq = res.squad;
-            if (userSq.players && players && Object.keys(players).length > 0) {
-              const validPlayers = userSq.players.filter((sp: SquadPlayer) => Boolean(players[sp.playerId]));
-              const hadGhost = validPlayers.length !== userSq.players.length;
-              let bank = userSq.bank;
-              if (hadGhost) {
-                const totalCost = validPlayers.reduce((sum: number, sp: SquadPlayer) => sum + (players[sp.playerId]?.cost || 0), 0);
-                bank = Math.max(0, Math.round((60.0 - totalCost) * 10) / 10);
+            // Shield local squad if server squad is empty but local squad has players
+            if (
+              (!userSq.players || userSq.players.length === 0) &&
+              squad &&
+              Array.isArray(squad.players) &&
+              squad.players.length > 0
+            ) {
+              console.warn('Session squad empty, syncing existing local squad to user account.');
+              api.saveSquadApi(res.user.id, squad.players, squad.teamName, squad.bank).catch(() => {});
+            } else if (userSq.players && userSq.players.length > 0) {
+              if (players && Object.keys(players).length >= 50) {
+                const validPlayers = userSq.players.filter((sp: SquadPlayer) => Boolean(players[sp.playerId]));
+                if (validPlayers.length >= userSq.players.length) {
+                  const normalized = normalizeSquadLineup(validPlayers, players);
+                  userSq = { ...userSq, players: normalized };
+                }
               }
-              const normalized = normalizeSquadLineup(validPlayers, players);
-              userSq = {
-                ...userSq,
-                players: normalized,
-                bank,
-              };
+              setSquad(userSq);
+              localStorage.setItem(STORAGE_KEY_SQUAD, JSON.stringify(userSq));
             }
-            setSquad(userSq);
-            localStorage.setItem(STORAGE_KEY_SQUAD, JSON.stringify(userSq));
           }
         }
       }).catch(() => {});
     }
-  }, [authToken, players]);
+  }, [authToken]);
 
   // Auto-heal squad whenever players change (e.g. if an admin deleted/edited players)
   useEffect(() => {
-    if (players && Object.keys(players).length > 0 && squad && Array.isArray(squad.players)) {
+    // Only run if database is fully loaded (at least 50 players) to avoid deleting real squad players during loading
+    if (players && Object.keys(players).length >= 50 && squad && Array.isArray(squad.players) && squad.players.length > 0) {
       const validPlayers = squad.players.filter((sp: SquadPlayer) => Boolean(players[sp.playerId]));
       const hadGhost = validPlayers.length !== squad.players.length;
-      if (hadGhost) {
+      // Safety check: if ALL players appear invalid, this is a database sync error, do not wipe!
+      if (hadGhost && validPlayers.length > 0) {
         const totalCost = validPlayers.reduce((sum: number, sp: SquadPlayer) => sum + (players[sp.playerId]?.cost || 0), 0);
         const correctBank = Math.max(0, Math.round((60.0 - totalCost) * 10) / 10);
         const normalized = normalizeSquadLineup(validPlayers, players);
@@ -480,16 +505,17 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         };
         setSquad(updatedSquad);
         localStorage.setItem(STORAGE_KEY_SQUAD, JSON.stringify(updatedSquad));
-        api.saveSquadApi(currentManagerId, updatedSquad.players, updatedSquad.teamName, updatedSquad.bank).catch(() => {});
+        const activeId = authUser?.id || currentManagerId || 'user_1';
+        api.saveSquadApi(activeId, updatedSquad.players, updatedSquad.teamName, updatedSquad.bank).catch(() => {});
       }
     }
-  }, [players, currentManagerId]);
+  }, [players, authUser, currentManagerId]);
 
   // Hydrate from server on mount
   useEffect(() => {
     refreshServerState();
     // Poll every 12 seconds so friend live updates sync automatically
-    const interval = setInterval(refreshServerState, 12000);
+    const interval = setInterval(() => refreshServerState(), 12000);
     return () => clearInterval(interval);
   }, [refreshServerState]);
 
@@ -604,8 +630,10 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         teamName: res.user.teamName,
       });
 
-      if (res.squad) setSquad(res.squad);
-      await refreshServerState();
+      if (res.squad && Array.isArray(res.squad.players) && res.squad.players.length > 0) {
+        setSquad(res.squad);
+      }
+      await refreshServerState(res.user.id);
     }
   };
 
@@ -633,8 +661,10 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         teamName: res.user.teamName,
       });
 
-      if (res.squad) setSquad(res.squad);
-      await refreshServerState();
+      if (res.squad && Array.isArray(res.squad.players) && res.squad.players.length > 0) {
+        setSquad(res.squad);
+      }
+      await refreshServerState(res.user.id);
     }
   };
 
@@ -908,9 +938,20 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   // Substitute / Swap logic
-  const substitutePlayers = (playerAId: string, playerBId: string) => {
+  const substitutePlayers = (playerAId: string, playerBId: string): { success: boolean; message?: string } => {
     if (isSquadLocked) {
       return { success: false, message: 'Lineups are locked. The deadline has passed.' };
+    }
+
+    if (playerAId === playerBId) {
+      setSelectedPlayerForSwap(null);
+      return { success: true };
+    }
+
+    const spA = squad.players.find((p) => p.playerId === playerAId);
+    const spB = squad.players.find((p) => p.playerId === playerBId);
+    if (!spA || !spB) {
+      return { success: false, message: 'Player not found in squad' };
     }
 
     const check = canSwapPlayers(playerAId, playerBId, squad.players, players);
@@ -918,47 +959,78 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       return { success: false, message: check.reason };
     }
 
-    let updatedPlayers = squad.players.map((sp) => {
-      if (sp.playerId === playerAId) {
-        const other = squad.players.find((p) => p.playerId === playerBId)!;
-        return { ...sp, isStarter: other.isStarter, benchOrder: other.benchOrder };
-      }
-      if (sp.playerId === playerBId) {
-        const other = squad.players.find((p) => p.playerId === playerAId)!;
-        return { ...sp, isStarter: other.isStarter, benchOrder: other.benchOrder };
-      }
-      return sp;
-    });
+    let updatedPlayers: SquadPlayer[];
 
-    // Preserve captain / vice-captain if starter was swapped with bench
-    const spA = squad.players.find((p) => p.playerId === playerAId)!;
-    const spB = squad.players.find((p) => p.playerId === playerBId)!;
+    // CASE 1: Bench <-> Bench swap (Substitute Priority Reordering Sub 1 <-> Sub 2 <-> Sub 3)
+    if (!spA.isStarter && !spB.isStarter) {
+      const orderA = spA.benchOrder;
+      const orderB = spB.benchOrder;
 
-    if (spA.isStarter !== spB.isStarter) {
-      const outStarter = spA.isStarter ? spA : spB;
-      const inBench = spA.isStarter ? spB : spA;
+      updatedPlayers = squad.players.map((sp) => {
+        if (sp.playerId === playerAId) {
+          return { ...sp, benchOrder: orderB, isCaptain: false, isViceCaptain: false };
+        }
+        if (sp.playerId === playerBId) {
+          return { ...sp, benchOrder: orderA, isCaptain: false, isViceCaptain: false };
+        }
+        return sp;
+      });
 
-      if (outStarter.isCaptain) {
-        updatedPlayers = updatedPlayers.map((sp) =>
-          sp.playerId === inBench.playerId ? { ...sp, isCaptain: true, isViceCaptain: false } :
-          sp.playerId === outStarter.playerId ? { ...sp, isCaptain: false } : sp
-        );
-      } else if (outStarter.isViceCaptain) {
-        updatedPlayers = updatedPlayers.map((sp) =>
-          sp.playerId === inBench.playerId ? { ...sp, isViceCaptain: true, isCaptain: false } :
-          sp.playerId === outStarter.playerId ? { ...sp, isViceCaptain: false } : sp
-        );
+      // Normalize bench orders cleanly (1, 2, 3) preserving the swapped relative order
+      const benchPlayers = updatedPlayers.filter((p) => !p.isStarter);
+      benchPlayers.sort((a, b) => (a.benchOrder || 0) - (b.benchOrder || 0));
+      const orderMap = new Map<string, number>();
+      benchPlayers.forEach((bp, idx) => orderMap.set(bp.playerId, idx + 1));
+
+      updatedPlayers = updatedPlayers.map((sp) => {
+        if (!sp.isStarter) {
+          return { ...sp, benchOrder: orderMap.get(sp.playerId) || 1, isCaptain: false, isViceCaptain: false };
+        }
+        return { ...sp, benchOrder: 0 };
+      });
+    } else {
+      // CASE 2: Starter <-> Bench or Starter <-> Starter swap
+      updatedPlayers = squad.players.map((sp) => {
+        if (sp.playerId === playerAId) {
+          return { ...sp, isStarter: spB.isStarter, benchOrder: spB.benchOrder };
+        }
+        if (sp.playerId === playerBId) {
+          return { ...sp, isStarter: spA.isStarter, benchOrder: spA.benchOrder };
+        }
+        return sp;
+      });
+
+      // Preserve captain / vice-captain if starter was swapped with bench
+      if (spA.isStarter !== spB.isStarter) {
+        const outStarter = spA.isStarter ? spA : spB;
+        const inBench = spA.isStarter ? spB : spA;
+
+        if (outStarter.isCaptain) {
+          updatedPlayers = updatedPlayers.map((sp) =>
+            sp.playerId === inBench.playerId ? { ...sp, isCaptain: true, isViceCaptain: false } :
+            sp.playerId === outStarter.playerId ? { ...sp, isCaptain: false } : sp
+          );
+        } else if (outStarter.isViceCaptain) {
+          updatedPlayers = updatedPlayers.map((sp) =>
+            sp.playerId === inBench.playerId ? { ...sp, isViceCaptain: true, isCaptain: false } :
+            sp.playerId === outStarter.playerId ? { ...sp, isViceCaptain: false } : sp
+          );
+        }
       }
+
+      // Re-index bench orders (1, 2, 3) preserving existing bench relative priority
+      const benchPlayers = updatedPlayers.filter((p) => !p.isStarter);
+      benchPlayers.sort((a, b) => (a.benchOrder || 0) - (b.benchOrder || 0));
+      const orderMap = new Map<string, number>();
+      benchPlayers.forEach((bp, idx) => orderMap.set(bp.playerId, idx + 1));
+
+      updatedPlayers = updatedPlayers.map((sp) => {
+        if (!sp.isStarter) {
+          return { ...sp, benchOrder: orderMap.get(sp.playerId) || 1, isCaptain: false, isViceCaptain: false };
+        }
+        return { ...sp, benchOrder: 0 };
+      });
     }
-
-    // Re-index bench orders (1, 2, 3)
-    let bIdx = 1;
-    updatedPlayers = updatedPlayers.map((sp) => {
-      if (!sp.isStarter) {
-        return { ...sp, benchOrder: bIdx++ };
-      }
-      return { ...sp, benchOrder: 0 };
-    });
 
     const cleanUpdatedPlayers = sanitizeCaptaincy(updatedPlayers);
     const updatedSquad: Squad = {
@@ -968,10 +1040,45 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
     setSquad(updatedSquad);
     localStorage.setItem(STORAGE_KEY_SQUAD, JSON.stringify(updatedSquad));
-    api.saveSquadApi(currentManagerId, cleanUpdatedPlayers, updatedSquad.teamName, updatedSquad.bank).catch((err) => {
+    const activeId = authUser?.id || currentManagerId || 'user_1';
+    api.saveSquadApi(activeId, cleanUpdatedPlayers, updatedSquad.teamName, updatedSquad.bank).catch((err) => {
       console.warn('Auto-save squad substitution failed:', err);
     });
     setSelectedPlayerForSwap(null);
+    return { success: true };
+  };
+
+  // Reorder substitute priority directly (Sub 1, Sub 2, Sub 3)
+  const reorderBenchPlayer = (playerId: string, targetOrder: number): { success: boolean; message?: string } => {
+    if (isSquadLocked) {
+      return { success: false, message: 'Lineups are locked. The deadline has passed.' };
+    }
+
+    const sp = squad.players.find((p) => p.playerId === playerId);
+    if (!sp || sp.isStarter) {
+      return { success: false, message: 'Player is not on the bench' };
+    }
+
+    const clampedOrder = Math.max(1, Math.min(3, targetOrder));
+    if (sp.benchOrder === clampedOrder) {
+      return { success: true };
+    }
+
+    const targetSp = squad.players.find((p) => !p.isStarter && p.benchOrder === clampedOrder);
+    if (targetSp) {
+      return substitutePlayers(playerId, targetSp.playerId);
+    }
+
+    // Direct assignment if target order slot is vacant
+    const updated = squad.players.map((p) =>
+      p.playerId === playerId ? { ...p, benchOrder: clampedOrder } : p
+    );
+    const cleanUpdated = sanitizeCaptaincy(updated);
+    const updatedSquad: Squad = { ...squad, players: cleanUpdated };
+    setSquad(updatedSquad);
+    localStorage.setItem(STORAGE_KEY_SQUAD, JSON.stringify(updatedSquad));
+    const activeId = authUser?.id || currentManagerId || 'user_1';
+    api.saveSquadApi(activeId, cleanUpdated, updatedSquad.teamName, updatedSquad.bank).catch(() => {});
     return { success: true };
   };
 
@@ -1480,6 +1587,7 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         selectedPlayerForSwap,
         setSelectedPlayerForSwap,
         substitutePlayers,
+        reorderBenchPlayer,
         saveSquad,
         buyPlayer,
         removePlayer,

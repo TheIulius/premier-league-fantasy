@@ -21,6 +21,7 @@ export const PlayerActionSheet: React.FC<PlayerActionSheetProps> = ({ playerId, 
     calculationResult,
     setTransferOutPlayerId,
     isSquadLocked,
+    reorderBenchPlayer,
   } = useFPL();
 
   if (!playerId) return null;
@@ -32,6 +33,7 @@ export const PlayerActionSheet: React.FC<PlayerActionSheetProps> = ({ playerId, 
   const isStarter = squadPlayer?.isStarter ?? false;
   const isCaptain = squadPlayer?.isCaptain ?? false;
   const isViceCaptain = squadPlayer?.isViceCaptain ?? false;
+  const benchOrder = squadPlayer?.benchOrder || 0;
 
   const club = CLUBS[player.clubId];
   const stats = player.gwStats[currentGW];
@@ -132,6 +134,75 @@ export const PlayerActionSheet: React.FC<PlayerActionSheetProps> = ({ playerId, 
         {isSquadLocked && (
           <div className="my-2 p-2 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-600 dark:text-rose-400 text-xs font-bold text-center">
             🔒 Lineups are locked for this Gameweek
+          </div>
+        )}
+
+        {/* Bench Priority Reordering Section (Only for Substitutes) */}
+        {!isStarter && (
+          <div className="my-2.5 p-3 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 flex flex-col gap-2">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                Bench Substitute Priority
+              </span>
+              <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${
+                benchOrder === 1
+                  ? 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30'
+                  : benchOrder === 2
+                  ? 'bg-sky-500/20 text-sky-600 dark:text-sky-400 border border-sky-500/30'
+                  : 'bg-amber-500/20 text-amber-600 dark:text-amber-400 border border-amber-500/30'
+              }`}>
+                {benchOrder === 1 ? '1st Sub (Priority)' : benchOrder === 2 ? '2nd Sub' : '3rd Sub'}
+              </span>
+            </div>
+            <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-tight">
+              {benchOrder === 1
+                ? '★ 1st Priority: Enters the match first if any starting outfield player does not play.'
+                : `Sub ${benchOrder}: Enters after Sub ${benchOrder - 1} if another player does not play.`}
+            </p>
+            <div className="grid grid-cols-3 gap-1.5 mt-1">
+              <button
+                disabled={isSquadLocked || benchOrder === 1}
+                onClick={() => {
+                  reorderBenchPlayer(playerId, 1);
+                  onClose();
+                }}
+                className={`py-2 px-1.5 rounded-xl text-[11px] font-extrabold flex items-center justify-center border transition-all ${
+                  benchOrder === 1
+                    ? 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border-emerald-500/40 cursor-default'
+                    : 'bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 border-slate-200 dark:border-slate-700 hover:border-emerald-500/50 hover:bg-emerald-500/10 active:scale-95'
+                }`}
+              >
+                <span>1st Sub</span>
+              </button>
+              <button
+                disabled={isSquadLocked || benchOrder === 2}
+                onClick={() => {
+                  reorderBenchPlayer(playerId, 2);
+                  onClose();
+                }}
+                className={`py-2 px-1.5 rounded-xl text-[11px] font-extrabold flex items-center justify-center border transition-all ${
+                  benchOrder === 2
+                    ? 'bg-sky-500/20 text-sky-600 dark:text-sky-400 border-sky-500/40 cursor-default'
+                    : 'bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 border-slate-200 dark:border-slate-700 hover:border-sky-500/50 hover:bg-sky-500/10 active:scale-95'
+                }`}
+              >
+                <span>2nd Sub</span>
+              </button>
+              <button
+                disabled={isSquadLocked || benchOrder === 3}
+                onClick={() => {
+                  reorderBenchPlayer(playerId, 3);
+                  onClose();
+                }}
+                className={`py-2 px-1.5 rounded-xl text-[11px] font-extrabold flex items-center justify-center border transition-all ${
+                  benchOrder === 3
+                    ? 'bg-amber-500/20 text-amber-600 dark:text-amber-400 border-amber-500/40 cursor-default'
+                    : 'bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 border-slate-200 dark:border-slate-700 hover:border-amber-500/50 hover:bg-amber-500/10 active:scale-95'
+                }`}
+              >
+                <span>3rd Sub</span>
+              </button>
+            </div>
           </div>
         )}
 

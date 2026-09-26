@@ -78,6 +78,9 @@ export const PlayerCard: React.FC<PlayerCardProps> = ({
   const isDimmedDuringSwap =
     selectedPlayerForSwap && !isSwapSource && !isSwapTargetEligible;
 
+  const sourceSp = selectedPlayerForSwap ? squad.players.find((p) => p.playerId === selectedPlayerForSwap) : null;
+  const isBenchToBench = sourceSp && !sourceSp.isStarter && !isStarter;
+
   return (
     <div
       onClick={handleClick}
@@ -100,9 +103,9 @@ export const PlayerCard: React.FC<PlayerCardProps> = ({
       )}
 
       {isSwapTargetEligible && (
-        <div className="absolute -top-3.5 bg-[#00ff87] text-[#37003c] text-[9px] md:text-[10px] font-black px-2 py-0.5 rounded-full shadow-lg border border-[#37003c] flex items-center gap-1 z-30 animate-bounce">
+        <div className="absolute -top-3.5 bg-[#00ff87] text-[#37003c] text-[8px] md:text-[9px] font-black px-2 py-0.5 rounded-full shadow-lg border border-[#37003c] flex items-center gap-1 z-30 animate-bounce">
           <Check className="w-2.5 h-2.5 md:w-3 md:h-3" />
-          <span>TAP HERE</span>
+          <span>{isBenchToBench ? 'SWAP ORDER' : 'TAP HERE'}</span>
         </div>
       )}
 
@@ -133,7 +136,13 @@ export const PlayerCard: React.FC<PlayerCardProps> = ({
 
         {/* Bench Order indicator if on bench (Sub 1, Sub 2, Sub 3) */}
         {!isStarter && (
-          <div className="absolute -bottom-1 -left-1 bg-black/90 text-[#00ff87] font-extrabold text-[8px] md:text-[9px] rounded px-1 border border-[#00ff87]/30 shadow-sm">
+          <div className={`absolute -bottom-1 -left-1 font-black text-[8px] md:text-[9px] rounded px-1.5 py-0.5 border shadow-sm ${
+            benchOrder === 1
+              ? 'bg-black/95 text-emerald-400 border-emerald-500/50'
+              : benchOrder === 2
+              ? 'bg-black/95 text-sky-400 border-sky-500/50'
+              : 'bg-black/95 text-amber-400 border-amber-500/50'
+          }`}>
             Sub {benchOrder}
           </div>
         )}

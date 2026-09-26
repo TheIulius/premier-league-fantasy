@@ -269,12 +269,20 @@ export function normalizeSquadLineup(
     else if (pos === 'FWD') fwdCount++;
   });
 
-  // If already 6 starters with 1 GK and valid formation, just reindex bench and sanitize captaincy
+  // If already 6 starters with 1 GK and valid formation, preserve bench order and sanitize captaincy
   if (starters.length === 6 && gkCount === 1 && isValidFormation(defCount, midCount, fwdCount) && bench.length === 3) {
-    let bIdx = 1;
+    const sortedBench = [...bench].sort((a, b) => (a.benchOrder || 0) - (b.benchOrder || 0));
+    const benchMap = new Map<string, number>();
+    sortedBench.forEach((b, idx) => benchMap.set(b.playerId, idx + 1));
+
     const reindexed = squadPlayers.map((sp) => {
       if (!sp.isStarter) {
-        return { ...sp, benchOrder: bIdx++, isCaptain: false, isViceCaptain: false };
+        return {
+          ...sp,
+          benchOrder: benchMap.get(sp.playerId) || 1,
+          isCaptain: false,
+          isViceCaptain: false,
+        };
       }
       return { ...sp, benchOrder: 0 };
     });

@@ -207,12 +207,12 @@ class Database {
           }
         }
         // Sanitize manager squads: auto-remove deleted ghost players and enforce strict single-captain integrity
-        if (this.data.players && this.data.managers) {
+        if (this.data.players && Object.keys(this.data.players).length >= 50 && this.data.managers) {
           let squadsChanged = false;
           Object.values(this.data.managers).forEach((m) => {
-            if (m.squad && Array.isArray(m.squad.players)) {
+            if (m.squad && Array.isArray(m.squad.players) && m.squad.players.length > 0) {
               const validPlayers = m.squad.players.filter((sp) => Boolean(this.data.players[sp.playerId]));
-              if (validPlayers.length !== m.squad.players.length) {
+              if (validPlayers.length !== m.squad.players.length && validPlayers.length > 0) {
                 const totalCost = validPlayers.reduce((sum, sp) => sum + (this.data.players[sp.playerId]?.cost || 0), 0);
                 m.squad.bank = Math.max(0, Math.round((60.0 - totalCost) * 10) / 10);
                 m.squad.players = validPlayers;
