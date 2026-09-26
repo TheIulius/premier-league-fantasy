@@ -5011,10 +5011,10 @@
               "webName": "Amiko",
               "clubId": "SCH_11_6",
               "position": "DEF",
-              "isStarter": false,
+              "isStarter": true,
               "isCaptain": false,
-              "isViceCaptain": false,
-              "benchOrder": 2,
+              "isViceCaptain": true,
+              "benchOrder": 0,
               "points": 0
             },
             {
@@ -5025,7 +5025,7 @@
               "isStarter": false,
               "isCaptain": false,
               "isViceCaptain": false,
-              "benchOrder": 3,
+              "benchOrder": 2,
               "points": 0
             },
             {
@@ -5033,10 +5033,10 @@
               "webName": "N. Shengelia",
               "clubId": "SCH_10_1",
               "position": "FWD",
-              "isStarter": true,
+              "isStarter": false,
               "isCaptain": false,
-              "isViceCaptain": true,
-              "benchOrder": 0,
+              "isViceCaptain": false,
+              "benchOrder": 3,
               "points": 0
             }
           ]
@@ -5425,24 +5425,24 @@
           },
           {
             "playerId": "p_11_6_amiko",
+            "isStarter": true,
+            "benchOrder": 0,
+            "isCaptain": false,
+            "isViceCaptain": true
+          },
+          {
+            "playerId": "p_custom_1790166342439",
             "isStarter": false,
             "benchOrder": 2,
             "isCaptain": false,
             "isViceCaptain": false
           },
           {
-            "playerId": "p_custom_1790166342439",
+            "playerId": "p_10_1_shengelia",
             "isStarter": false,
             "benchOrder": 3,
             "isCaptain": false,
             "isViceCaptain": false
-          },
-          {
-            "playerId": "p_10_1_shengelia",
-            "isStarter": true,
-            "benchOrder": 0,
-            "isCaptain": false,
-            "isViceCaptain": true
           }
         ],
         "bank": 8.4,
