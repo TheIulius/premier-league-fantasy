@@ -5602,6 +5602,17 @@
               "isViceCaptain": true,
               "benchOrder": 0,
               "points": 0
+            },
+            {
+              "playerId": "p_9_6_chigladze",
+              "webName": "Chigladze",
+              "clubId": "SCH_9_6",
+              "position": "FWD",
+              "isStarter": true,
+              "isCaptain": false,
+              "isViceCaptain": false,
+              "benchOrder": 0,
+              "points": 0
             }
           ]
         },
@@ -5869,9 +5880,16 @@
             "benchOrder": 0,
             "isCaptain": false,
             "isViceCaptain": true
+          },
+          {
+            "playerId": "p_9_6_chigladze",
+            "isStarter": true,
+            "benchOrder": 0,
+            "isCaptain": false,
+            "isViceCaptain": false
           }
         ],
-        "bank": 44.8,
+        "bank": 37,
         "freeTransfers": 1,
         "transfersMadeThisGW": 0,
         "activeChip": null,
