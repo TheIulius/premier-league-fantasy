@@ -13,12 +13,12 @@ import {
   X,
   Lock,
   List,
-  Calendar,
+  LayoutGrid,
   Coins,
 } from 'lucide-react';
 import { validateSquadComposition } from '../../engine/scoring';
 import confetti from 'canvas-confetti';
-import { ClassCalendarView } from '../transfers/ClassCalendarView';
+import { ClassGridView } from '../transfers/ClassGridView';
 
 export type SortOption =
   | 'points_desc'
@@ -510,7 +510,7 @@ export const TransfersView: React.FC = () => {
                   </span>
                 </div>
 
-                {/* View Mode Toggle: Calendar vs List */}
+                {/* View Mode Toggle: Grid vs List */}
                 <div className="flex items-center p-0.5 rounded-xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-xs">
                   <button
                     onClick={() => setViewMode('classes')}
@@ -519,10 +519,10 @@ export const TransfersView: React.FC = () => {
                         ? 'bg-emerald-500 text-slate-950 font-black shadow-xs'
                         : 'text-slate-400 hover:text-slate-200'
                     }`}
-                    title="10th Grade Calendar View"
+                    title="Class Grid View"
                   >
-                    <Calendar className="w-3.5 h-3.5" />
-                    <span>Calendar</span>
+                    <LayoutGrid className="w-3.5 h-3.5" />
+                    <span>Grid</span>
                   </button>
                   <button
                     onClick={() => setViewMode('list')}
@@ -737,8 +737,8 @@ export const TransfersView: React.FC = () => {
                     </div>
                   )
                 ) : (
-                    /* Calendar Style (10th Grade Photo style: GKP | DEF | MID | FWD) */
-                    <ClassCalendarView
+                    /* Class Grid View (Photo style: GKP | DEF | MID | FWD) */
+                    <ClassGridView
                       players={players}
                       clubs={clubs}
                       squad={squad}

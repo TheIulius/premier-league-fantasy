@@ -5,7 +5,6 @@ import { useFPL } from '../../context/FPLContext';
 import { KitJersey } from '../pitch/KitJersey';
 import { motion } from 'framer-motion';
 import {
-  ZoomOut,
   ArrowLeft,
   Plus,
   Check,
@@ -14,7 +13,7 @@ import {
   Activity,
 } from 'lucide-react';
 
-interface ClassCalendarViewProps {
+export interface ClassGridViewProps {
   players: Record<string, Player>;
   clubs: Record<string, Club>;
   squad: Squad;
@@ -29,11 +28,11 @@ interface ClassCalendarViewProps {
   affordableOnly?: boolean;
 }
 
-export type CalendarZoomLevel = 'years' | 'months' | 'class';
+export type ClassCalendarViewProps = ClassGridViewProps;
 
 const POSITIONS: Position[] = ['GKP', 'DEF', 'MID', 'FWD'];
 
-export const ClassCalendarView: React.FC<ClassCalendarViewProps> = ({
+export const ClassGridView: React.FC<ClassGridViewProps> = ({
   players,
   clubs,
   squad,
@@ -48,8 +47,6 @@ export const ClassCalendarView: React.FC<ClassCalendarViewProps> = ({
 }) => {
   const { fixtures, currentGW } = useFPL();
 
-  // Zoom state: 'years' (All Grades 9-12) | 'months' (Grade Roster Calendar like 10TH GRADE) | 'class' (Zoomed-in 10/1)
-  const [zoomLevel, setZoomLevel] = useState<CalendarZoomLevel>('months');
   const [activeGrade, setActiveGrade] = useState<number>(10);
   const [activeClassId, setActiveClassId] = useState<string | null>(null);
 
@@ -402,98 +399,10 @@ export const ClassCalendarView: React.FC<ClassCalendarViewProps> = ({
   };
 
   // ============================================================================
-  // LEVEL 1: YEARS VIEW (All 4 Grades: 9TH, 10TH, 11TH, 12TH GRADE)
-  // Compact 2x2 grid even on phone so zero scrolling is needed!
+  // ZOOMED-IN SINGLE CLASS (e.g. 10/1)
+  // 4-column grid style (GKP | DEF | MID | FWD) with full details
   // ============================================================================
-  if (zoomLevel === 'years') {
-    return (
-      <div className="space-y-3 py-1">
-        {renderPlayerDetailModal()}
-
-        <div className="flex items-center justify-between border-b border-slate-200 dark:border-white/10 pb-2">
-          <div>
-            <h2 className="text-base sm:text-xl font-black tracking-tight text-slate-900 dark:text-white uppercase">
-              ALL GRADES (9–12)
-            </h2>
-            <p className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400">
-              Tap a grade or class to open
-            </p>
-          </div>
-          <button
-            onClick={() => setZoomLevel('months')}
-            className="px-2.5 py-1 rounded-lg bg-emerald-500 text-slate-950 font-black text-[11px] hover:bg-emerald-400 transition-colors"
-          >
-            ← {getGradeTitle(activeGrade)}
-          </button>
-        </div>
-
-        <div className="grid grid-cols-2 gap-2 sm:gap-3.5">
-          {grades.map((grade) => {
-            const classList = getGradeClasses(grade);
-            let totalPlayers = 0;
-            classList.forEach((c) => {
-              totalPlayers += (classPlayersMap[c.id] || []).length;
-            });
-
-            return (
-              <div
-                key={grade}
-                onClick={() => {
-                  setActiveGrade(grade);
-                  setZoomLevel('months');
-                }}
-                className="p-2.5 sm:p-4 rounded-2xl bg-slate-50 dark:bg-white/[0.03] border border-slate-200 dark:border-white/10 hover:border-emerald-500 transition-all cursor-pointer group"
-              >
-                <div className="flex items-baseline justify-between mb-2">
-                  <h3 className="text-sm sm:text-xl font-black tracking-tight text-slate-900 dark:text-white group-hover:text-emerald-500 transition-colors">
-                    {getGradeTitle(grade)}
-                  </h3>
-                  <span className="text-[9px] sm:text-xs font-mono font-bold text-slate-400">
-                    {totalPlayers}p
-                  </span>
-                </div>
-
-                <div className="grid grid-cols-4 sm:grid-cols-7 gap-1">
-                  {classList.map((c) => {
-                    const cPlayers = classPlayersMap[c.id] || [];
-                    return (
-                      <div
-                        key={c.id}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setActiveGrade(grade);
-                          setActiveClassId(c.id);
-                          setZoomLevel('class');
-                        }}
-                        className="p-1 rounded-lg bg-white dark:bg-black/40 border border-slate-200 dark:border-white/10 hover:border-emerald-400 text-center transition-all"
-                      >
-                        <span className="text-[9px] sm:text-[10px] font-black block text-slate-800 dark:text-white">
-                          {c.shortName}
-                        </span>
-                        <div className="my-0.5 flex justify-center">
-                          <KitJersey clubId={c.id} position="MID" className="w-4 h-4 sm:w-5 sm:h-5" />
-                        </div>
-                        <span className="text-[8px] font-mono text-slate-400 block">
-                          {cPlayers.length}
-                        </span>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-    );
-  }
-
-  // ============================================================================
-  // LEVEL 3: ZOOMED-IN SINGLE CLASS (e.g. 10/1)
-  // Exact same 4-column grid style (GKP | DEF | MID | FWD) as the photo,
-  // compact & squished for phones, no (i)Matches caption!
-  // ============================================================================
-  if (zoomLevel === 'class' && activeClassId) {
+  if (activeClassId) {
     const classClub =
       clubs[activeClassId] ||
       CLUBS[activeClassId] || {
@@ -521,14 +430,11 @@ export const ClassCalendarView: React.FC<ClassCalendarViewProps> = ({
         <div className="flex items-center justify-between gap-2 border-b border-slate-300 dark:border-white/15 pb-2">
           <div className="flex items-center gap-2">
             <button
-              onClick={() => {
-                setActiveClassId(null);
-                setZoomLevel('months');
-              }}
+              onClick={() => setActiveClassId(null)}
               className="px-2.5 py-1 rounded-xl bg-slate-200/80 dark:bg-white/10 hover:bg-slate-300 dark:hover:bg-white/15 text-[11px] font-black flex items-center gap-1 transition-colors"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
-              <span>{activeGrade}th</span>
+              <span>{activeGrade}th Grade</span>
             </button>
 
             <div className="flex items-baseline gap-1.5">
@@ -551,16 +457,6 @@ export const ClassCalendarView: React.FC<ClassCalendarViewProps> = ({
             >
               {ownedInClass}/2
             </span>
-            <button
-              onClick={() => {
-                setActiveClassId(null);
-                setZoomLevel('years');
-              }}
-              className="px-2 py-1 rounded-lg bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-[10px] font-bold flex items-center gap-1"
-            >
-              <ZoomOut className="w-3 h-3" />
-              <span>Years</span>
-            </button>
           </div>
         </div>
 
@@ -711,8 +607,11 @@ export const ClassCalendarView: React.FC<ClassCalendarViewProps> = ({
           {grades.map((g) => (
             <button
               key={g}
-              onClick={() => setActiveGrade(g)}
-              className={`px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-lg text-[10px] sm:text-xs font-black uppercase transition-all ${
+              onClick={() => {
+                setActiveGrade(g);
+                setActiveClassId(null);
+              }}
+              className={`px-2.5 py-1 sm:px-3 sm:py-1 rounded-lg text-xs font-black uppercase transition-all ${
                 activeGrade === g
                   ? 'bg-emerald-500 text-slate-950 shadow-xs'
                   : 'bg-slate-100 dark:bg-white/5 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
@@ -721,18 +620,10 @@ export const ClassCalendarView: React.FC<ClassCalendarViewProps> = ({
               {g}th
             </button>
           ))}
-          <button
-            onClick={() => setZoomLevel('years')}
-            className="px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-lg text-[10px] sm:text-xs font-bold bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-300 hover:text-emerald-500 flex items-center gap-0.5 border border-slate-200 dark:border-white/10"
-            title="Zoom out to all grades"
-          >
-            <ZoomOut className="w-3 h-3" />
-            <span>Years</span>
-          </button>
         </div>
       </div>
 
-      {/* Squished 2-Column Mobile / 3-Column Tablet & Desktop Calendar Grid */}
+      {/* Squished 2-Column Mobile / 3-Column Tablet & Desktop Grid */}
       <div className="relative z-10 grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-4">
         {gradeClasses.map((club) => {
           const classPlayers = classPlayersMap[club.id] || [];
@@ -744,10 +635,7 @@ export const ClassCalendarView: React.FC<ClassCalendarViewProps> = ({
           return (
             <div
               key={club.id}
-              onClick={() => {
-                setActiveClassId(club.id);
-                setZoomLevel('class');
-              }}
+              onClick={() => setActiveClassId(club.id)}
               className="group p-2 sm:p-2.5 rounded-2xl bg-slate-50/70 dark:bg-white/[0.02] hover:bg-slate-100 dark:hover:bg-white/[0.05] border border-slate-200/70 dark:border-white/10 hover:border-emerald-500/50 transition-all cursor-pointer"
             >
               {/* Class Title Header (e.g. 10/1) */}
@@ -825,3 +713,6 @@ export const ClassCalendarView: React.FC<ClassCalendarViewProps> = ({
     </div>
   );
 };
+
+export const ClassCalendarView = ClassGridView;
+export default ClassGridView;
