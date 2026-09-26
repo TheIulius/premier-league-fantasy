@@ -240,6 +240,10 @@ app.post('/api/auth/register', (req: Request, res: Response) => {
   data.users[id] = newUser;
   data.managers[id] = newManager;
 
+  if (Array.isArray(data.deletedUserIds)) {
+    data.deletedUserIds = data.deletedUserIds.filter((did) => did !== id);
+  }
+
   // Mark activation code as redeemed
   if (matchedCodeObj) {
     matchedCodeObj.isUsed = true;
@@ -1304,6 +1308,30 @@ export function mergeDatabases(local: DatabaseSchema, remote: any): boolean {
   if (!remote || typeof remote !== 'object') return false;
   let changed = false;
 
+  // 0. Merge deletedUserIds (tombstones to prevent resurrecting deleted users)
+  const localDeleted = new Set(local.deletedUserIds || []);
+  if (Array.isArray(remote.deletedUserIds)) {
+    for (const did of remote.deletedUserIds) {
+      if (!localDeleted.has(did)) {
+        localDeleted.add(did);
+        changed = true;
+      }
+    }
+  }
+  local.deletedUserIds = Array.from(localDeleted);
+
+  // Prune any tombstones from local if present
+  for (const did of localDeleted) {
+    if (local.users && local.users[did]) {
+      delete local.users[did];
+      changed = true;
+    }
+    if (local.managers && local.managers[did]) {
+      delete local.managers[did];
+      changed = true;
+    }
+  }
+
   // 1. Merge users
   if (remote.users && typeof remote.users === 'object') {
     if (!local.users) {
@@ -1311,6 +1339,7 @@ export function mergeDatabases(local: DatabaseSchema, remote: any): boolean {
       changed = true;
     }
     for (const [uid, rUser] of Object.entries(remote.users as Record<string, any>)) {
+      if (localDeleted.has(uid)) continue; // Do not resurrect deleted user
       if (!local.users[uid]) {
         local.users[uid] = rUser;
         changed = true;
@@ -1353,6 +1382,7 @@ export function mergeDatabases(local: DatabaseSchema, remote: any): boolean {
       changed = true;
     }
     for (const [mid, rMgr] of Object.entries(remote.managers as Record<string, any>)) {
+      if (localDeleted.has(mid)) continue; // Do not resurrect deleted manager
       if (!local.managers[mid]) {
         local.managers[mid] = rMgr;
         changed = true;
@@ -1897,6 +1927,10 @@ app.post('/api/admin/user/create', (req: Request, res: Response) => {
   data.users[id] = newUser;
   data.managers[id] = newManager;
 
+  if (Array.isArray(data.deletedUserIds)) {
+    data.deletedUserIds = data.deletedUserIds.filter((did) => did !== id);
+  }
+
   // Add to Global League
   const globalLeague = data.leagues?.find((l) => l.isGlobal);
   if (globalLeague) {
@@ -1967,6 +2001,14 @@ app.post('/api/admin/user/delete', (req: Request, res: Response) => {
         l.members = l.members.filter((m) => m.id !== targetId);
       }
     });
+  }
+
+  // 4. Record tombstone in deletedUserIds so 2-way sync does not revive it
+  if (!Array.isArray(data.deletedUserIds)) {
+    data.deletedUserIds = [];
+  }
+  if (!data.deletedUserIds.includes(targetId)) {
+    data.deletedUserIds.push(targetId);
   }
 
   db.save();

@@ -58,6 +58,7 @@ export interface DatabaseSchema {
   users: Record<string, UserAccount>; // Keyed by user ID
   paymentSettings?: PaymentSettings;
   activationCodes?: ActivationCode[];
+  deletedUserIds?: string[];
 }
 
 export function hashPassword(password: string, salt?: string): { hash: string; salt: string } {
