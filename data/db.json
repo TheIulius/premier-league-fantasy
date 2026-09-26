@@ -5751,6 +5751,117 @@
               "points": 0
             }
           ]
+        },
+        {
+          "id": "user_1790446852456",
+          "managerName": "samada123",
+          "teamName": "giorgievski's tractati",
+          "totalPoints": 0,
+          "gwPoints": 0,
+          "rank": 14,
+          "previousRank": 14,
+          "activeChip": null,
+          "lineup": [
+            {
+              "playerId": "p_9_4_jafarashvili",
+              "webName": "Jafarashvili",
+              "clubId": "SCH_9_4",
+              "position": "GKP",
+              "isStarter": true,
+              "isCaptain": false,
+              "isViceCaptain": false,
+              "benchOrder": 0,
+              "points": 0
+            },
+            {
+              "playerId": "p_9_6_chelidze",
+              "webName": "Chelidze",
+              "clubId": "SCH_9_6",
+              "position": "DEF",
+              "isStarter": false,
+              "isCaptain": false,
+              "isViceCaptain": false,
+              "benchOrder": 1,
+              "points": 0
+            },
+            {
+              "playerId": "p_10_5_gelashvili",
+              "webName": "Z. Gelashvili",
+              "clubId": "SCH_10_5",
+              "position": "DEF",
+              "isStarter": false,
+              "isCaptain": false,
+              "isViceCaptain": false,
+              "benchOrder": 2,
+              "points": 0
+            },
+            {
+              "playerId": "p_10_1_katamadze",
+              "webName": "E. Katamadze",
+              "clubId": "SCH_10_1",
+              "position": "MID",
+              "isStarter": true,
+              "isCaptain": false,
+              "isViceCaptain": false,
+              "benchOrder": 0,
+              "points": 0
+            },
+            {
+              "playerId": "p_9_2_gogichashvili",
+              "webName": "Gogichashvili",
+              "clubId": "SCH_9_2",
+              "position": "MID",
+              "isStarter": true,
+              "isCaptain": true,
+              "isViceCaptain": false,
+              "benchOrder": 0,
+              "points": 0
+            },
+            {
+              "playerId": "p_10_2_xachidze",
+              "webName": "N. Xachidze",
+              "clubId": "SCH_10_2",
+              "position": "FWD",
+              "isStarter": true,
+              "isCaptain": false,
+              "isViceCaptain": false,
+              "benchOrder": 0,
+              "points": 0
+            },
+            {
+              "playerId": "p_11_6_amiko",
+              "webName": "Amiko",
+              "clubId": "SCH_11_6",
+              "position": "DEF",
+              "isStarter": true,
+              "isCaptain": false,
+              "isViceCaptain": true,
+              "benchOrder": 0,
+              "points": 0
+            },
+            {
+              "playerId": "p_custom_1790166342439",
+              "webName": "Samada",
+              "clubId": "SCH_11_5",
+              "position": "MID",
+              "isStarter": true,
+              "isCaptain": false,
+              "isViceCaptain": false,
+              "benchOrder": 0,
+              "points": 0
+            },
+            {
+              "playerId": "p_10_1_shengelia",
+              "webName": "N. Shengelia",
+              "clubId": "SCH_10_1",
+              "position": "FWD",
+              "isStarter": false,
+              "isCaptain": false,
+              "isViceCaptain": false,
+              "benchOrder": 3,
+              "points": 0
+            }
+          ]
         }
       ]
     }
@@ -6677,6 +6788,90 @@
         }
       },
       "joinedAt": "2026-09-26T12:53:09.275Z"
+    },
+    "user_1790446852456": {
+      "id": "user_1790446852456",
+      "managerName": "samada123",
+      "teamName": "giorgievski's tractati",
+      "squad": {
+        "teamName": "giorgievski's tractati",
+        "managerName": "samada123",
+        "players": [
+          {
+            "playerId": "p_9_4_jafarashvili",
+            "isStarter": true,
+            "benchOrder": 0,
+            "isCaptain": false,
+            "isViceCaptain": false
+          },
+          {
+            "playerId": "p_9_6_chelidze",
+            "isStarter": false,
+            "benchOrder": 1,
+            "isCaptain": false,
+            "isViceCaptain": false
+          },
+          {
+            "playerId": "p_10_5_gelashvili",
+            "isStarter": false,
+            "benchOrder": 2,
+            "isCaptain": false,
+            "isViceCaptain": false
+          },
+          {
+            "playerId": "p_10_1_katamadze",
+            "isStarter": true,
+            "benchOrder": 0,
+            "isCaptain": false,
+            "isViceCaptain": false
+          },
+          {
+            "playerId": "p_9_2_gogichashvili",
+            "isStarter": true,
+            "benchOrder": 0,
+            "isCaptain": true,
+            "isViceCaptain": false
+          },
+          {
+            "playerId": "p_10_2_xachidze",
+            "isStarter": true,
+            "benchOrder": 0,
+            "isCaptain": false,
+            "isViceCaptain": false
+          },
+          {
+            "playerId": "p_11_6_amiko",
+            "isStarter": true,
+            "benchOrder": 0,
+            "isCaptain": false,
+            "isViceCaptain": true
+          },
+          {
+            "playerId": "p_custom_1790166342439",
+            "isStarter": true,
+            "benchOrder": 0,
+            "isCaptain": false,
+            "isViceCaptain": false
+          },
+          {
+            "playerId": "p_10_1_shengelia",
+            "isStarter": false,
+            "benchOrder": 3,
+            "isCaptain": false,
+            "isViceCaptain": false
+          }
+        ],
+        "bank": 8.4,
+        "freeTransfers": 1,
+        "transfersMadeThisGW": 0,
+        "activeChip": null,
+        "usedChips": {
+          "triple_captain": false,
+          "bench_boost": false,
+          "wildcard": false
+        }
+      },
+      "joinedAt": "2026-09-26T18:20:52.459Z"
     }
   },
   "users": {
@@ -6714,7 +6909,8 @@
       "createdAt": "2026-09-25T16:18:23.548Z",
       "role": "admin",
       "isAdmin": true,
-      "isApproved": true
+      "isApproved": true,
+      "token": "491f519e41a8ea7ba67e3b5a2cc3bb2d0e45d2eca77ff9120743c141db0d25af"
     },
     "user_1790357898196": {
       "id": "user_1790357898196",
@@ -6788,6 +6984,18 @@
       "teamName": "FC komarovi",
       "token": "fbe3be2695bdbcfe45e344117a4bb839a13f1268568411ed11c0d5ccd88ce28a",
       "createdAt": "2026-09-26T12:53:09.275Z",
+      "isApproved": false
+    },
+    "user_1790446852456": {
+      "id": "user_1790446852456",
+      "username": "samada123",
+      "email": "samada123@fantasy.pl",
+      "passwordHash": "96fe6764304a7400d8c3546904287d57b9457ea6c3eb29f8b90d8a1aaa342902549e3f298082abc3870a2630045b096460d4c94b2e9b50466d264b75a14cd178",
+      "salt": "d98793f05931984bd3b4fe4704e59090",
+      "managerName": "samada123",
+      "teamName": "fc samada123",
+      "token": "eacc97f24be278afb8ae9f1c69373ff3332cabb77774d15adfe8d35cc4b2214f",
+      "createdAt": "2026-09-26T18:20:52.459Z",
       "isApproved": false
     }
   },
