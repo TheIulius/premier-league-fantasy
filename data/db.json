@@ -5433,8 +5433,8 @@
           "teamName": "giorgievski's tractati",
           "totalPoints": 9,
           "gwPoints": 9,
-          "rank": 3,
-          "previousRank": 3,
+          "rank": 2,
+          "previousRank": 2,
           "activeChip": null,
           "lineup": [
             {
@@ -5544,8 +5544,8 @@
           "teamName": "11/5",
           "totalPoints": 0,
           "gwPoints": 0,
-          "rank": 7,
-          "previousRank": 7,
+          "rank": 3,
+          "previousRank": 3,
           "activeChip": null,
           "lineup": []
         },
@@ -5555,8 +5555,8 @@
           "teamName": "Samada",
           "totalPoints": 0,
           "gwPoints": 0,
-          "rank": 8,
-          "previousRank": 8,
+          "rank": 4,
+          "previousRank": 4,
           "activeChip": null,
           "lineup": []
         },
@@ -5577,8 +5577,8 @@
           "teamName": "Sirebi FC",
           "totalPoints": 0,
           "gwPoints": 0,
-          "rank": 5,
-          "previousRank": 5,
+          "rank": 6,
+          "previousRank": 6,
           "activeChip": null,
           "lineup": []
         }
@@ -5910,7 +5910,7 @@
       "createdAt": "2026-09-26T18:58:50.369Z",
       "role": "user",
       "isAdmin": false,
-      "isApproved": false
+      "isApproved": true
     }
   },
   "deadline": {
