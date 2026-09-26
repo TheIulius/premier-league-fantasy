@@ -5892,6 +5892,17 @@
           "previousRank": 8,
           "activeChip": null,
           "lineup": []
+        },
+        {
+          "id": "user_1790448778211",
+          "managerName": "akaunti123",
+          "teamName": "FC akaunti",
+          "totalPoints": 0,
+          "gwPoints": 0,
+          "rank": 9,
+          "previousRank": 9,
+          "activeChip": null,
+          "lineup": []
         }
       ]
     }
@@ -6369,6 +6380,26 @@
         }
       },
       "joinedAt": "2026-09-26T12:50:11.159Z"
+    },
+    "user_1790448778211": {
+      "id": "user_1790448778211",
+      "managerName": "akaunti123",
+      "teamName": "FC akaunti",
+      "squad": {
+        "teamName": "FC akaunti",
+        "managerName": "akaunti123",
+        "players": [],
+        "bank": 60,
+        "freeTransfers": 1,
+        "transfersMadeThisGW": 0,
+        "activeChip": null,
+        "usedChips": {
+          "triple_captain": false,
+          "bench_boost": false,
+          "wildcard": false
+        }
+      },
+      "joinedAt": "2026-09-26T18:52:58.212Z"
     }
   },
   "users": {
@@ -6420,6 +6451,19 @@
       "token": "a7ba25439f7320ca1c8514055dd2f3afedff207a2fb8d2451800a511ec05c68f",
       "createdAt": "2026-09-26T12:50:11.159Z",
       "isApproved": true
+    },
+    "user_1790448778211": {
+      "id": "user_1790448778211",
+      "username": "akaunti123",
+      "email": "akaunti123@fantasy.pl",
+      "passwordHash": "c0fc9edf05dc486f098963827d8bbd6ac8a2136d5591d05230c6e3b4094418a894f547e9ef13fb95c6e56331def30578e170ea8bfdda6b7c5a6fa0497096a7b6",
+      "salt": "0c96c73dc52633d61b1245f766a23a79",
+      "managerName": "akaunti123",
+      "teamName": "FC akaunti",
+      "createdAt": "2026-09-26T18:52:58.212Z",
+      "role": "user",
+      "isAdmin": false,
+      "isApproved": false
     }
   },
   "deadline": {
