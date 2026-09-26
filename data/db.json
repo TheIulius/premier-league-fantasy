@@ -6884,8 +6884,7 @@
       "managerName": "Apex Manager",
       "teamName": "Apex XI",
       "token": "token_apex_demo",
-      "createdAt": "2026-09-20T18:46:31.882Z",
-      "isApproved": true
+      "createdAt": "2026-09-20T18:46:31.882Z"
     },
     "user_1789929998559": {
       "id": "user_1789929998559",
@@ -6895,8 +6894,7 @@
       "salt": "324cf7988d16f71ed6877c17f659cc37",
       "managerName": "Jack",
       "teamName": "Jack FC",
-      "createdAt": "2026-09-20T18:46:38.559Z",
-      "isApproved": false
+      "createdAt": "2026-09-20T18:46:38.559Z"
     },
     "user_1790353103544": {
       "id": "user_1790353103544",
@@ -6909,7 +6907,6 @@
       "createdAt": "2026-09-25T16:18:23.548Z",
       "role": "admin",
       "isAdmin": true,
-      "isApproved": true,
       "token": "491f519e41a8ea7ba67e3b5a2cc3bb2d0e45d2eca77ff9120743c141db0d25af"
     },
     "user_1790357898196": {
@@ -6923,8 +6920,7 @@
       "token": "729ee14940867e2584517d6d75e59ed457884a3764edcbaa58eb6deaf1b13372",
       "createdAt": "2026-09-25T17:38:18.197Z",
       "role": "admin",
-      "isAdmin": true,
-      "isApproved": true
+      "isAdmin": true
     },
     "user_1790419656200": {
       "id": "user_1790419656200",
@@ -6934,9 +6930,7 @@
       "salt": "16804b76c8b8eeefadc613d9b66d2b07",
       "managerName": "vigac",
       "teamName": "FC vigaceebi",
-      "token": "d874ae5805bf903c7f7aa16a77e1985a6f7a985468e3b7e0bc3730ecb343a44d",
-      "createdAt": "2026-09-26T10:47:36.213Z",
-      "isApproved": false
+      "createdAt": "2026-09-26T10:47:36.213Z"
     },
     "user_1790426603326": {
       "id": "user_1790426603326",
@@ -6947,8 +6941,7 @@
       "managerName": "Tsiskara",
       "teamName": "11/5",
       "token": "c5479b1d2c809ee6ca1eff06634f51bcdd588f0511085fc15c954acc0fde8c51",
-      "createdAt": "2026-09-26T12:43:23.327Z",
-      "isApproved": false
+      "createdAt": "2026-09-26T12:43:23.327Z"
     },
     "user_1790427011158": {
       "id": "user_1790427011158",
@@ -6959,8 +6952,7 @@
       "managerName": "Daviti",
       "teamName": "Samada",
       "token": "a7ba25439f7320ca1c8514055dd2f3afedff207a2fb8d2451800a511ec05c68f",
-      "createdAt": "2026-09-26T12:50:11.159Z",
-      "isApproved": false
+      "createdAt": "2026-09-26T12:50:11.159Z"
     },
     "user_1790427153150": {
       "id": "user_1790427153150",
@@ -6971,8 +6963,7 @@
       "managerName": "Daviti",
       "teamName": "Samada",
       "token": "bc3768d7b612d1302c053406850c584e797cae312edb5ba54c9c07380c9e1b22",
-      "createdAt": "2026-09-26T12:52:33.152Z",
-      "isApproved": false
+      "createdAt": "2026-09-26T12:52:33.152Z"
     },
     "user_1790427189274": {
       "id": "user_1790427189274",
@@ -6983,8 +6974,7 @@
       "managerName": "Giorgi",
       "teamName": "FC komarovi",
       "token": "fbe3be2695bdbcfe45e344117a4bb839a13f1268568411ed11c0d5ccd88ce28a",
-      "createdAt": "2026-09-26T12:53:09.275Z",
-      "isApproved": false
+      "createdAt": "2026-09-26T12:53:09.275Z"
     },
     "user_1790446852456": {
       "id": "user_1790446852456",
@@ -6994,9 +6984,7 @@
       "salt": "d98793f05931984bd3b4fe4704e59090",
       "managerName": "samada123",
       "teamName": "fc samada123",
-      "token": "eacc97f24be278afb8ae9f1c69373ff3332cabb77774d15adfe8d35cc4b2214f",
-      "createdAt": "2026-09-26T18:20:52.459Z",
-      "isApproved": false
+      "createdAt": "2026-09-26T18:20:52.459Z"
     }
   },
   "deadline": {
