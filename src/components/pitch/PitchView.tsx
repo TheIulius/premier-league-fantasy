@@ -47,8 +47,8 @@ export const PitchView: React.FC<PitchViewProps> = ({
       ? 'border-2 border-amber-400 shadow-[0_0_30px_rgba(251,191,36,0.35)] ring-2 ring-amber-400/20 animate-pulse'
       : squad.activeChip === 'bench_boost'
       ? 'border-2 border-cyan-400 shadow-[0_0_30px_rgba(56,189,248,0.35)] ring-2 ring-cyan-400/20 animate-pulse'
-      : squad.activeChip === 'free_hit'
-      ? 'border-2 border-emerald-400 shadow-[0_0_30px_rgba(16,185,129,0.35)] ring-2 ring-emerald-400/20 animate-pulse'
+      : squad.activeChip === 'wildcard'
+      ? 'border-2 border-indigo-400 shadow-[0_0_30px_rgba(129,140,248,0.35)] ring-2 ring-indigo-400/20 animate-pulse'
       : 'border-2 border-[#125c27] shadow-2xl';
 
   // Calculate missing starter placeholder slots if starters < 6

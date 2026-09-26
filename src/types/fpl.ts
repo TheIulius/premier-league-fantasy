@@ -49,7 +49,7 @@ export interface SquadPlayer {
   isViceCaptain: boolean;
 }
 
-export type ChipType = 'triple_captain' | 'bench_boost' | 'free_hit';
+export type ChipType = 'triple_captain' | 'bench_boost' | 'wildcard';
 
 export interface Squad {
   teamName: string;

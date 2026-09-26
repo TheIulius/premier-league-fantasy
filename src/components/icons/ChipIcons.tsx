@@ -80,68 +80,66 @@ export const BenchBoostIcon: React.FC<{ className?: string }> = ({ className = '
 );
 
 /**
- * Genuine Fantasy Football (FPL) Free Hit Chip Icon
- * Features the official squad cards shuffle with bidirectional transfer arrows and "FH" badge
+ * Genuine Fantasy Football (FPL) Wildcard Chip Icon
+ * Features the official Wildcard playing card with bold "WC" monogram and transfer sparkles
  */
-export const FreeHitIcon: React.FC<{ className?: string }> = ({ className = 'w-4 h-4' }) => (
+export const WildcardIcon: React.FC<{ className?: string }> = ({ className = 'w-4 h-4' }) => (
   <svg
     viewBox="0 0 24 24"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
     className={className}
-    aria-label="Free Hit (FH)"
+    aria-label="Wildcard (WC)"
   >
-    {/* Back Card */}
-    <rect
-      x="7.5"
-      y="3.5"
-      width="11"
-      height="14"
-      rx="2"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      fill="currentColor"
-      fillOpacity="0.12"
-    />
-    {/* Front Card */}
+    {/* Wildcard Card Frame */}
     <rect
       x="3.5"
-      y="6.5"
-      width="11.5"
-      height="14"
-      rx="2"
+      y="4"
+      width="17"
+      height="16"
+      rx="3"
       stroke="currentColor"
       strokeWidth="1.75"
       fill="currentColor"
-      fillOpacity="0.22"
+      fillOpacity="0.14"
     />
-    {/* Bidirectional Transfer Swap Arrows */}
-    <path
-      d="M6 11.5H12M12 11.5L10 9.5M12 11.5L10 13.5"
+    {/* Inner Card Border */}
+    <rect
+      x="5.5"
+      y="6"
+      width="13"
+      height="12"
+      rx="1.75"
       stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
+      strokeWidth="1"
+      strokeDasharray="2 1.5"
+      opacity="0.4"
     />
+    {/* Top-Left Sparkle Star */}
     <path
-      d="M12 16.5H6M6 16.5L8 14.5M6 16.5L8 18.5"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
+      d="M7 7.5L7.4 8.6L8.5 9L7.4 9.4L7 10.5L6.6 9.4L5.5 9L6.6 8.6L7 7.5Z"
+      fill="currentColor"
     />
-    {/* "FH" Badge on Back Card */}
+    {/* Bottom-Right Sparkle Star */}
+    <path
+      d="M17 13.5L17.4 14.6L18.5 15L17.4 15.4L17 16.5L16.6 15.4L15.5 15L16.6 14.6L17 13.5Z"
+      fill="currentColor"
+    />
+    {/* "WC" Bold Monogram */}
     <text
-      x="15.5"
-      y="8.5"
+      x="12"
+      y="12.5"
       textAnchor="middle"
       dominantBaseline="central"
       fill="currentColor"
-      fontSize="5.5"
+      fontSize="8.5"
       fontWeight="900"
       fontFamily="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
+      letterSpacing="-0.5px"
     >
-      FH
+      WC
     </text>
   </svg>
 );
+
+export const FreeHitIcon = WildcardIcon;

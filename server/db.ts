@@ -90,7 +90,7 @@ function getDefaultData(): DatabaseSchema {
       usedChips: {
         triple_captain: false,
         bench_boost: false,
-        free_hit: false,
+        wildcard: false,
       },
     },
     joinedAt: new Date().toISOString(),
@@ -243,7 +243,7 @@ class Database {
           m.squad.usedChips = {
             triple_captain: false,
             bench_boost: false,
-            free_hit: false,
+            wildcard: false,
           };
         }
       });

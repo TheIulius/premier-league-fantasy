@@ -232,6 +232,17 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       try {
         const parsed = JSON.parse(saved);
         if (parsed && Array.isArray(parsed.players) && parsed.players.length <= 9) {
+          if (parsed.usedChips) {
+            if ((parsed.usedChips as any).free_hit !== undefined && parsed.usedChips.wildcard === undefined) {
+              parsed.usedChips.wildcard = (parsed.usedChips as any).free_hit;
+            }
+            if (parsed.usedChips.wildcard === undefined) {
+              parsed.usedChips.wildcard = false;
+            }
+          }
+          if ((parsed.activeChip as any) === 'free_hit') {
+            parsed.activeChip = 'wildcard';
+          }
           return parsed;
         }
       } catch (e) { /* fallback */ }
@@ -247,7 +258,7 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       usedChips: {
         triple_captain: false,
         bench_boost: false,
-        free_hit: false,
+        wildcard: false,
       },
     };
   });
@@ -476,7 +487,10 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return Math.round(cost * 10) / 10;
   }, [squad.players, players]);
 
-  const freeTransfersRemaining = Math.max(0, squad.freeTransfers - squad.transfersMadeThisGW);
+  const freeTransfersRemaining =
+    squad.activeChip === 'wildcard'
+      ? 999
+      : Math.max(0, squad.freeTransfers - squad.transfersMadeThisGW);
 
   // Switch Manager Profile
   const switchManager = (managerId: string) => {
@@ -511,7 +525,7 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         freeTransfers: 1,
         transfersMadeThisGW: 0,
         activeChip: null,
-        usedChips: { triple_captain: false, bench_boost: false, free_hit: false },
+        usedChips: { triple_captain: false, bench_boost: false, wildcard: false },
       });
     }
   };

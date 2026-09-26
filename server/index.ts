@@ -43,7 +43,7 @@ app.get('/api/state', (req: Request, res: Response) => {
           freeTransfers: 1,
           transfersMadeThisGW: 0,
           activeChip: null,
-          usedChips: { triple_captain: false, bench_boost: false, free_hit: false },
+          usedChips: { triple_captain: false, bench_boost: false, wildcard: false },
         },
         joinedAt: new Date().toISOString(),
       };
@@ -96,7 +96,7 @@ app.get('/api/manager/:id', (req: Request, res: Response) => {
           freeTransfers: 1,
           transfersMadeThisGW: 0,
           activeChip: null,
-          usedChips: { triple_captain: false, bench_boost: false, free_hit: false },
+          usedChips: { triple_captain: false, bench_boost: false, wildcard: false },
         },
         joinedAt: new Date().toISOString(),
       };
@@ -184,7 +184,7 @@ app.post('/api/auth/register', (req: Request, res: Response) => {
       usedChips: {
         triple_captain: false,
         bench_boost: false,
-        free_hit: false,
+        wildcard: false,
       },
     },
     joinedAt: new Date().toISOString(),
@@ -364,7 +364,7 @@ app.post('/api/manager/login', (req: Request, res: Response) => {
         usedChips: {
           triple_captain: false,
           bench_boost: false,
-          free_hit: false,
+          wildcard: false,
         },
       },
       joinedAt: new Date().toISOString(),
@@ -422,7 +422,7 @@ app.post('/api/squad/save', (req: Request, res: Response) => {
         freeTransfers: 1,
         transfersMadeThisGW: 0,
         activeChip: null,
-        usedChips: { triple_captain: false, bench_boost: false, free_hit: false },
+        usedChips: { triple_captain: false, bench_boost: false, wildcard: false },
       },
       joinedAt: new Date().toISOString(),
     };
@@ -525,7 +525,7 @@ app.post('/api/squad/chip', (req: Request, res: Response) => {
           freeTransfers: 1,
           transfersMadeThisGW: 0,
           activeChip: null,
-          usedChips: { triple_captain: false, bench_boost: false, free_hit: false },
+          usedChips: { triple_captain: false, bench_boost: false, wildcard: false },
         },
         joinedAt: new Date().toISOString(),
       };
@@ -535,11 +535,19 @@ app.post('/api/squad/chip', (req: Request, res: Response) => {
     }
   }
 
-  if (chip && manager.squad.usedChips[chip]) {
+  const normalizedChip = chip === 'free_hit' ? 'wildcard' : chip;
+
+  if (manager.squad.usedChips) {
+    if ((manager.squad.usedChips as any).free_hit !== undefined && (manager.squad.usedChips as any).wildcard === undefined) {
+      (manager.squad.usedChips as any).wildcard = (manager.squad.usedChips as any).free_hit;
+    }
+  }
+
+  if (normalizedChip && manager.squad.usedChips[normalizedChip]) {
     return res.status(400).json({ error: 'Chip already used' });
   }
 
-  manager.squad.activeChip = manager.squad.activeChip === chip ? null : chip;
+  manager.squad.activeChip = manager.squad.activeChip === normalizedChip ? null : normalizedChip;
   db.save();
 
   res.json({ success: true, activeChip: manager.squad.activeChip });
@@ -572,7 +580,7 @@ app.post('/api/squad/transfer', (req: Request, res: Response) => {
           freeTransfers: 1,
           transfersMadeThisGW: 0,
           activeChip: null,
-          usedChips: { triple_captain: false, bench_boost: false, free_hit: false },
+          usedChips: { triple_captain: false, bench_boost: false, wildcard: false },
         },
         joinedAt: new Date().toISOString(),
       };
@@ -744,7 +752,7 @@ function recalculateAllManagersLeaguePoints(data: any) {
           freeTransfers: 1,
           transfersMadeThisGW: 0,
           activeChip: null,
-          usedChips: { triple_captain: false, bench_boost: false, free_hit: false },
+          usedChips: { triple_captain: false, bench_boost: false, wildcard: false },
         },
         joinedAt: u.createdAt || new Date().toISOString(),
       };

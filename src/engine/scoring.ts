@@ -271,7 +271,7 @@ export function calculateGameweekSquadPoints(
 
   const isTripleCaptain = activeChip === 'triple_captain';
   const isBenchBoost = activeChip === 'bench_boost';
-  const isFreeHit = activeChip === 'free_hit';
+  const isWildcard = activeChip === 'wildcard' || (activeChip as any) === 'free_hit';
 
   // Helper: determine if a player's fixture is at One Price Stadium
   const isPlayerOnePriceStadium = (player: Player): boolean => {
@@ -410,9 +410,9 @@ export function calculateGameweekSquadPoints(
     };
   });
 
-  // Transfer cost penalty
+  // Transfer cost penalty (Wildcard grants unlimited free transfers with 0 point deduction)
   let transferCost = 0;
-  if (!isFreeHit && transfersMadeThisGW > freeTransfers) {
+  if (!isWildcard && transfersMadeThisGW > freeTransfers) {
     transferCost = (transfersMadeThisGW - freeTransfers) * 4;
   }
 

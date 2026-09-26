@@ -8,7 +8,7 @@ import { ChipType } from '../../types/fpl';
 import { Zap, CheckCircle, Loader2, AlertCircle, ChevronDown, ChevronUp, Lock } from 'lucide-react';
 import { validateSquadComposition } from '../../engine/scoring';
 import confetti from 'canvas-confetti';
-import { TripleCaptainIcon, BenchBoostIcon, FreeHitIcon } from '../icons/ChipIcons';
+import { TripleCaptainIcon, BenchBoostIcon, WildcardIcon } from '../icons/ChipIcons';
 
 export const PickTeamView: React.FC = () => {
   const {
@@ -37,7 +37,7 @@ export const PickTeamView: React.FC = () => {
   const chips: { id: ChipType; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
     { id: 'triple_captain', label: 'Triple Captain', icon: TripleCaptainIcon },
     { id: 'bench_boost', label: 'Bench Boost', icon: BenchBoostIcon },
-    { id: 'free_hit', label: 'Free Hit', icon: FreeHitIcon },
+    { id: 'wildcard', label: 'Wildcard', icon: WildcardIcon },
   ];
 
   const handleSaveTeam = async () => {
