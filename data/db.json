@@ -5593,6 +5593,17 @@
               "points": 0
             }
           ]
+        },
+        {
+          "id": "user_1790449499450",
+          "managerName": "axali",
+          "teamName": "axali",
+          "totalPoints": 0,
+          "gwPoints": 0,
+          "rank": 7,
+          "previousRank": 7,
+          "activeChip": null,
+          "lineup": []
         }
       ]
     }
@@ -5853,6 +5864,26 @@
         }
       },
       "joinedAt": "2026-09-26T18:58:50.369Z"
+    },
+    "user_1790449499450": {
+      "id": "user_1790449499450",
+      "managerName": "axali",
+      "teamName": "axali",
+      "squad": {
+        "teamName": "axali",
+        "managerName": "axali",
+        "players": [],
+        "bank": 60,
+        "freeTransfers": 1,
+        "transfersMadeThisGW": 0,
+        "activeChip": null,
+        "usedChips": {
+          "triple_captain": false,
+          "bench_boost": false,
+          "wildcard": false
+        }
+      },
+      "joinedAt": "2026-09-26T19:04:59.451Z"
     }
   },
   "users": {
@@ -5866,7 +5897,8 @@
       "teamName": "giorgievski's tractati",
       "createdAt": "2026-09-25T16:18:23.548Z",
       "role": "admin",
-      "isAdmin": true
+      "isAdmin": true,
+      "token": "0cadbdcec013fd69ac88c8762e0e650dad5bb609091e0ef97d980e0759c27a77"
     },
     "user_1790357898196": {
       "id": "user_1790357898196",
@@ -5930,6 +5962,19 @@
       "role": "user",
       "isAdmin": false,
       "isApproved": true
+    },
+    "user_1790449499450": {
+      "id": "user_1790449499450",
+      "username": "axalli",
+      "email": "axalli@fantasy.pl",
+      "passwordHash": "bd11ba1a0dab2e708d059dfe2500717d352baacad959edda9fd35108b74ef80830fc784d9857ad3375481f355eb1d36cc3c413cd07791c0d79e3eb3558287312",
+      "salt": "dd41a0740ca5d5f96952545ce02fc444",
+      "managerName": "axali",
+      "teamName": "axali",
+      "createdAt": "2026-09-26T19:04:59.451Z",
+      "role": "user",
+      "isAdmin": false,
+      "isApproved": false
     }
   },
   "deadline": {
