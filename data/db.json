@@ -5225,7 +5225,7 @@
               "isStarter": false,
               "isCaptain": false,
               "isViceCaptain": false,
-              "benchOrder": 1,
+              "benchOrder": 3,
               "points": 0
             },
             {
@@ -5247,7 +5247,7 @@
               "isStarter": false,
               "isCaptain": false,
               "isViceCaptain": false,
-              "benchOrder": 3,
+              "benchOrder": 1,
               "points": 0
             }
           ]
@@ -5873,7 +5873,7 @@
           {
             "playerId": "p_9_1_kikolashvili",
             "isStarter": false,
-            "benchOrder": 1,
+            "benchOrder": 3,
             "isCaptain": false,
             "isViceCaptain": false
           },
@@ -5887,7 +5887,7 @@
           {
             "playerId": "p_9_3_chiviashvili",
             "isStarter": false,
-            "benchOrder": 3,
+            "benchOrder": 1,
             "isCaptain": false,
             "isViceCaptain": false
           }
