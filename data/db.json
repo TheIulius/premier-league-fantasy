@@ -5539,46 +5539,13 @@
           ]
         },
         {
-          "id": "user_1790426603326",
-          "managerName": "Tsiskara",
-          "teamName": "11/5",
-          "totalPoints": 0,
-          "gwPoints": 0,
-          "rank": 3,
-          "previousRank": 3,
-          "activeChip": null,
-          "lineup": []
-        },
-        {
-          "id": "user_1790427011158",
-          "managerName": "Daviti",
-          "teamName": "Samada",
-          "totalPoints": 0,
-          "gwPoints": 0,
-          "rank": 4,
-          "previousRank": 4,
-          "activeChip": null,
-          "lineup": []
-        },
-        {
-          "id": "user_1790448778211",
-          "managerName": "akaunti123",
-          "teamName": "FC akaunti",
-          "totalPoints": 0,
-          "gwPoints": 0,
-          "rank": 5,
-          "previousRank": 5,
-          "activeChip": null,
-          "lineup": []
-        },
-        {
           "id": "user_1790449130368",
           "managerName": "Aleksandre",
           "teamName": "Sirebi FC",
           "totalPoints": 0,
           "gwPoints": 0,
-          "rank": 6,
-          "previousRank": 6,
+          "rank": 3,
+          "previousRank": 3,
           "activeChip": null,
           "lineup": [
             {
@@ -5633,8 +5600,8 @@
           "teamName": "axali",
           "totalPoints": 0,
           "gwPoints": 0,
-          "rank": 7,
-          "previousRank": 7,
+          "rank": 4,
+          "previousRank": 4,
           "activeChip": null,
           "lineup": []
         }
@@ -5810,66 +5777,6 @@
       },
       "joinedAt": "2026-09-25T17:38:18.197Z"
     },
-    "user_1790426603326": {
-      "id": "user_1790426603326",
-      "managerName": "Tsiskara",
-      "teamName": "11/5",
-      "squad": {
-        "teamName": "11/5",
-        "managerName": "Tsiskara",
-        "players": [],
-        "bank": 60,
-        "freeTransfers": 1,
-        "transfersMadeThisGW": 0,
-        "activeChip": null,
-        "usedChips": {
-          "triple_captain": false,
-          "bench_boost": false,
-          "wildcard": false
-        }
-      },
-      "joinedAt": "2026-09-26T12:43:23.327Z"
-    },
-    "user_1790427011158": {
-      "id": "user_1790427011158",
-      "managerName": "Daviti",
-      "teamName": "Samada",
-      "squad": {
-        "teamName": "Samada",
-        "managerName": "Daviti",
-        "players": [],
-        "bank": 60,
-        "freeTransfers": 1,
-        "transfersMadeThisGW": 0,
-        "activeChip": null,
-        "usedChips": {
-          "triple_captain": false,
-          "bench_boost": false,
-          "wildcard": false
-        }
-      },
-      "joinedAt": "2026-09-26T12:50:11.159Z"
-    },
-    "user_1790448778211": {
-      "id": "user_1790448778211",
-      "managerName": "akaunti123",
-      "teamName": "FC akaunti",
-      "squad": {
-        "teamName": "FC akaunti",
-        "managerName": "akaunti123",
-        "players": [],
-        "bank": 60,
-        "freeTransfers": 1,
-        "transfersMadeThisGW": 0,
-        "activeChip": null,
-        "usedChips": {
-          "triple_captain": false,
-          "bench_boost": false,
-          "wildcard": false
-        }
-      },
-      "joinedAt": "2026-09-26T18:52:58.212Z"
-    },
     "user_1790449130368": {
       "id": "user_1790449130368",
       "managerName": "Aleksandre",
@@ -5967,42 +5874,6 @@
       "role": "admin",
       "isAdmin": true
     },
-    "user_1790426603326": {
-      "id": "user_1790426603326",
-      "username": "tsiskara",
-      "email": "tsiskaradzesandro@gmail.com",
-      "passwordHash": "1ac0491d787cebb7186c214df29f990b29ea3432d7476ce9364bd29d9a5d824e9c28e908a2668768decf0738521adfe0b7f41b7d7cf6728b5050b8df7d7bef47",
-      "salt": "5334a3e86fdff95c088910d71502fd20",
-      "managerName": "Tsiskara",
-      "teamName": "11/5",
-      "createdAt": "2026-09-26T12:43:23.327Z",
-      "isApproved": true
-    },
-    "user_1790427011158": {
-      "id": "user_1790427011158",
-      "username": "daviti",
-      "email": "dachisamadashvili24@gmail.com",
-      "passwordHash": "b0d3e4e91b5afd1762bd18b866d3402122970857219d4afafa08bf43a0249bb65b69d56f4ee490dc5cc422267892f19e8e0eca7300c8bbcc96b80db45ed93a06",
-      "salt": "4f6158144a27d79d63cbb76970b8b27b",
-      "managerName": "Daviti",
-      "teamName": "Samada",
-      "token": "a7ba25439f7320ca1c8514055dd2f3afedff207a2fb8d2451800a511ec05c68f",
-      "createdAt": "2026-09-26T12:50:11.159Z",
-      "isApproved": true
-    },
-    "user_1790448778211": {
-      "id": "user_1790448778211",
-      "username": "akaunti123",
-      "email": "akaunti123@fantasy.pl",
-      "passwordHash": "c0fc9edf05dc486f098963827d8bbd6ac8a2136d5591d05230c6e3b4094418a894f547e9ef13fb95c6e56331def30578e170ea8bfdda6b7c5a6fa0497096a7b6",
-      "salt": "0c96c73dc52633d61b1245f766a23a79",
-      "managerName": "akaunti123",
-      "teamName": "FC akaunti",
-      "createdAt": "2026-09-26T18:52:58.212Z",
-      "role": "user",
-      "isAdmin": false,
-      "isApproved": true
-    },
     "user_1790449130368": {
       "id": "user_1790449130368",
       "username": "masser",
@@ -6044,6 +5915,9 @@
   "activationCodes": [],
   "deletedUserIds": [
     "user_1790448153758",
-    "user_1790449499450"
+    "user_1790449499450",
+    "user_1790427011158",
+    "user_1790426603326",
+    "user_1790448778211"
   ]
 }
