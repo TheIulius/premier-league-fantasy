@@ -20,6 +20,7 @@ export const PickTeamView: React.FC = () => {
     saveSquad,
     setActiveTab,
     isSquadLocked,
+    isDemoMode,
     currentGW,
   } = useFPL();
 
@@ -99,13 +100,17 @@ export const PickTeamView: React.FC = () => {
 
         {/* Lineup Locked Notification Banner */}
         {isSquadLocked && (
-          <div className="p-2.5 md:p-3 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs font-bold flex items-center justify-between shadow-xs">
+          <div className="p-2.5 md:p-3 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-bold flex items-center justify-between shadow-xs">
             <div className="flex items-center gap-2">
-              <Lock className="w-4 h-4 flex-shrink-0 text-rose-400" />
-              <span>Lineups are locked for Gameweek {currentGW}. Team changes are prohibited.</span>
+              <Lock className="w-4 h-4 flex-shrink-0 text-amber-400" />
+              <span>
+                {isDemoMode
+                  ? 'Demo Mode: Browsing sample squad. Sign in or register to pick and customize your own squad.'
+                  : `Lineups are locked for Gameweek ${currentGW}. Team changes are prohibited.`}
+              </span>
             </div>
-            <span className="text-[10px] uppercase font-black px-2 py-0.5 rounded bg-rose-500 text-white">
-              Locked
+            <span className="text-[10px] uppercase font-black px-2 py-0.5 rounded bg-amber-500 text-slate-950">
+              {isDemoMode ? 'Demo' : 'Locked'}
             </span>
           </div>
         )}

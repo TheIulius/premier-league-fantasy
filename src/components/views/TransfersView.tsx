@@ -44,6 +44,7 @@ export const TransfersView: React.FC = () => {
     currentGW,
   } = fpl;
   const isSquadLocked = (fpl as any).isSquadLocked ?? false;
+  const isDemoMode = (fpl as any).isDemoMode ?? false;
 
   // Selected player for replacement / transfer
   const [outPlayerId, setOutPlayerId] = useState<string | null>(transferOutPlayerId || null);
@@ -87,6 +88,16 @@ export const TransfersView: React.FC = () => {
 
   const squadPlayerIds = useMemo(() => new Set(squad.players.map((p) => p.playerId)), [squad.players]);
   const sortedClubs = useMemo(() => getSortedSchoolClubs(clubs), [clubs]);
+
+  // Only clubs that have at least 1 player registered
+  const activeClubs = useMemo(() => {
+    return sortedClubs.filter((c) => {
+      return Object.values(players).some((p) => {
+        const normClub = p.clubId === 'SCH' ? 'SCH_11_5' : p.clubId;
+        return normClub === c.id;
+      });
+    });
+  }, [sortedClubs, players]);
 
   // Squad categorized by tactical positions
   const squadByPosition = useMemo(() => {
@@ -299,13 +310,17 @@ export const TransfersView: React.FC = () => {
 
       {/* Lock Banner if Gameweek is Locked */}
       {isSquadLocked && (
-        <div className="mx-3 sm:mx-6 mt-2 p-2.5 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-600 dark:text-rose-400 text-xs font-bold flex items-center justify-between">
+        <div className="mx-3 sm:mx-6 mt-2 p-2.5 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-bold flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Lock className="w-4 h-4 flex-shrink-0" />
-            <span>Lineups and transfers are frozen for this matchday.</span>
+            <Lock className="w-4 h-4 flex-shrink-0 text-amber-400" />
+            <span>
+              {isDemoMode
+                ? 'Demo Mode: Transfer market is in preview mode. Sign in or register to make transfers.'
+                : 'Lineups and transfers are frozen for this matchday.'}
+            </span>
           </div>
-          <span className="text-[10px] uppercase font-black px-2 py-0.5 rounded bg-rose-500 text-white">
-            Locked
+          <span className="text-[10px] uppercase font-black px-2 py-0.5 rounded bg-amber-500 text-slate-950">
+            {isDemoMode ? 'Demo' : 'Locked'}
           </span>
         </div>
       )}
@@ -631,8 +646,8 @@ export const TransfersView: React.FC = () => {
                       onChange={(e) => setClubFilter(e.target.value)}
                       className="w-full py-1.5 px-2.5 rounded-xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-800 dark:text-slate-200 text-xs outline-none"
                     >
-                      <option value="ALL">All Classes (28)</option>
-                      {sortedClubs.map((c) => (
+                      <option value="ALL">All Classes ({activeClubs.length})</option>
+                      {activeClubs.map((c) => (
                         <option key={c.id} value={c.id}>
                           {c.shortName} ({c.name})
                         </option>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useFPL, TabType } from '../../context/FPLContext';
-import { Sparkles, Wrench, Users, Shirt, ArrowLeftRight, Zap, Trophy, Calendar, Sun, Moon, Clock } from 'lucide-react';
+import { Sparkles, Wrench, Users, Shirt, ArrowLeftRight, Zap, Trophy, Calendar, Sun, Moon, Clock, Eye } from 'lucide-react';
 
 interface TabItem {
   id: TabType;
@@ -32,6 +32,8 @@ export const TopHeader: React.FC = () => {
     toggleTheme,
     deadline,
     isSquadLocked,
+    isDemoMode,
+    exitDemoMode,
   } = useFPL();
 
   const [timeLeft, setTimeLeft] = useState<string>('');
@@ -72,6 +74,25 @@ export const TopHeader: React.FC = () => {
 
   return (
     <header className="sticky top-0 z-40 bg-white/95 dark:bg-[#0c121e]/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-800/80 shadow-xs select-none transition-colors duration-200">
+      {/* Demo Mode Sticky Caption Bar */}
+      {isDemoMode && (
+        <div className="w-full bg-amber-500/15 border-b border-amber-500/30 text-amber-200 px-3 py-1.5 text-xs flex items-center justify-between font-medium">
+          <div className="flex items-center gap-1.5 md:gap-2">
+            <Eye className="w-3.5 h-3.5 text-amber-400 flex-shrink-0" />
+            <span className="text-[11px] md:text-xs">
+              <strong className="text-amber-300 uppercase tracking-wide mr-1 font-black">Demo Mode:</strong>
+              Browsing locked sample squad. All mutations disabled.
+            </span>
+          </div>
+          <button
+            onClick={exitDemoMode}
+            className="px-2.5 py-0.5 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 hover:text-white border border-amber-500/30 text-[11px] font-bold transition-all flex items-center gap-1 cursor-pointer shrink-0 ml-2"
+          >
+            Sign In / Register
+          </button>
+        </div>
+      )}
+
       {/* Top branding line */}
       <div className="w-full max-w-6xl mx-auto px-3.5 md:px-6 pt-2.5 pb-2 flex items-center justify-between">
         <div className="flex items-center space-x-2.5 md:space-x-3">
@@ -104,12 +125,12 @@ export const TopHeader: React.FC = () => {
             </div>
             <div className="flex items-center gap-1.5">
               <button
-                onClick={() => setIsAuthModalOpen(true)}
+                onClick={() => (isDemoMode ? exitDemoMode() : setIsAuthModalOpen(true))}
                 className="text-[11px] md:text-xs font-medium text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white flex items-center gap-1 transition-colors text-left"
               >
                 <span className="truncate max-w-[120px] md:max-w-[260px] font-semibold text-slate-700 dark:text-slate-300">{squad.teamName}</span>
                 <span className="text-[9px] bg-slate-100 dark:bg-white/[0.06] px-1.5 py-0.2 rounded text-slate-500 dark:text-slate-400 border border-slate-200/60 dark:border-white/[0.06]">
-                  {authUser ? `@${authUser.username}` : 'Sign In'}
+                  {isDemoMode ? 'Demo View' : authUser ? `@${authUser.username}` : 'Sign In'}
                 </span>
               </button>
             </div>
@@ -133,13 +154,13 @@ export const TopHeader: React.FC = () => {
 
           {/* Account Login / Profile Button - Refined Slate Surface */}
           <button
-            onClick={() => setIsAuthModalOpen(true)}
+            onClick={() => (isDemoMode ? exitDemoMode() : setIsAuthModalOpen(true))}
             className="p-1.5 md:px-3 md:py-1.5 rounded-full text-xs font-semibold border transition-all flex items-center gap-1.5 bg-slate-100 dark:bg-white/[0.05] border-slate-200 dark:border-white/[0.09] text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-white/[0.09]"
-            title={authUser ? `Logged in as @${authUser.username}` : 'Sign In'}
+            title={isDemoMode ? 'Exit Demo Mode' : authUser ? `Logged in as @${authUser.username}` : 'Sign In'}
             aria-label="Account"
           >
             <Users className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
-            <span className="hidden md:inline">{authUser ? authUser.managerName.split(' ')[0] : 'Sign In'}</span>
+            <span className="hidden md:inline">{isDemoMode ? 'Demo' : authUser ? authUser.managerName.split(' ')[0] : 'Sign In'}</span>
             {authUser && <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />}
           </button>
 

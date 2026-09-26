@@ -6,9 +6,14 @@ import { TransfersView } from './components/views/TransfersView';
 import { StandingsView } from './components/views/StandingsView';
 import { FixturesView } from './components/views/FixturesView';
 import { AdminPortal } from './components/admin/AdminPortal';
+import { AuthLandingView } from './components/auth/AuthLandingView';
 
 const AppContent: React.FC = () => {
-  const { activeTab } = useFPL();
+  const { activeTab, authUser, isDemoMode } = useFPL();
+
+  if (!authUser && !isDemoMode) {
+    return <AuthLandingView />;
+  }
 
   return (
     <MobileContainer>

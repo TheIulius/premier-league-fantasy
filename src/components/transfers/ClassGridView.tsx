@@ -67,24 +67,36 @@ export const ClassGridView: React.FC<ClassGridViewProps> = ({
     return map;
   }, [players]);
 
-  const grades = [9, 10, 11, 12];
-
   const getGradeClasses = (grade: number): Club[] => {
-    return [1, 2, 3, 4, 5, 6, 7].map((classNum) => {
-      const id = `SCH_${grade}_${classNum}`;
-      return (
-        clubs[id] ||
-        CLUBS[id] || {
-          id,
-          name: `Team ${grade}/${classNum}`,
-          shortName: `${grade}/${classNum}`,
-          primaryColor: '#0284c7',
-          secondaryColor: '#ffffff',
-          textColor: '#ffffff',
-        }
-      );
-    });
+    return [1, 2, 3, 4, 5, 6, 7]
+      .map((classNum) => {
+        const id = `SCH_${grade}_${classNum}`;
+        return (
+          clubs[id] ||
+          CLUBS[id] || {
+            id,
+            name: `Team ${grade}/${classNum}`,
+            shortName: `${grade}/${classNum}`,
+            primaryColor: '#0284c7',
+            secondaryColor: '#ffffff',
+            textColor: '#ffffff',
+          }
+        );
+      })
+      .filter((c) => (classPlayersMap[c.id]?.length || 0) > 0);
   };
+
+  // Only grades with active teams that have players
+  const grades = useMemo(() => {
+    return [9, 10, 11, 12].filter((g) => getGradeClasses(g).length > 0);
+  }, [classPlayersMap, clubs]);
+
+  // Auto-switch to first active grade if current selected grade has 0 teams
+  React.useEffect(() => {
+    if (grades.length > 0 && !grades.includes(activeGrade)) {
+      setActiveGrade(grades[0]);
+    }
+  }, [grades, activeGrade]);
 
   const maxAvailableSpend = outPlayer ? squad.bank + outPlayer.cost : squad.bank;
   const detailPlayer = detailPlayerId ? players[detailPlayerId] : null;

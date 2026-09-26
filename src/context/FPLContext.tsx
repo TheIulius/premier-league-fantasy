@@ -113,6 +113,9 @@ interface FPLContextType {
   sellPlayer: (playerId: string) => { success: boolean; message?: string };
   transferOutPlayerId: string | null;
   setTransferOutPlayerId: (id: string | null) => void;
+  isDemoMode: boolean;
+  enterDemoMode: () => void;
+  exitDemoMode: () => void;
 }
 
 const STORAGE_KEY_AUTH_TOKEN = 'fpl_auth_token_v1';
@@ -305,13 +308,26 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [selectedPlayerForSwap, setSelectedPlayerForSwap] = useState<string | null>(null);
   const [transferOutPlayerId, setTransferOutPlayerId] = useState<string | null>(null);
 
+  // Demo Mode (allows non-logged-in users to preview a locked sample squad)
+  const [isDemoMode, setIsDemoMode] = useState<boolean>(false);
+
+  const enterDemoMode = useCallback(() => {
+    setIsDemoMode(true);
+    setCurrentManagerId('user_1');
+  }, []);
+
+  const exitDemoMode = useCallback(() => {
+    setIsDemoMode(false);
+  }, []);
+
   // Deadline / Freeze system
   const [deadline, setDeadlineState] = useState<{ gameweek: number; deadlineTime: string } | null>(null);
 
   const isSquadLocked = useMemo(() => {
+    if (isDemoMode) return true;
     if (!deadline) return false;
     return new Date() >= new Date(deadline.deadlineTime);
-  }, [deadline]);
+  }, [deadline, isDemoMode]);
 
   const setDeadline = useCallback(async (d: { gameweek: number; deadlineTime: string } | null) => {
     try {
@@ -563,6 +579,7 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const loginUser = async (login: string, pass: string) => {
     const res = await api.authLogin({ login, password: pass });
     if (res.token && res.user) {
+      setIsDemoMode(false);
       setAuthToken(res.token);
       setAuthUser(res.user);
       localStorage.setItem(STORAGE_KEY_AUTH_TOKEN, res.token);
@@ -591,6 +608,7 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   }) => {
     const res = await api.authRegister(data);
     if (res.token && res.user) {
+      setIsDemoMode(false);
       setAuthToken(res.token);
       setAuthUser(res.user);
       localStorage.setItem(STORAGE_KEY_AUTH_TOKEN, res.token);
@@ -615,6 +633,7 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
     setAuthToken(null);
     setAuthUser(null);
+    setIsDemoMode(false);
     localStorage.removeItem(STORAGE_KEY_AUTH_TOKEN);
     localStorage.removeItem(STORAGE_KEY_AUTH_USER);
   };
@@ -1489,6 +1508,9 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         sellPlayer: removePlayer,
         transferOutPlayerId,
         setTransferOutPlayerId,
+        isDemoMode,
+        enterDemoMode,
+        exitDemoMode,
       }}
     >
       {children}
