@@ -5970,7 +5970,7 @@
       "createdAt": "2026-09-25T16:18:23.548Z",
       "role": "admin",
       "isAdmin": true,
-      "token": "1e6631e928dd1f2f98da7c132280477d02adb266a7ec61e92ce8811b927a038f"
+      "token": "f66ee8696a52941c2d28990a7121aa2ca4f56e7024817b89a955dd5fbeeae15b"
     },
     "user_1790357898196": {
       "id": "user_1790357898196",
@@ -6046,7 +6046,7 @@
       "createdAt": "2026-09-26T19:26:54.854Z",
       "role": "user",
       "isAdmin": false,
-      "isApproved": false
+      "isApproved": true
     }
   },
   "deadline": {
