@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useFPL } from '../../context/FPLContext';
-import { Lock, Key, User, Ticket, Eye, Sparkles, Copy, Check, Phone } from 'lucide-react';
+import { Lock, Key, User, Eye, Sparkles, Copy, Check, Phone } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 export const AuthLandingView: React.FC = () => {
@@ -17,7 +17,6 @@ export const AuthLandingView: React.FC = () => {
   const [regPassword, setRegPassword] = useState('');
   const [regManagerName, setRegManagerName] = useState('');
   const [regTeamName, setRegTeamName] = useState('');
-  const [regActivationCode, setRegActivationCode] = useState('');
 
   // Status
   const [errorMessage, setErrorMessage] = useState('');
@@ -49,13 +48,6 @@ export const AuthLandingView: React.FC = () => {
       return;
     }
 
-    if (paymentSettings?.requireActivationCode && !regActivationCode.trim()) {
-      setErrorMessage(
-        `An activation code is required. Please transfer ${paymentSettings.entryFeeGEL || 3} ₾ via BOG or TBC to receive your code.`
-      );
-      return;
-    }
-
     setIsLoading(true);
     setErrorMessage('');
     try {
@@ -65,7 +57,6 @@ export const AuthLandingView: React.FC = () => {
         password: regPassword.trim(),
         managerName: regManagerName.trim(),
         teamName: regTeamName.trim(),
-        activationCode: regActivationCode.trim() ? regActivationCode.trim().toUpperCase() : undefined,
       });
       confetti({ particleCount: 60, spread: 70, origin: { y: 0.6 } });
     } catch (err: any) {
@@ -398,30 +389,6 @@ export const AuthLandingView: React.FC = () => {
                 </div>
               </div>
 
-              {/* Activation / Receipt Code */}
-              <div>
-                <div className="flex items-center justify-between mb-0.5">
-                  <label className="text-[10px] font-bold text-slate-300 flex items-center gap-1">
-                    <Ticket className="w-3 h-3 text-emerald-400" />
-                    Activation Code
-                  </label>
-                  {paymentSettings?.requireActivationCode ? (
-                    <span className="text-[9px] font-black text-rose-400 uppercase tracking-wider">Required</span>
-                  ) : (
-                    <span className="text-[9px] font-semibold text-slate-400">Optional / 3 ₾ Receipt</span>
-                  )}
-                </div>
-                <input
-                  type="text"
-                  placeholder="e.g. KCL-7X9B"
-                  value={regActivationCode}
-                  onChange={(e) => setRegActivationCode(e.target.value.toUpperCase())}
-                  className="w-full bg-slate-950/80 border border-white/10 rounded-xl px-3 py-1.5 text-xs font-mono font-bold tracking-wider text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 uppercase"
-                />
-                <p className="text-[9px] text-slate-400 mt-0.5">
-                  Single-use code given upon 3 ₾ payment confirmation.
-                </p>
-              </div>
 
               <button
                 type="submit"
