@@ -6046,7 +6046,8 @@
       "createdAt": "2026-09-26T19:04:59.451Z",
       "role": "user",
       "isAdmin": false,
-      "isApproved": true
+      "isApproved": true,
+      "token": "7b9765aa65237cd0797278b0865a5d0b613ad7d5440416e0fa4b2c8bdd4db052"
     }
   },
   "deadline": {
