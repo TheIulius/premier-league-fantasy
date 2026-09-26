@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { useFPL } from '../../context/FPLContext';
-import { Lock, Key, User, Eye, Sparkles, Copy, Check, Phone } from 'lucide-react';
+import { Lock, Key, User, Sparkles, Copy, Check, Phone } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 export const AuthLandingView: React.FC = () => {
-  const { loginUser, registerUser, paymentSettings, enterDemoMode } = useFPL();
+  const { loginUser, registerUser, paymentSettings } = useFPL();
   const [tab, setTab] = useState<'login' | 'register'>('login');
 
   // Login inputs
@@ -85,11 +85,6 @@ export const AuthLandingView: React.FC = () => {
       setCopiedField(field);
       setTimeout(() => setCopiedField(null), 2000);
     }
-  };
-
-  const handleQuickDemoLogin = () => {
-    setLoginIdentifier('apex');
-    setLoginPassword('fantasy123');
   };
 
   return (
@@ -203,17 +198,6 @@ export const AuthLandingView: React.FC = () => {
               >
                 {isLoading ? 'Signing In...' : 'Sign In'}
               </button>
-
-              <div className="pt-2 border-t border-white/5 flex justify-between items-center text-[10px] text-slate-400">
-                <span>Demo account: apex / fantasy123</span>
-                <button
-                  type="button"
-                  onClick={handleQuickDemoLogin}
-                  className="text-emerald-400 font-bold hover:underline cursor-pointer"
-                >
-                  Auto Fill
-                </button>
-              </div>
             </form>
           ) : (
             /* REGISTER FORM */
@@ -433,30 +417,6 @@ export const AuthLandingView: React.FC = () => {
               </button>
             </form>
           )}
-        </div>
-
-        {/* OR DEMO PREVIEW BUTTON */}
-        <div className="space-y-3 pt-1">
-          <div className="relative flex items-center justify-center">
-            <div className="border-t border-white/10 w-full" />
-            <span className="bg-slate-950 px-3 text-[10px] font-bold uppercase tracking-wider text-slate-500">
-              Or Preview
-            </span>
-          </div>
-
-          <button
-            type="button"
-            onClick={enterDemoMode}
-            className="w-full py-3 px-4 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/15 text-slate-200 hover:text-white transition-all group flex flex-col items-center justify-center space-y-0.5 cursor-pointer shadow-lg active:scale-98"
-          >
-            <div className="flex items-center gap-2 font-black text-xs uppercase tracking-wider text-amber-400 group-hover:text-amber-300">
-              <Eye className="w-4 h-4" />
-              <span>Explore in Demo Mode</span>
-            </div>
-            <p className="text-[10px] text-slate-400 text-center">
-              Browse locked sample team, pitch, transfer market, standings and fixtures without logging in.
-            </p>
-          </button>
         </div>
 
         {/* Footer info */}

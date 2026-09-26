@@ -10,13 +10,13 @@ import { AuthLandingView } from './components/auth/AuthLandingView';
 import { PendingApprovalOverlay } from './components/auth/PendingApprovalOverlay';
 
 const AppContent: React.FC = () => {
-  const { activeTab, authUser, isDemoMode } = useFPL();
+  const { activeTab, authUser } = useFPL();
 
-  if (!authUser && !isDemoMode) {
+  if (!authUser) {
     return <AuthLandingView />;
   }
 
-  const isAccountApproved = isDemoMode || authUser?.isAdmin || Boolean(authUser?.isApproved);
+  const isAccountApproved = authUser.isAdmin || Boolean(authUser.isApproved);
 
   if (!isAccountApproved) {
     return <PendingApprovalOverlay />;

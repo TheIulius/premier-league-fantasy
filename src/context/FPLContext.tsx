@@ -158,18 +158,27 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         if (parsed?.id) return parsed.id;
       } catch (e) {}
     }
-    return localStorage.getItem(STORAGE_KEY_MANAGER_ID) || 'user_1';
+    return localStorage.getItem(STORAGE_KEY_MANAGER_ID) || '';
   });
 
-  const [currentManager, setCurrentManager] = useState<ManagerSummary | null>({
-    id: currentManagerId,
-    managerName: 'Apex Manager',
-    teamName: 'Apex XI',
+  const [currentManager, setCurrentManager] = useState<ManagerSummary | null>(() => {
+    const savedAuthUser = localStorage.getItem(STORAGE_KEY_AUTH_USER);
+    if (savedAuthUser) {
+      try {
+        const parsed = JSON.parse(savedAuthUser);
+        if (parsed?.id) {
+          return {
+            id: parsed.id,
+            managerName: parsed.managerName || '',
+            teamName: parsed.teamName || '',
+          };
+        }
+      } catch (e) {}
+    }
+    return null;
   });
 
-  const [availableManagers, setAvailableManagers] = useState<ManagerSummary[]>([
-    { id: 'user_1', managerName: 'Apex Manager', teamName: 'Apex XI' },
-  ]);
+  const [availableManagers, setAvailableManagers] = useState<ManagerSummary[]>([]);
 
   const [isManagerModalOpen, setIsManagerModalOpen] = useState<boolean>(false);
 
@@ -253,8 +262,8 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       } catch (e) { /* fallback */ }
     }
     return {
-      teamName: 'My Team',
-      managerName: 'Manager',
+      teamName: '',
+      managerName: '',
       players: [],
       bank: 60.0,
       freeTransfers: 1,
@@ -392,7 +401,7 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // Sync state from server API with squad protection
   const refreshServerState = useCallback(async (managerIdOverride?: string) => {
     try {
-      const activeId = managerIdOverride || authUser?.id || currentManagerId || 'user_1';
+      const activeId = managerIdOverride || authUser?.id || currentManagerId || undefined;
       const data = await api.fetchAppState(activeId);
       if (data) {
         if (data.clubs) setClubs(data.clubs);
@@ -407,7 +416,9 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         if (data.managers) setAvailableManagers(data.managers);
         if (data.deadline !== undefined) setDeadlineState(data.deadline || null);
         if (data.paymentSettings) setPaymentSettings(data.paymentSettings);
-        if (data.activeManager) {
+
+        // ONLY adopt activeManager and its squad if it matches the current user's ID
+        if (data.activeManager && authUser && data.activeManager.id === authUser.id) {
           setCurrentManager({
             id: data.activeManager.id,
             managerName: data.activeManager.managerName,
@@ -436,9 +447,11 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           }
         }
 
-        if (data.currentUserApproved !== undefined && authUser) {
-          if (Boolean(authUser.isApproved) !== Boolean(data.currentUserApproved)) {
-            const updatedUser = { ...authUser, isApproved: Boolean(data.currentUserApproved) };
+        // ONLY update approval state if queried specifically for this logged-in user
+        if (authUser && activeId === authUser.id && data.currentUserApproved !== undefined) {
+          const isApprovedNow = Boolean(data.currentUserApproved);
+          if (Boolean(authUser.isApproved) !== isApprovedNow) {
+            const updatedUser = { ...authUser, isApproved: isApprovedNow };
             setAuthUser(updatedUser);
             localStorage.setItem(STORAGE_KEY_AUTH_USER, JSON.stringify(updatedUser));
           }
@@ -447,7 +460,7 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     } catch (err) {
       // Offline fallback: continue using local state
     }
-  }, [authUser, currentManagerId, players, squad]);
+  }, [authUser, currentManagerId, players]);
 
   // Verify auth session on mount
   useEffect(() => {
@@ -495,8 +508,10 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         };
         setSquad(updatedSquad);
         localStorage.setItem(STORAGE_KEY_SQUAD, JSON.stringify(updatedSquad));
-        const activeId = authUser?.id || currentManagerId || 'user_1';
-        api.saveSquadApi(activeId, updatedSquad.players, updatedSquad.teamName, updatedSquad.bank).catch(() => {});
+        const activeId = authUser?.id || currentManagerId;
+        if (activeId) {
+          api.saveSquadApi(activeId, updatedSquad.players, updatedSquad.teamName, updatedSquad.bank).catch(() => {});
+        }
       }
     }
   }, [players, authUser, currentManagerId]);
@@ -684,6 +699,8 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setAuthToken(null);
     setAuthUser(null);
     setIsDemoMode(false);
+    setCurrentManagerId('');
+    setCurrentManager(null);
     localStorage.removeItem(STORAGE_KEY_AUTH_TOKEN);
     localStorage.removeItem(STORAGE_KEY_AUTH_USER);
     localStorage.removeItem(STORAGE_KEY_SQUAD);
@@ -1076,10 +1093,12 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
     setSquad(updatedSquad);
     localStorage.setItem(STORAGE_KEY_SQUAD, JSON.stringify(updatedSquad));
-    const activeId = authUser?.id || currentManagerId || 'user_1';
-    api.saveSquadApi(activeId, cleanUpdatedPlayers, updatedSquad.teamName, updatedSquad.bank).catch((err) => {
-      console.warn('Auto-save squad substitution failed:', err);
-    });
+    const activeId = authUser?.id || currentManagerId;
+    if (activeId) {
+      api.saveSquadApi(activeId, cleanUpdatedPlayers, updatedSquad.teamName, updatedSquad.bank).catch((err) => {
+        console.warn('Auto-save squad substitution failed:', err);
+      });
+    }
     setSelectedPlayerForSwap(null);
     return { success: true };
   };
@@ -1113,8 +1132,10 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const updatedSquad: Squad = { ...squad, players: cleanUpdated };
     setSquad(updatedSquad);
     localStorage.setItem(STORAGE_KEY_SQUAD, JSON.stringify(updatedSquad));
-    const activeId = authUser?.id || currentManagerId || 'user_1';
-    api.saveSquadApi(activeId, cleanUpdated, updatedSquad.teamName, updatedSquad.bank).catch(() => {});
+    const activeId = authUser?.id || currentManagerId;
+    if (activeId) {
+      api.saveSquadApi(activeId, cleanUpdated, updatedSquad.teamName, updatedSquad.bank).catch(() => {});
+    }
     return { success: true };
   };
 

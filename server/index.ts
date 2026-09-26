@@ -33,12 +33,14 @@ app.get('/api/health', (req: Request, res: Response) => {
 // 2. Fetch Global State + Specific Manager Squad
 app.get('/api/state', (req: Request, res: Response) => {
   const data = db.getData();
-  const managerId = (req.query.managerId as string) || Object.keys(data.managers)[0] || 'user_1';
-  let manager = data.managers[managerId];
+  const managerId = req.query.managerId as string | undefined;
+  let manager: ManagerProfile | null = null;
 
-  if (!manager) {
-    const user = data.users?.[managerId];
-    if (user) {
+  if (managerId) {
+    if (data.managers[managerId]) {
+      manager = data.managers[managerId];
+    } else if (data.users?.[managerId]) {
+      const user = data.users[managerId];
       manager = {
         id: user.id,
         managerName: user.managerName,
@@ -57,8 +59,6 @@ app.get('/api/state', (req: Request, res: Response) => {
       };
       data.managers[user.id] = manager;
       db.save();
-    } else {
-      manager = Object.values(data.managers)[0];
     }
   }
 
@@ -70,6 +70,9 @@ app.get('/api/state', (req: Request, res: Response) => {
     teamName: m.teamName,
   }));
 
+  const queriedUser = managerId ? data.users?.[managerId] : null;
+  const isApproved = queriedUser ? (isUserAdmin(queriedUser.username) || Boolean(queriedUser.isApproved)) : false;
+
   res.json({
     currentGW: data.currentGW,
     players: data.players,
@@ -78,11 +81,7 @@ app.get('/api/state', (req: Request, res: Response) => {
     leagues: data.leagues,
     managers: managersList,
     activeManager: manager,
-    currentUserApproved: (() => {
-      const u = data.users?.[managerId];
-      if (!u) return true;
-      return isUserAdmin(u.username) || Boolean(u.isApproved);
-    })(),
+    currentUserApproved: isApproved,
     deadline: data.deadline || null,
     paymentSettings: {
       bogLink: data.paymentSettings?.bogLink || 'https://egreve.bog.ge/KCL26_charity',
@@ -309,7 +308,27 @@ app.post('/api/auth/login', (req: Request, res: Response) => {
   user.token = token;
   db.save();
 
-  const manager = data.managers[user.id] || Object.values(data.managers)[0];
+  let manager = data.managers[user.id];
+  if (!manager) {
+    manager = {
+      id: user.id,
+      managerName: user.managerName,
+      teamName: user.teamName,
+      squad: {
+        teamName: user.teamName,
+        managerName: user.managerName,
+        players: [],
+        bank: 60.0,
+        freeTransfers: 1,
+        transfersMadeThisGW: 0,
+        activeChip: null,
+        usedChips: { triple_captain: false, bench_boost: false, wildcard: false },
+      },
+      joinedAt: new Date().toISOString(),
+    };
+    data.managers[user.id] = manager;
+    db.save();
+  }
 
   const isAdmin = isUserAdmin(user.username) || user.role === 'admin' || Boolean(user.isAdmin);
   const isApproved = isAdmin || Boolean(user.isApproved);
@@ -327,7 +346,7 @@ app.post('/api/auth/login', (req: Request, res: Response) => {
       isAdmin,
       isApproved,
     },
-    squad: manager ? manager.squad : null,
+    squad: manager.squad,
   });
 });
 
@@ -350,7 +369,28 @@ app.get('/api/auth/me', (req: Request, res: Response) => {
     return res.status(401).json({ error: 'Invalid or expired session' });
   }
 
-  const manager = data.managers[user.id];
+  let manager = data.managers[user.id];
+  if (!manager) {
+    manager = {
+      id: user.id,
+      managerName: user.managerName,
+      teamName: user.teamName,
+      squad: {
+        teamName: user.teamName,
+        managerName: user.managerName,
+        players: [],
+        bank: 60.0,
+        freeTransfers: 1,
+        transfersMadeThisGW: 0,
+        activeChip: null,
+        usedChips: { triple_captain: false, bench_boost: false, wildcard: false },
+      },
+      joinedAt: new Date().toISOString(),
+    };
+    data.managers[user.id] = manager;
+    db.save();
+  }
+
   const isAdmin = isUserAdmin(user.username) || user.role === 'admin' || Boolean(user.isAdmin);
   const isApproved = isAdmin || Boolean(user.isApproved);
 
@@ -366,7 +406,7 @@ app.get('/api/auth/me', (req: Request, res: Response) => {
       isAdmin,
       isApproved,
     },
-    squad: manager ? manager.squad : null,
+    squad: manager.squad,
   });
 });
 
