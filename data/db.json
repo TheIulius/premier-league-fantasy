@@ -5905,7 +5905,8 @@
       "managerName": "Tsiskara",
       "teamName": "11/5",
       "token": "c5479b1d2c809ee6ca1eff06634f51bcdd588f0511085fc15c954acc0fde8c51",
-      "createdAt": "2026-09-26T12:43:23.327Z"
+      "createdAt": "2026-09-26T12:43:23.327Z",
+      "isApproved": true
     },
     "user_1790427011158": {
       "id": "user_1790427011158",
