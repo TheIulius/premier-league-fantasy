@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useFPL } from '../../context/FPLContext';
-import { Lock, Key, User, ExternalLink, Ticket, CreditCard, Eye, Sparkles } from 'lucide-react';
+import { Lock, Key, User, Ticket, Eye, Sparkles, Copy, Check, Phone } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 export const AuthLandingView: React.FC = () => {
@@ -75,17 +75,24 @@ export const AuthLandingView: React.FC = () => {
     }
   };
 
-  const handleOpenPaymentLink = (bank: 'bog' | 'tbc') => {
-    const defaultBog = 'https://egreve.bog.ge/KCL26_charity';
-    const link = bank === 'bog' ? (paymentSettings?.bogLink?.trim() || defaultBog) : paymentSettings?.tbcLink?.trim();
-    if (link && link.trim()) {
-      window.open(link.trim(), '_blank', 'noopener,noreferrer');
-    } else {
-      alert(
-        `${
-          bank === 'bog' ? 'Bank of Georgia' : 'TBC Bank'
-        } direct link will be activated shortly. Please contact Komarovi organizers directly for the account details.`
-      );
+  // Copy-to-clipboard feedback
+  const [copiedField, setCopiedField] = useState<string | null>(null);
+
+  const copyToClipboard = async (text: string, field: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedField(field);
+      setTimeout(() => setCopiedField(null), 2000);
+    } catch {
+      // Fallback
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+      setCopiedField(field);
+      setTimeout(() => setCopiedField(null), 2000);
     }
   };
 
@@ -220,12 +227,11 @@ export const AuthLandingView: React.FC = () => {
           ) : (
             /* REGISTER FORM */
             <form onSubmit={handleRegisterSubmit} className="space-y-3">
-              {/* Charity Entry Fee & Bank Payment Redirects */}
-              <div className="p-3 rounded-2xl bg-slate-950/80 border border-white/5 space-y-2">
+              {/* Charity Entry Fee & Manual Bank Transfer */}
+              <div className="p-3 rounded-2xl bg-slate-950/80 border border-white/5 space-y-3">
                 <div className="flex items-center justify-between">
                   <span className="text-[11px] font-bold text-slate-200 flex items-center gap-1.5">
-                    <CreditCard className="w-3.5 h-3.5 text-emerald-400" />
-                    Charity Entry Fee
+                    💳 Charity Entry Fee
                   </span>
                   <span className="px-2 py-0.5 rounded-full text-[11px] font-black bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
                     {paymentSettings?.entryFeeGEL || 3}.00 ₾
@@ -233,45 +239,101 @@ export const AuthLandingView: React.FC = () => {
                 </div>
 
                 <p className="text-[10px] text-slate-400 leading-relaxed">
-                  Tap below to transfer the 3 ₾ entry fee to the school charity fund:
+                  Transfer <strong className="text-slate-200">3 ₾</strong> to one of the accounts below. In the transfer description, <strong className="text-amber-400">write your username</strong> so we can verify your payment.
                 </p>
 
-                <div className="grid grid-cols-2 gap-2 pt-0.5">
-                  {/* Bank of Georgia Button */}
-                  <button
-                    type="button"
-                    onClick={() => handleOpenPaymentLink('bog')}
-                    className="group flex items-center justify-between px-2.5 py-2 rounded-xl text-left bg-orange-500/10 hover:bg-orange-500/15 border border-orange-500/30 text-orange-400 transition-colors"
-                    title="Open Bank of Georgia eGreve charity page"
-                  >
-                    <div>
-                      <div className="text-[10px] font-black uppercase tracking-tight">Bank of Georgia</div>
-                      <div className="text-[9px] font-semibold text-orange-400/80">eGreve Link</div>
+                {/* Bank Account Numbers */}
+                <div className="space-y-2">
+                  {/* BOG Account */}
+                  <div className="rounded-xl bg-orange-500/8 border border-orange-500/20 p-2.5">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-[10px] font-black text-orange-400 uppercase tracking-tight">Bank of Georgia (BOG)</span>
                     </div>
-                    <ExternalLink className="w-3.5 h-3.5 text-orange-400 group-hover:translate-x-0.5 transition-transform" />
-                  </button>
+                    <button
+                      type="button"
+                      onClick={() => copyToClipboard('GE61BG0000000764495900', 'bog')}
+                      className="w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-slate-950/60 border border-orange-500/15 hover:border-orange-500/40 transition-colors group cursor-pointer"
+                    >
+                      <span className="text-[10px] font-mono font-bold text-orange-300/90 tracking-tight select-all">
+                        GE61BG0000000764495900
+                      </span>
+                      {copiedField === 'bog' ? (
+                        <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                      ) : (
+                        <Copy className="w-3.5 h-3.5 text-orange-400/60 group-hover:text-orange-400 shrink-0 transition-colors" />
+                      )}
+                    </button>
+                  </div>
 
-                  {/* TBC Bank Button */}
-                  <button
-                    type="button"
-                    onClick={() => handleOpenPaymentLink('tbc')}
-                    className="group flex items-center justify-between px-2.5 py-2 rounded-xl text-left bg-sky-500/10 hover:bg-sky-500/15 border border-sky-500/30 text-sky-400 transition-colors"
-                    title="Open TBC Bank payment link"
-                  >
-                    <div>
-                      <div className="text-[10px] font-black uppercase tracking-tight">TBC Bank</div>
-                      <div className="text-[9px] font-semibold text-sky-400/80">Transfer Link</div>
+                  {/* TBC Account */}
+                  <div className="rounded-xl bg-sky-500/8 border border-sky-500/20 p-2.5">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-[10px] font-black text-sky-400 uppercase tracking-tight">TBC Bank</span>
                     </div>
-                    <ExternalLink className="w-3.5 h-3.5 text-sky-400 group-hover:translate-x-0.5 transition-transform" />
-                  </button>
+                    <button
+                      type="button"
+                      onClick={() => copyToClipboard('GE33TB7616145061100136', 'tbc')}
+                      className="w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-slate-950/60 border border-sky-500/15 hover:border-sky-500/40 transition-colors group cursor-pointer"
+                    >
+                      <span className="text-[10px] font-mono font-bold text-sky-300/90 tracking-tight select-all">
+                        GE33TB7616145061100136
+                      </span>
+                      {copiedField === 'tbc' ? (
+                        <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                      ) : (
+                        <Copy className="w-3.5 h-3.5 text-sky-400/60 group-hover:text-sky-400 shrink-0 transition-colors" />
+                      )}
+                    </button>
+                  </div>
                 </div>
 
-                {/* Explicit amount reminder since BOG eGreve doesn't prefill the 3 GEL value */}
-                <div className="rounded-xl bg-orange-500/10 border border-orange-500/20 px-2.5 py-1.5 text-[10px] text-orange-300 flex items-start gap-1.5">
-                  <span className="font-bold shrink-0">💡 Note:</span>
+                {/* Username reminder */}
+                <div className="rounded-xl bg-amber-500/10 border border-amber-500/20 px-2.5 py-1.5 text-[10px] text-amber-300 flex items-start gap-1.5">
+                  <span className="font-bold shrink-0">⚠️</span>
                   <span className="leading-snug">
-                    On the Bank of Georgia eGreve page, please enter <strong>3.00 ₾</strong> manually as the transfer amount (თანხა: <strong>3 ₾</strong>).
+                    Write your <strong>username</strong> in the transfer description/comment so we can match your payment!
                   </span>
+                </div>
+
+                {/* Organizer Contact Info */}
+                <div className="rounded-xl bg-slate-800/60 border border-white/5 p-2.5 space-y-2">
+                  <p className="text-[10px] font-bold text-slate-300">📞 Contact Organizer</p>
+                  <div className="space-y-1.5">
+                    <p className="text-[10px] text-slate-200 font-semibold">Ilia Shinjiashvili</p>
+                    <button
+                      type="button"
+                      onClick={() => copyToClipboard('599100084', 'phone')}
+                      className="flex items-center gap-1.5 text-[10px] text-slate-300 hover:text-white transition-colors group cursor-pointer"
+                    >
+                      <Phone className="w-3 h-3 text-emerald-400" />
+                      <span className="font-mono font-semibold">599 100 084</span>
+                      {copiedField === 'phone' ? (
+                        <Check className="w-3 h-3 text-emerald-400" />
+                      ) : (
+                        <Copy className="w-3 h-3 text-slate-500 group-hover:text-slate-300 transition-colors" />
+                      )}
+                    </button>
+                    <div className="flex items-center gap-3">
+                      <a
+                        href="https://www.instagram.com/theiuliuss/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-1 text-[10px] text-pink-400 hover:text-pink-300 transition-colors font-semibold"
+                      >
+                        <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+                        @theiuliuss
+                      </a>
+                      <a
+                        href="https://www.instagram.com/k_charity_league/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-1 text-[10px] text-pink-400 hover:text-pink-300 transition-colors font-semibold"
+                      >
+                        <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+                        @k_charity_league
+                      </a>
+                    </div>
+                  </div>
                 </div>
               </div>
 
