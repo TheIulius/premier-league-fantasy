@@ -5131,24 +5131,13 @@
           ]
         },
         {
-          "id": "user_1790419656200",
-          "managerName": "vigac",
-          "teamName": "FC vigaceebi",
-          "totalPoints": 0,
-          "gwPoints": 0,
-          "rank": 7,
-          "previousRank": 7,
-          "activeChip": null,
-          "lineup": []
-        },
-        {
           "id": "user_1790426603326",
           "managerName": "Tsiskara",
           "teamName": "11/5",
           "totalPoints": 0,
           "gwPoints": 0,
-          "rank": 8,
-          "previousRank": 8,
+          "rank": 7,
+          "previousRank": 7,
           "activeChip": null,
           "lineup": [
             {
@@ -5203,30 +5192,8 @@
           "teamName": "Samada",
           "totalPoints": 0,
           "gwPoints": 0,
-          "rank": 9,
-          "previousRank": 9,
-          "activeChip": null,
-          "lineup": []
-        },
-        {
-          "id": "user_1790446852456",
-          "managerName": "samada123",
-          "teamName": "fc samada123",
-          "totalPoints": 0,
-          "gwPoints": 0,
-          "rank": 10,
-          "previousRank": 10,
-          "activeChip": null,
-          "lineup": []
-        },
-        {
-          "id": "user_1790447072394",
-          "managerName": "new_acc",
-          "teamName": "Fc new_acc",
-          "totalPoints": 0,
-          "gwPoints": 0,
-          "rank": 11,
-          "previousRank": 11,
+          "rank": 8,
+          "previousRank": 8,
           "activeChip": null,
           "lineup": []
         }
@@ -5667,26 +5634,6 @@
       },
       "joinedAt": "2026-09-25T17:38:18.197Z"
     },
-    "user_1790419656200": {
-      "id": "user_1790419656200",
-      "managerName": "vigac",
-      "teamName": "FC vigaceebi",
-      "squad": {
-        "teamName": "FC vigaceebi",
-        "managerName": "vigac",
-        "players": [],
-        "bank": 60,
-        "freeTransfers": 1,
-        "transfersMadeThisGW": 0,
-        "activeChip": null,
-        "usedChips": {
-          "triple_captain": false,
-          "bench_boost": false,
-          "wildcard": false
-        }
-      },
-      "joinedAt": "2026-09-26T10:47:36.213Z"
-    },
     "user_1790426603326": {
       "id": "user_1790426603326",
       "managerName": "Tsiskara",
@@ -5755,46 +5702,6 @@
         }
       },
       "joinedAt": "2026-09-26T12:50:11.159Z"
-    },
-    "user_1790446852456": {
-      "id": "user_1790446852456",
-      "managerName": "samada123",
-      "teamName": "fc samada123",
-      "squad": {
-        "teamName": "fc samada123",
-        "managerName": "samada123",
-        "players": [],
-        "bank": 60,
-        "freeTransfers": 1,
-        "transfersMadeThisGW": 0,
-        "activeChip": null,
-        "usedChips": {
-          "triple_captain": false,
-          "bench_boost": false,
-          "wildcard": false
-        }
-      },
-      "joinedAt": "2026-09-26T18:20:52.459Z"
-    },
-    "user_1790447072394": {
-      "id": "user_1790447072394",
-      "managerName": "new_acc",
-      "teamName": "Fc new_acc",
-      "squad": {
-        "teamName": "Fc new_acc",
-        "managerName": "new_acc",
-        "players": [],
-        "bank": 60,
-        "freeTransfers": 1,
-        "transfersMadeThisGW": 0,
-        "activeChip": null,
-        "usedChips": {
-          "triple_captain": false,
-          "bench_boost": false,
-          "wildcard": false
-        }
-      },
-      "joinedAt": "2026-09-26T18:24:32.395Z"
     }
   },
   "users": {
@@ -5824,16 +5731,6 @@
       "role": "admin",
       "isAdmin": true
     },
-    "user_1790419656200": {
-      "id": "user_1790419656200",
-      "username": "vigacvigaca",
-      "email": "vigacvigaca@fantasy.pl",
-      "passwordHash": "5b962b4d8a250b95818f497b6d3a2d0a57bb4ca47d25ce3aa9f2f57f83f9e114260f44f3dc8061461b305941b8fdcdd42a6939cef6541f31cb072d785781df0a",
-      "salt": "16804b76c8b8eeefadc613d9b66d2b07",
-      "managerName": "vigac",
-      "teamName": "FC vigaceebi",
-      "createdAt": "2026-09-26T10:47:36.213Z"
-    },
     "user_1790426603326": {
       "id": "user_1790426603326",
       "username": "tsiskara",
@@ -5856,29 +5753,6 @@
       "teamName": "Samada",
       "token": "a7ba25439f7320ca1c8514055dd2f3afedff207a2fb8d2451800a511ec05c68f",
       "createdAt": "2026-09-26T12:50:11.159Z"
-    },
-    "user_1790446852456": {
-      "id": "user_1790446852456",
-      "username": "samada123",
-      "email": "samada123@fantasy.pl",
-      "passwordHash": "96fe6764304a7400d8c3546904287d57b9457ea6c3eb29f8b90d8a1aaa342902549e3f298082abc3870a2630045b096460d4c94b2e9b50466d264b75a14cd178",
-      "salt": "d98793f05931984bd3b4fe4704e59090",
-      "managerName": "samada123",
-      "teamName": "fc samada123",
-      "createdAt": "2026-09-26T18:20:52.459Z"
-    },
-    "user_1790447072394": {
-      "id": "user_1790447072394",
-      "username": "new_acc",
-      "email": "new_acc@fantasy.pl",
-      "passwordHash": "7f7e96c966d39dc485ee665c69ab4d883f49b8b036044f9a2729abdbc9a79527bbaf7fc8ae3111df5f07e193f451d2fbe483df007432a3dfc0223910d8c05d57",
-      "salt": "184db040b41636ef6e6ebee6c9b04180",
-      "managerName": "new_acc",
-      "teamName": "Fc new_acc",
-      "createdAt": "2026-09-26T18:24:32.395Z",
-      "role": "user",
-      "isAdmin": false,
-      "isApproved": false
     }
   },
   "deadline": {
