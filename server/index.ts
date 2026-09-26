@@ -617,9 +617,23 @@ app.post('/api/squad/save', (req: Request, res: Response) => {
     }
   }
 
-  if (teamName) {
+  const registeredUser = data.users?.[managerId];
+  if (registeredUser?.teamName) {
+    manager.teamName = registeredUser.teamName;
+    manager.squad.teamName = registeredUser.teamName;
+  } else if (teamName) {
     manager.teamName = teamName;
     manager.squad.teamName = teamName;
+  }
+
+  // Update Global League member teamName as well
+  const globalLeague = data.leagues?.find((l) => l.isGlobal);
+  if (globalLeague?.members) {
+    const mem = globalLeague.members.find((m) => m.id === managerId);
+    if (mem) {
+      mem.teamName = manager.teamName;
+      mem.managerName = manager.managerName;
+    }
   }
 
   db.save();

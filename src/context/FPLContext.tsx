@@ -417,17 +417,7 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             let activeSq = data.activeManager.squad;
             const allP = data.players || players;
 
-            // CRITICAL SQUAD PROTECTION:
-            // Never overwrite an existing populated local squad with an empty/wiped squad from server
-            if (
-              (!activeSq.players || activeSq.players.length === 0) &&
-              squad &&
-              Array.isArray(squad.players) &&
-              squad.players.length > 0
-            ) {
-              console.warn('Server returned empty squad while client has a squad. Preserving local squad and syncing to server.');
-              api.saveSquadApi(activeId, squad.players, squad.teamName, squad.bank).catch(() => {});
-            } else if (activeSq.players && activeSq.players.length > 0) {
+            if (activeSq.players && activeSq.players.length > 0) {
               if (allP && Object.keys(allP).length >= 50) {
                 const validPlayers = activeSq.players.filter((sp: SquadPlayer) => Boolean(allP[sp.playerId]));
                 if (validPlayers.length >= activeSq.players.length) {
@@ -440,9 +430,9 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
                   activeSq = { ...activeSq, players: normalized, bank };
                 }
               }
-              setSquad(activeSq);
-              localStorage.setItem(STORAGE_KEY_SQUAD, JSON.stringify(activeSq));
             }
+            setSquad(activeSq);
+            localStorage.setItem(STORAGE_KEY_SQUAD, JSON.stringify(activeSq));
           }
         }
 
@@ -470,16 +460,7 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           localStorage.setItem(STORAGE_KEY_MANAGER_ID, res.user.id);
           if (res.squad) {
             let userSq = res.squad;
-            // Shield local squad if server squad is empty but local squad has players
-            if (
-              (!userSq.players || userSq.players.length === 0) &&
-              squad &&
-              Array.isArray(squad.players) &&
-              squad.players.length > 0
-            ) {
-              console.warn('Session squad empty, syncing existing local squad to user account.');
-              api.saveSquadApi(res.user.id, squad.players, squad.teamName, squad.bank).catch(() => {});
-            } else if (userSq.players && userSq.players.length > 0) {
+            if (userSq.players && userSq.players.length > 0) {
               if (players && Object.keys(players).length >= 50) {
                 const validPlayers = userSq.players.filter((sp: SquadPlayer) => Boolean(players[sp.playerId]));
                 if (validPlayers.length >= userSq.players.length) {
@@ -487,9 +468,9 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
                   userSq = { ...userSq, players: normalized };
                 }
               }
-              setSquad(userSq);
-              localStorage.setItem(STORAGE_KEY_SQUAD, JSON.stringify(userSq));
             }
+            setSquad(userSq);
+            localStorage.setItem(STORAGE_KEY_SQUAD, JSON.stringify(userSq));
           }
         }
       }).catch(() => {});
@@ -639,9 +620,18 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         teamName: res.user.teamName,
       });
 
-      if (res.squad && Array.isArray(res.squad.players) && res.squad.players.length > 0) {
-        setSquad(res.squad);
-      }
+      const userSquad: Squad = res.squad || {
+        teamName: res.user.teamName,
+        managerName: res.user.managerName,
+        players: [],
+        bank: 60.0,
+        freeTransfers: 1,
+        transfersMadeThisGW: 0,
+        activeChip: null,
+        usedChips: { triple_captain: false, bench_boost: false, wildcard: false },
+      };
+      setSquad(userSquad);
+      localStorage.setItem(STORAGE_KEY_SQUAD, JSON.stringify(userSquad));
       await refreshServerState(res.user.id);
     }
   };
@@ -670,9 +660,18 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         teamName: res.user.teamName,
       });
 
-      if (res.squad && Array.isArray(res.squad.players) && res.squad.players.length > 0) {
-        setSquad(res.squad);
-      }
+      const initialSquad: Squad = res.squad || {
+        teamName: res.user.teamName,
+        managerName: res.user.managerName,
+        players: [],
+        bank: 60.0,
+        freeTransfers: 1,
+        transfersMadeThisGW: 0,
+        activeChip: null,
+        usedChips: { triple_captain: false, bench_boost: false, wildcard: false },
+      };
+      setSquad(initialSquad);
+      localStorage.setItem(STORAGE_KEY_SQUAD, JSON.stringify(initialSquad));
       await refreshServerState(res.user.id);
     }
   };
@@ -687,6 +686,18 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setIsDemoMode(false);
     localStorage.removeItem(STORAGE_KEY_AUTH_TOKEN);
     localStorage.removeItem(STORAGE_KEY_AUTH_USER);
+    localStorage.removeItem(STORAGE_KEY_SQUAD);
+    localStorage.removeItem(STORAGE_KEY_MANAGER_ID);
+    setSquad({
+      teamName: '',
+      managerName: '',
+      players: [],
+      bank: 60.0,
+      freeTransfers: 1,
+      transfersMadeThisGW: 0,
+      activeChip: null,
+      usedChips: { triple_captain: false, bench_boost: false, wildcard: false },
+    });
   };
 
   // Re-verify current session & update user approval state

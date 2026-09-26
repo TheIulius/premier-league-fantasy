@@ -129,7 +129,9 @@ export const TopHeader: React.FC = () => {
                 onClick={() => (isDemoMode ? exitDemoMode() : setIsAuthModalOpen(true))}
                 className="text-[11px] md:text-xs font-medium text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white flex items-center gap-1 transition-colors text-left"
               >
-                <span className="truncate max-w-[120px] md:max-w-[260px] font-semibold text-slate-700 dark:text-slate-300">{squad.teamName}</span>
+                <span className="truncate max-w-[120px] md:max-w-[260px] font-semibold text-slate-700 dark:text-slate-300">
+                  {authUser?.teamName || squad.teamName}
+                </span>
                 <span className="text-[9px] bg-slate-100 dark:bg-white/[0.06] px-1.5 py-0.2 rounded text-slate-500 dark:text-slate-400 border border-slate-200/60 dark:border-white/[0.06]">
                   {isDemoMode ? 'Demo View' : authUser ? `@${authUser.username}` : 'Sign In'}
                 </span>
