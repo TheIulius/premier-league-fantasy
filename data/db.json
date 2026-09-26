@@ -5008,7 +5008,19 @@
           "rank": 8,
           "previousRank": 8,
           "activeChip": null,
-          "lineup": []
+          "lineup": [
+            {
+              "playerId": "p_zarno",
+              "webName": "Zarno",
+              "clubId": "SCH_11_5",
+              "position": "DEF",
+              "isStarter": true,
+              "isCaptain": true,
+              "isViceCaptain": false,
+              "benchOrder": 0,
+              "points": 0
+            }
+          ]
         }
       ]
     }
@@ -5411,8 +5423,16 @@
       "squad": {
         "teamName": "Chaga XI",
         "managerName": "Nika",
-        "players": [],
-        "bank": 60,
+        "players": [
+          {
+            "playerId": "p_zarno",
+            "isStarter": true,
+            "benchOrder": 0,
+            "isCaptain": true,
+            "isViceCaptain": false
+          }
+        ],
+        "bank": 53.5,
         "freeTransfers": 1,
         "transfersMadeThisGW": 0,
         "activeChip": null,
