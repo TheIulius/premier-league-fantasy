@@ -5258,7 +5258,7 @@
       "salt": "bf561a201267f9bc1552d255a30d0ce4",
       "managerName": "Ilia",
       "teamName": "giorgievski's tractati",
-      "token": "5eb7636cf0313d5c3cca5b8c98691584ef6f4598abd3ffdc6f1bc92fd7c8a3ac",
+      "token": "316c14ec6329c5c584968ce743519e6111dda50b4f67d8dfe5a0096b23978f13",
       "createdAt": "2026-09-25T16:18:23.548Z"
     },
     "user_1790357898196": {
@@ -5276,5 +5276,12 @@
   "deadline": {
     "gameweek": 1,
     "deadlineTime": "2026-09-28T09:23:12.593Z"
-  }
+  },
+  "paymentSettings": {
+    "bogLink": "",
+    "tbcLink": "",
+    "entryFeeGEL": 3,
+    "requireActivationCode": false
+  },
+  "activationCodes": []
 }
