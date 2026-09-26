@@ -523,7 +523,37 @@ app.post('/api/squad/save', (req: Request, res: Response) => {
       }
     }
 
-    manager.squad.players = players;
+    // Ensure strict single-captain integrity
+    const starters = players.filter((sp: any) => sp.isStarter);
+    let capAssigned = false;
+    let viceAssigned = false;
+    const sanitizedPlayers = players.map((sp: any) => {
+      if (!sp.isStarter) {
+        return { ...sp, isCaptain: false, isViceCaptain: false };
+      }
+      let isCap = false;
+      let isVice = false;
+      if (sp.isCaptain && !capAssigned) {
+        isCap = true;
+        capAssigned = true;
+      }
+      if (sp.isViceCaptain && !isCap && !viceAssigned) {
+        isVice = true;
+        viceAssigned = true;
+      }
+      return { ...sp, isCaptain: isCap, isViceCaptain: isVice };
+    });
+
+    if (!capAssigned && starters.length > 0) {
+      const firstStarter = sanitizedPlayers.find((sp: any) => sp.isStarter);
+      if (firstStarter) firstStarter.isCaptain = true;
+    }
+    if (!viceAssigned && starters.length > 1) {
+      const firstNonCap = sanitizedPlayers.find((sp: any) => sp.isStarter && !sp.isCaptain);
+      if (firstNonCap) firstNonCap.isViceCaptain = true;
+    }
+
+    manager.squad.players = sanitizedPlayers;
     if (typeof bank === 'number') {
       manager.squad.bank = Math.round(bank * 10) / 10;
     } else {

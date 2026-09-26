@@ -269,15 +269,16 @@ export function normalizeSquadLineup(
     else if (pos === 'FWD') fwdCount++;
   });
 
-  // If already 6 starters with 1 GK and valid formation, just reindex bench
+  // If already 6 starters with 1 GK and valid formation, just reindex bench and sanitize captaincy
   if (starters.length === 6 && gkCount === 1 && isValidFormation(defCount, midCount, fwdCount) && bench.length === 3) {
     let bIdx = 1;
-    return squadPlayers.map((sp) => {
+    const reindexed = squadPlayers.map((sp) => {
       if (!sp.isStarter) {
-        return { ...sp, benchOrder: bIdx++ };
+        return { ...sp, benchOrder: bIdx++, isCaptain: false, isViceCaptain: false };
       }
       return { ...sp, benchOrder: 0 };
     });
+    return sanitizeCaptaincy(reindexed);
   }
 
   // Otherwise, reset to default valid 2-2-1 lineup:
@@ -288,7 +289,7 @@ export function normalizeSquadLineup(
   const fwds = squadPlayers.filter((sp) => allPlayers[sp.playerId]?.position === 'FWD');
 
   if (gks.length !== 1 || defs.length !== 3 || mids.length !== 3 || fwds.length !== 2) {
-    return squadPlayers; // Not a complete 1-3-3-2 squad
+    return sanitizeCaptaincy(squadPlayers); // Not a complete 1-3-3-2 squad
   }
 
   const startingGk = { ...gks[0], isStarter: true, benchOrder: 0 };
@@ -296,18 +297,18 @@ export function normalizeSquadLineup(
     { ...defs[0], isStarter: true, benchOrder: 0 },
     { ...defs[1], isStarter: true, benchOrder: 0 },
   ];
-  const benchDef = { ...defs[2], isStarter: false, benchOrder: 1 };
+  const benchDef = { ...defs[2], isStarter: false, benchOrder: 1, isCaptain: false, isViceCaptain: false };
 
   const startingMids = [
     { ...mids[0], isStarter: true, benchOrder: 0 },
     { ...mids[1], isStarter: true, benchOrder: 0 },
   ];
-  const benchMid = { ...mids[2], isStarter: false, benchOrder: 2 };
+  const benchMid = { ...mids[2], isStarter: false, benchOrder: 2, isCaptain: false, isViceCaptain: false };
 
-  const startingFwd = { ...fwds[0], isStarter: true, benchOrder: 0, isCaptain: true, isViceCaptain: false };
+  const startingFwd = { ...fwds[0], isStarter: true, benchOrder: 0 };
   const benchFwd = { ...fwds[1], isStarter: false, benchOrder: 3, isCaptain: false, isViceCaptain: false };
 
-  return [
+  const fullLineup = [
     startingGk,
     startingDefs[0],
     startingDefs[1],
@@ -318,4 +319,43 @@ export function normalizeSquadLineup(
     benchMid,
     benchFwd,
   ];
+
+  return sanitizeCaptaincy(fullLineup);
+}
+
+/**
+ * Enforces strict single-captain integrity:
+ * - Exactly ONE starter has isCaptain: true
+ * - Exactly ONE starter has isViceCaptain: true (and cannot be captain)
+ * - Bench players NEVER have isCaptain or isViceCaptain
+ */
+export function sanitizeCaptaincy(squadPlayers: SquadPlayer[]): SquadPlayer[] {
+  if (!squadPlayers || squadPlayers.length === 0) return squadPlayers;
+
+  const starters = squadPlayers.filter((p) => p.isStarter);
+  if (starters.length === 0) {
+    return squadPlayers.map((p) => ({ ...p, isCaptain: false, isViceCaptain: false }));
+  }
+
+  // Find existing captain among starters (only the first one marked isCaptain)
+  const existingCap = starters.find((p) => p.isCaptain);
+  const capPlayerId = existingCap ? existingCap.playerId : starters[0].playerId;
+
+  // Find existing vice-captain among remaining starters (cannot be captain)
+  const remainingStarters = starters.filter((p) => p.playerId !== capPlayerId);
+  const existingVice = remainingStarters.find((p) => p.isViceCaptain);
+  const vicePlayerId = existingVice ? existingVice.playerId : (remainingStarters[0]?.playerId || '');
+
+  return squadPlayers.map((p) => {
+    if (!p.isStarter) {
+      return { ...p, isCaptain: false, isViceCaptain: false };
+    }
+    const isCap = p.playerId === capPlayerId;
+    const isVice = !isCap && p.playerId === vicePlayerId;
+    return {
+      ...p,
+      isCaptain: isCap,
+      isViceCaptain: isVice,
+    };
+  });
 }

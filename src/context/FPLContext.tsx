@@ -20,7 +20,7 @@ import {
   GameweekCalculationResult,
   validateSquadComposition,
 } from '../engine/scoring';
-import { canSwapPlayers, normalizeSquadLineup, isValidFormation } from '../engine/formations';
+import { canSwapPlayers, normalizeSquadLineup, isValidFormation, sanitizeCaptaincy } from '../engine/formations';
 import * as api from '../services/api';
 
 export type TabType = 'team' | 'transfers' | 'standings' | 'leagues' | 'fixtures' | 'dev';
@@ -246,6 +246,7 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           if ((parsed.activeChip as any) === 'free_hit') {
             parsed.activeChip = 'wildcard';
           }
+          parsed.players = sanitizeCaptaincy(parsed.players);
           return parsed;
         }
       } catch (e) { /* fallback */ }
@@ -852,15 +853,16 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     });
 
     const newBank = Math.round((squad.bank + refund) * 10) / 10;
+    const cleanRemaining = sanitizeCaptaincy(remaining);
     const updatedSquad: Squad = {
       ...squad,
-      players: remaining,
+      players: cleanRemaining,
       bank: newBank,
     };
 
     setSquad(updatedSquad);
     localStorage.setItem(STORAGE_KEY_SQUAD, JSON.stringify(updatedSquad));
-    api.saveSquadApi(currentManagerId, remaining, updatedSquad.teamName, newBank).catch((e) => {
+    api.saveSquadApi(currentManagerId, cleanRemaining, updatedSquad.teamName, newBank).catch((e) => {
       console.warn('Auto-save squad remove player failed:', e);
     });
 
@@ -920,14 +922,15 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       return { ...sp, benchOrder: 0 };
     });
 
+    const cleanUpdatedPlayers = sanitizeCaptaincy(updatedPlayers);
     const updatedSquad: Squad = {
       ...squad,
-      players: updatedPlayers,
+      players: cleanUpdatedPlayers,
     };
 
     setSquad(updatedSquad);
     localStorage.setItem(STORAGE_KEY_SQUAD, JSON.stringify(updatedSquad));
-    api.saveSquadApi(currentManagerId, updatedPlayers, updatedSquad.teamName, updatedSquad.bank).catch((err) => {
+    api.saveSquadApi(currentManagerId, cleanUpdatedPlayers, updatedSquad.teamName, updatedSquad.bank).catch((err) => {
       console.warn('Auto-save squad substitution failed:', err);
     });
     setSelectedPlayerForSwap(null);
@@ -940,11 +943,13 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const target = squad.players.find((p) => p.playerId === playerId);
     if (!target || !target.isStarter) return;
 
-    const updated = squad.players.map((sp) => ({
-      ...sp,
-      isCaptain: sp.playerId === playerId,
-      isViceCaptain: sp.playerId === playerId ? false : sp.isViceCaptain,
-    }));
+    const updated = sanitizeCaptaincy(
+      squad.players.map((sp) => ({
+        ...sp,
+        isCaptain: sp.playerId === playerId,
+        isViceCaptain: sp.playerId === playerId ? false : sp.isViceCaptain,
+      }))
+    );
 
     const updatedSquad = { ...squad, players: updated };
     setSquad(updatedSquad);
@@ -960,10 +965,13 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const target = squad.players.find((p) => p.playerId === playerId);
     if (!target || !target.isStarter || target.isCaptain) return;
 
-    const updated = squad.players.map((sp) => ({
-      ...sp,
-      isViceCaptain: sp.playerId === playerId,
-    }));
+    const updated = sanitizeCaptaincy(
+      squad.players.map((sp) => ({
+        ...sp,
+        isViceCaptain: sp.playerId === playerId,
+        isCaptain: sp.playerId === playerId ? false : sp.isCaptain,
+      }))
+    );
 
     const updatedSquad = { ...squad, players: updated };
     setSquad(updatedSquad);
@@ -1023,8 +1031,10 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       };
     }
 
-    const updatedPlayers = squad.players.map((sp) =>
-      sp.playerId === outPlayerId ? { ...sp, playerId: inPlayerId } : sp
+    const updatedPlayers = sanitizeCaptaincy(
+      squad.players.map((sp) =>
+        sp.playerId === outPlayerId ? { ...sp, playerId: inPlayerId } : sp
+      )
     );
 
     const updatedSquad: Squad = {

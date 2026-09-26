@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useFPL } from '../../context/FPLContext';
 import { getFormationLayout } from '../../engine/formations';
 import { PlayerCard } from './PlayerCard';
@@ -95,6 +95,19 @@ export const PitchView: React.FC<PitchViewProps> = ({
   };
 
   const missingSlots = getMissingSlots();
+
+  // Strict captaincy validation: guaranteed at most 1 captain and 1 vice-captain on the pitch
+  const singleCaptainId = useMemo(() => {
+    const starterCap = squad.players.find((sp) => sp.isStarter && sp.isCaptain);
+    return starterCap ? starterCap.playerId : null;
+  }, [squad.players]);
+
+  const singleViceCaptainId = useMemo(() => {
+    const starterVice = squad.players.find(
+      (sp) => sp.isStarter && sp.isViceCaptain && sp.playerId !== singleCaptainId
+    );
+    return starterVice ? starterVice.playerId : null;
+  }, [squad.players, singleCaptainId]);
 
   return (
     <div className="relative w-full overflow-hidden select-none pb-2">
@@ -223,8 +236,8 @@ export const PitchView: React.FC<PitchViewProps> = ({
                   playerId={sp.playerId}
                   isStarter={sp.isStarter}
                   benchOrder={sp.benchOrder}
-                  isCaptain={sp.isCaptain}
-                  isViceCaptain={sp.isViceCaptain}
+                  isCaptain={sp.playerId === singleCaptainId}
+                  isViceCaptain={sp.playerId === singleViceCaptainId}
                   onCardClick={handleCardClick}
                   showPoints={showPoints}
                 />
@@ -298,8 +311,8 @@ export const PitchView: React.FC<PitchViewProps> = ({
                         playerId={sp.playerId}
                         isStarter={sp.isStarter}
                         benchOrder={order}
-                        isCaptain={sp.isCaptain}
-                        isViceCaptain={sp.isViceCaptain}
+                        isCaptain={false}
+                        isViceCaptain={false}
                         onCardClick={handleCardClick}
                         showPoints={showPoints}
                       />

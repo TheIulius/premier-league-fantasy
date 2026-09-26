@@ -194,7 +194,7 @@ class Database {
             this.save();
           }
         }
-        // Sanitize manager squads: auto-remove deleted ghost players and restore refund to bank
+        // Sanitize manager squads: auto-remove deleted ghost players and enforce strict single-captain integrity
         if (this.data.players && this.data.managers) {
           let squadsChanged = false;
           Object.values(this.data.managers).forEach((m) => {
@@ -204,6 +204,25 @@ class Database {
                 const totalCost = validPlayers.reduce((sum, sp) => sum + (this.data.players[sp.playerId]?.cost || 0), 0);
                 m.squad.bank = Math.max(0, Math.round((60.0 - totalCost) * 10) / 10);
                 m.squad.players = validPlayers;
+                squadsChanged = true;
+              }
+
+              // Strict single captain & vice-captain integrity
+              const starters = m.squad.players.filter((sp: any) => sp.isStarter);
+              const captains = starters.filter((sp: any) => sp.isCaptain);
+              if (captains.length > 1 || (starters.length > 0 && !captains.length)) {
+                const capId = captains[0]?.playerId || starters[0]?.playerId;
+                const remaining = starters.filter((sp: any) => sp.playerId !== capId);
+                const viceId = remaining.find((sp: any) => sp.isViceCaptain)?.playerId || remaining[0]?.playerId;
+
+                m.squad.players = m.squad.players.map((sp: any) => {
+                  if (!sp.isStarter) return { ...sp, isCaptain: false, isViceCaptain: false };
+                  return {
+                    ...sp,
+                    isCaptain: sp.playerId === capId,
+                    isViceCaptain: sp.playerId === viceId,
+                  };
+                });
                 squadsChanged = true;
               }
             }
