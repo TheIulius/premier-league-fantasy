@@ -5396,10 +5396,10 @@
               "points": 0
             },
             {
-              "playerId": "p_9_6_chigladze",
-              "webName": "Chigladze",
-              "clubId": "SCH_9_6",
-              "position": "FWD",
+              "playerId": "p_10_1_chakvetadze",
+              "webName": "Chakvetadze",
+              "clubId": "SCH_10_1",
+              "position": "DEF",
               "isStarter": true,
               "isCaptain": false,
               "isViceCaptain": false,
@@ -6389,14 +6389,14 @@
             "isViceCaptain": true
           },
           {
-            "playerId": "p_9_6_chigladze",
+            "playerId": "p_10_1_chakvetadze",
             "isStarter": true,
             "benchOrder": 0,
             "isCaptain": false,
             "isViceCaptain": false
           }
         ],
-        "bank": 33.9,
+        "bank": 37.7,
         "freeTransfers": 1,
         "transfersMadeThisGW": 0,
         "activeChip": null,
