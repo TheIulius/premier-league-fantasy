@@ -1072,12 +1072,26 @@
       "clubId": "SCH_9_6",
       "position": "FWD",
       "cost": 7.8,
-      "totalPoints": 0,
-      "gwPoints": 0,
+      "totalPoints": 2,
+      "gwPoints": 2,
       "form": 5,
       "selectedByPercent": 5,
       "isAvailable": true,
-      "gwStats": {}
+      "gwStats": {
+        "1": {
+          "minutes": 20,
+          "goals": 0,
+          "assists": 0,
+          "cleanSheet": true,
+          "yellowCards": 0,
+          "redCards": 0,
+          "penaltiesSaved": 0,
+          "penaltiesMissed": 0,
+          "ownGoals": 0,
+          "isMVP": false,
+          "saves": 0
+        }
+      }
     },
     "p_9_6_gugoadze": {
       "id": "p_9_6_gugoadze",
@@ -1086,12 +1100,26 @@
       "clubId": "SCH_9_6",
       "position": "MID",
       "cost": 5.6,
-      "totalPoints": 0,
-      "gwPoints": 0,
+      "totalPoints": 3,
+      "gwPoints": 3,
       "form": 5,
       "selectedByPercent": 5,
       "isAvailable": true,
-      "gwStats": {}
+      "gwStats": {
+        "1": {
+          "minutes": 20,
+          "goals": 0,
+          "assists": 0,
+          "cleanSheet": true,
+          "yellowCards": 0,
+          "redCards": 0,
+          "penaltiesSaved": 0,
+          "penaltiesMissed": 0,
+          "ownGoals": 0,
+          "isMVP": false,
+          "saves": 0
+        }
+      }
     },
     "p_9_6_mzhavanadze": {
       "id": "p_9_6_mzhavanadze",
@@ -1100,12 +1128,26 @@
       "clubId": "SCH_9_6",
       "position": "DEF",
       "cost": 5.5,
-      "totalPoints": 0,
-      "gwPoints": 0,
+      "totalPoints": 6,
+      "gwPoints": 6,
       "form": 5,
       "selectedByPercent": 5,
       "isAvailable": true,
-      "gwStats": {}
+      "gwStats": {
+        "1": {
+          "minutes": 20,
+          "goals": 0,
+          "assists": 0,
+          "cleanSheet": true,
+          "yellowCards": 0,
+          "redCards": 0,
+          "penaltiesSaved": 0,
+          "penaltiesMissed": 0,
+          "ownGoals": 0,
+          "isMVP": false,
+          "saves": 0
+        }
+      }
     },
     "p_9_6_bezhitashvili": {
       "id": "p_9_6_bezhitashvili",
@@ -1114,12 +1156,26 @@
       "clubId": "SCH_9_6",
       "position": "FWD",
       "cost": 5.7,
-      "totalPoints": 0,
-      "gwPoints": 0,
+      "totalPoints": 2,
+      "gwPoints": 2,
       "form": 5,
       "selectedByPercent": 5,
       "isAvailable": true,
-      "gwStats": {}
+      "gwStats": {
+        "1": {
+          "minutes": 20,
+          "goals": 0,
+          "assists": 0,
+          "cleanSheet": true,
+          "yellowCards": 0,
+          "redCards": 0,
+          "penaltiesSaved": 0,
+          "penaltiesMissed": 0,
+          "ownGoals": 0,
+          "isMVP": false,
+          "saves": 0
+        }
+      }
     },
     "p_9_6_kalandadze": {
       "id": "p_9_6_kalandadze",
@@ -1128,12 +1184,26 @@
       "clubId": "SCH_9_6",
       "position": "GKP",
       "cost": 4.2,
-      "totalPoints": 0,
-      "gwPoints": 0,
+      "totalPoints": 6,
+      "gwPoints": 6,
       "form": 5,
       "selectedByPercent": 5,
       "isAvailable": true,
-      "gwStats": {}
+      "gwStats": {
+        "1": {
+          "minutes": 20,
+          "goals": 0,
+          "assists": 0,
+          "cleanSheet": true,
+          "yellowCards": 0,
+          "redCards": 0,
+          "penaltiesSaved": 0,
+          "penaltiesMissed": 0,
+          "ownGoals": 0,
+          "isMVP": false,
+          "saves": 0
+        }
+      }
     },
     "p_9_6_sanikidze": {
       "id": "p_9_6_sanikidze",
@@ -1142,12 +1212,26 @@
       "clubId": "SCH_9_6",
       "position": "DEF",
       "cost": 4,
-      "totalPoints": 0,
-      "gwPoints": 0,
+      "totalPoints": 6,
+      "gwPoints": 6,
       "form": 5,
       "selectedByPercent": 5,
       "isAvailable": true,
-      "gwStats": {}
+      "gwStats": {
+        "1": {
+          "minutes": 20,
+          "goals": 0,
+          "assists": 0,
+          "cleanSheet": true,
+          "yellowCards": 0,
+          "redCards": 0,
+          "penaltiesSaved": 0,
+          "penaltiesMissed": 0,
+          "ownGoals": 0,
+          "isMVP": false,
+          "saves": 0
+        }
+      }
     },
     "p_9_6_qvaraia": {
       "id": "p_9_6_qvaraia",
@@ -1156,12 +1240,26 @@
       "clubId": "SCH_9_6",
       "position": "DEF",
       "cost": 4,
-      "totalPoints": 0,
-      "gwPoints": 0,
+      "totalPoints": 6,
+      "gwPoints": 6,
       "form": 5,
       "selectedByPercent": 5,
       "isAvailable": true,
-      "gwStats": {}
+      "gwStats": {
+        "1": {
+          "minutes": 20,
+          "goals": 0,
+          "assists": 0,
+          "cleanSheet": true,
+          "yellowCards": 0,
+          "redCards": 0,
+          "penaltiesSaved": 0,
+          "penaltiesMissed": 0,
+          "ownGoals": 0,
+          "isMVP": false,
+          "saves": 0
+        }
+      }
     },
     "p_9_6_sekhniashvili": {
       "id": "p_9_6_sekhniashvili",
@@ -1170,12 +1268,26 @@
       "clubId": "SCH_9_6",
       "position": "GKP",
       "cost": 4,
-      "totalPoints": 0,
-      "gwPoints": 0,
+      "totalPoints": 6,
+      "gwPoints": 6,
       "form": 5,
       "selectedByPercent": 5,
       "isAvailable": true,
-      "gwStats": {}
+      "gwStats": {
+        "1": {
+          "minutes": 20,
+          "goals": 0,
+          "assists": 0,
+          "cleanSheet": true,
+          "yellowCards": 0,
+          "redCards": 0,
+          "penaltiesSaved": 0,
+          "penaltiesMissed": 0,
+          "ownGoals": 0,
+          "isMVP": false,
+          "saves": 0
+        }
+      }
     },
     "p_9_6_chelidze": {
       "id": "p_9_6_chelidze",
@@ -1184,12 +1296,26 @@
       "clubId": "SCH_9_6",
       "position": "DEF",
       "cost": 4,
-      "totalPoints": 0,
-      "gwPoints": 0,
+      "totalPoints": 6,
+      "gwPoints": 6,
       "form": 5,
       "selectedByPercent": 5,
       "isAvailable": true,
-      "gwStats": {}
+      "gwStats": {
+        "1": {
+          "minutes": 20,
+          "goals": 0,
+          "assists": 0,
+          "cleanSheet": true,
+          "yellowCards": 0,
+          "redCards": 0,
+          "penaltiesSaved": 0,
+          "penaltiesMissed": 0,
+          "ownGoals": 0,
+          "isMVP": false,
+          "saves": 0
+        }
+      }
     },
     "p_9_6_kodua": {
       "id": "p_9_6_kodua",
@@ -1198,12 +1324,26 @@
       "clubId": "SCH_9_6",
       "position": "FWD",
       "cost": 4,
-      "totalPoints": 0,
-      "gwPoints": 0,
+      "totalPoints": 2,
+      "gwPoints": 2,
       "form": 5,
       "selectedByPercent": 5,
       "isAvailable": true,
-      "gwStats": {}
+      "gwStats": {
+        "1": {
+          "minutes": 20,
+          "goals": 0,
+          "assists": 0,
+          "cleanSheet": true,
+          "yellowCards": 0,
+          "redCards": 0,
+          "penaltiesSaved": 0,
+          "penaltiesMissed": 0,
+          "ownGoals": 0,
+          "isMVP": false,
+          "saves": 0
+        }
+      }
     },
     "p_9_7_baxutashvili": {
       "id": "p_9_7_baxutashvili",
@@ -3102,12 +3242,26 @@
       "clubId": "SCH_12_3",
       "position": "GKP",
       "cost": 5,
-      "totalPoints": 0,
-      "gwPoints": 0,
+      "totalPoints": 6,
+      "gwPoints": 6,
       "form": 5,
       "selectedByPercent": 5,
       "isAvailable": true,
-      "gwStats": {}
+      "gwStats": {
+        "1": {
+          "minutes": 20,
+          "goals": 0,
+          "assists": 0,
+          "cleanSheet": true,
+          "yellowCards": 0,
+          "redCards": 0,
+          "penaltiesSaved": 0,
+          "penaltiesMissed": 0,
+          "ownGoals": 0,
+          "isMVP": false,
+          "saves": 0
+        }
+      }
     },
     "p_12_3_muradashvili": {
       "id": "p_12_3_muradashvili",
@@ -3116,12 +3270,26 @@
       "clubId": "SCH_12_3",
       "position": "DEF",
       "cost": 6,
-      "totalPoints": 0,
-      "gwPoints": 0,
+      "totalPoints": 6,
+      "gwPoints": 6,
       "form": 5,
       "selectedByPercent": 5,
       "isAvailable": true,
-      "gwStats": {}
+      "gwStats": {
+        "1": {
+          "minutes": 20,
+          "goals": 0,
+          "assists": 0,
+          "cleanSheet": true,
+          "yellowCards": 0,
+          "redCards": 0,
+          "penaltiesSaved": 0,
+          "penaltiesMissed": 0,
+          "ownGoals": 0,
+          "isMVP": false,
+          "saves": 0
+        }
+      }
     },
     "p_12_3_palelashvili": {
       "id": "p_12_3_palelashvili",
@@ -3130,12 +3298,26 @@
       "clubId": "SCH_12_3",
       "position": "DEF",
       "cost": 5.5,
-      "totalPoints": 0,
-      "gwPoints": 0,
+      "totalPoints": 6,
+      "gwPoints": 6,
       "form": 5,
       "selectedByPercent": 5,
       "isAvailable": true,
-      "gwStats": {}
+      "gwStats": {
+        "1": {
+          "minutes": 20,
+          "goals": 0,
+          "assists": 0,
+          "cleanSheet": true,
+          "yellowCards": 0,
+          "redCards": 0,
+          "penaltiesSaved": 0,
+          "penaltiesMissed": 0,
+          "ownGoals": 0,
+          "isMVP": false,
+          "saves": 0
+        }
+      }
     },
     "p_12_3_berikelashvili": {
       "id": "p_12_3_berikelashvili",
@@ -3144,12 +3326,26 @@
       "clubId": "SCH_12_3",
       "position": "FWD",
       "cost": 8,
-      "totalPoints": 0,
-      "gwPoints": 0,
+      "totalPoints": 2,
+      "gwPoints": 2,
       "form": 5,
       "selectedByPercent": 5,
       "isAvailable": true,
-      "gwStats": {}
+      "gwStats": {
+        "1": {
+          "minutes": 20,
+          "goals": 0,
+          "assists": 0,
+          "cleanSheet": true,
+          "yellowCards": 0,
+          "redCards": 0,
+          "penaltiesSaved": 0,
+          "penaltiesMissed": 0,
+          "ownGoals": 0,
+          "isMVP": false,
+          "saves": 0
+        }
+      }
     },
     "p_12_3_khikhadze": {
       "id": "p_12_3_khikhadze",
@@ -3158,12 +3354,26 @@
       "clubId": "SCH_12_3",
       "position": "FWD",
       "cost": 6.5,
-      "totalPoints": 0,
-      "gwPoints": 0,
+      "totalPoints": 2,
+      "gwPoints": 2,
       "form": 5,
       "selectedByPercent": 5,
       "isAvailable": true,
-      "gwStats": {}
+      "gwStats": {
+        "1": {
+          "minutes": 20,
+          "goals": 0,
+          "assists": 0,
+          "cleanSheet": true,
+          "yellowCards": 0,
+          "redCards": 0,
+          "penaltiesSaved": 0,
+          "penaltiesMissed": 0,
+          "ownGoals": 0,
+          "isMVP": false,
+          "saves": 0
+        }
+      }
     },
     "p_12_3_buckhrikidze": {
       "id": "p_12_3_buckhrikidze",
@@ -3172,12 +3382,26 @@
       "clubId": "SCH_12_3",
       "position": "MID",
       "cost": 7,
-      "totalPoints": 0,
-      "gwPoints": 0,
+      "totalPoints": 3,
+      "gwPoints": 3,
       "form": 5,
       "selectedByPercent": 5,
       "isAvailable": true,
-      "gwStats": {}
+      "gwStats": {
+        "1": {
+          "minutes": 20,
+          "goals": 0,
+          "assists": 0,
+          "cleanSheet": true,
+          "yellowCards": 0,
+          "redCards": 0,
+          "penaltiesSaved": 0,
+          "penaltiesMissed": 0,
+          "ownGoals": 0,
+          "isMVP": false,
+          "saves": 0
+        }
+      }
     },
     "p_12_3_chikovani": {
       "id": "p_12_3_chikovani",
@@ -3186,12 +3410,26 @@
       "clubId": "SCH_12_3",
       "position": "MID",
       "cost": 8.5,
-      "totalPoints": 0,
-      "gwPoints": 0,
+      "totalPoints": 3,
+      "gwPoints": 3,
       "form": 5,
       "selectedByPercent": 5,
       "isAvailable": true,
-      "gwStats": {}
+      "gwStats": {
+        "1": {
+          "minutes": 20,
+          "goals": 0,
+          "assists": 0,
+          "cleanSheet": true,
+          "yellowCards": 0,
+          "redCards": 0,
+          "penaltiesSaved": 0,
+          "penaltiesMissed": 0,
+          "ownGoals": 0,
+          "isMVP": false,
+          "saves": 0
+        }
+      }
     },
     "p_12_3_tkemaladze": {
       "id": "p_12_3_tkemaladze",
@@ -3200,12 +3438,26 @@
       "clubId": "SCH_12_3",
       "position": "DEF",
       "cost": 5,
-      "totalPoints": 0,
-      "gwPoints": 0,
+      "totalPoints": 6,
+      "gwPoints": 6,
       "form": 5,
       "selectedByPercent": 5,
       "isAvailable": true,
-      "gwStats": {}
+      "gwStats": {
+        "1": {
+          "minutes": 20,
+          "goals": 0,
+          "assists": 0,
+          "cleanSheet": true,
+          "yellowCards": 0,
+          "redCards": 0,
+          "penaltiesSaved": 0,
+          "penaltiesMissed": 0,
+          "ownGoals": 0,
+          "isMVP": false,
+          "saves": 0
+        }
+      }
     },
     "p_12_3_gagua": {
       "id": "p_12_3_gagua",
@@ -3214,12 +3466,26 @@
       "clubId": "SCH_12_3",
       "position": "DEF",
       "cost": 4.5,
-      "totalPoints": 0,
-      "gwPoints": 0,
+      "totalPoints": 6,
+      "gwPoints": 6,
       "form": 5,
       "selectedByPercent": 5,
       "isAvailable": true,
-      "gwStats": {}
+      "gwStats": {
+        "1": {
+          "minutes": 20,
+          "goals": 0,
+          "assists": 0,
+          "cleanSheet": true,
+          "yellowCards": 0,
+          "redCards": 0,
+          "penaltiesSaved": 0,
+          "penaltiesMissed": 0,
+          "ownGoals": 0,
+          "isMVP": false,
+          "saves": 0
+        }
+      }
     },
     "p_12_3_chanturia": {
       "id": "p_12_3_chanturia",
@@ -3228,12 +3494,26 @@
       "clubId": "SCH_12_3",
       "position": "FWD",
       "cost": 6.5,
-      "totalPoints": 0,
-      "gwPoints": 0,
+      "totalPoints": 2,
+      "gwPoints": 2,
       "form": 5,
       "selectedByPercent": 5,
       "isAvailable": true,
-      "gwStats": {}
+      "gwStats": {
+        "1": {
+          "minutes": 20,
+          "goals": 0,
+          "assists": 0,
+          "cleanSheet": true,
+          "yellowCards": 0,
+          "redCards": 0,
+          "penaltiesSaved": 0,
+          "penaltiesMissed": 0,
+          "ownGoals": 0,
+          "isMVP": false,
+          "saves": 0
+        }
+      }
     },
     "p_12_3_kakhidze": {
       "id": "p_12_3_kakhidze",
@@ -3242,12 +3522,26 @@
       "clubId": "SCH_12_3",
       "position": "FWD",
       "cost": 7,
-      "totalPoints": 0,
-      "gwPoints": 0,
+      "totalPoints": 2,
+      "gwPoints": 2,
       "form": 5,
       "selectedByPercent": 5,
       "isAvailable": true,
-      "gwStats": {}
+      "gwStats": {
+        "1": {
+          "minutes": 20,
+          "goals": 0,
+          "assists": 0,
+          "cleanSheet": true,
+          "yellowCards": 0,
+          "redCards": 0,
+          "penaltiesSaved": 0,
+          "penaltiesMissed": 0,
+          "ownGoals": 0,
+          "isMVP": false,
+          "saves": 0
+        }
+      }
     },
     "p_12_3_peikrishvili": {
       "id": "p_12_3_peikrishvili",
@@ -3256,12 +3550,26 @@
       "clubId": "SCH_12_3",
       "position": "MID",
       "cost": 4,
-      "totalPoints": 0,
-      "gwPoints": 0,
+      "totalPoints": 3,
+      "gwPoints": 3,
       "form": 5,
       "selectedByPercent": 5,
       "isAvailable": true,
-      "gwStats": {}
+      "gwStats": {
+        "1": {
+          "minutes": 20,
+          "goals": 0,
+          "assists": 0,
+          "cleanSheet": true,
+          "yellowCards": 0,
+          "redCards": 0,
+          "penaltiesSaved": 0,
+          "penaltiesMissed": 0,
+          "ownGoals": 0,
+          "isMVP": false,
+          "saves": 0
+        }
+      }
     },
     "p_12_3_stefanovi": {
       "id": "p_12_3_stefanovi",
@@ -3270,12 +3578,26 @@
       "clubId": "SCH_12_3",
       "position": "MID",
       "cost": 4.5,
-      "totalPoints": 0,
-      "gwPoints": 0,
+      "totalPoints": 3,
+      "gwPoints": 3,
       "form": 5,
       "selectedByPercent": 5,
       "isAvailable": true,
-      "gwStats": {}
+      "gwStats": {
+        "1": {
+          "minutes": 20,
+          "goals": 0,
+          "assists": 0,
+          "cleanSheet": true,
+          "yellowCards": 0,
+          "redCards": 0,
+          "penaltiesSaved": 0,
+          "penaltiesMissed": 0,
+          "ownGoals": 0,
+          "isMVP": false,
+          "saves": 0
+        }
+      }
     },
     "p_12_3_verdzadze": {
       "id": "p_12_3_verdzadze",
@@ -3284,12 +3606,26 @@
       "clubId": "SCH_12_3",
       "position": "FWD",
       "cost": 6,
-      "totalPoints": 0,
-      "gwPoints": 0,
+      "totalPoints": 2,
+      "gwPoints": 2,
       "form": 5,
       "selectedByPercent": 5,
       "isAvailable": true,
-      "gwStats": {}
+      "gwStats": {
+        "1": {
+          "minutes": 20,
+          "goals": 0,
+          "assists": 0,
+          "cleanSheet": true,
+          "yellowCards": 0,
+          "redCards": 0,
+          "penaltiesSaved": 0,
+          "penaltiesMissed": 0,
+          "ownGoals": 0,
+          "isMVP": false,
+          "saves": 0
+        }
+      }
     },
     "p_12_3_chezia": {
       "id": "p_12_3_chezia",
@@ -3298,12 +3634,26 @@
       "clubId": "SCH_12_3",
       "position": "MID",
       "cost": 4,
-      "totalPoints": 0,
-      "gwPoints": 0,
+      "totalPoints": 3,
+      "gwPoints": 3,
       "form": 5,
       "selectedByPercent": 5,
       "isAvailable": true,
-      "gwStats": {}
+      "gwStats": {
+        "1": {
+          "minutes": 20,
+          "goals": 0,
+          "assists": 0,
+          "cleanSheet": true,
+          "yellowCards": 0,
+          "redCards": 0,
+          "penaltiesSaved": 0,
+          "penaltiesMissed": 0,
+          "ownGoals": 0,
+          "isMVP": false,
+          "saves": 0
+        }
+      }
     },
     "p_12_3_vashakmadze": {
       "id": "p_12_3_vashakmadze",
@@ -3312,12 +3662,26 @@
       "clubId": "SCH_12_3",
       "position": "MID",
       "cost": 8.5,
-      "totalPoints": 0,
-      "gwPoints": 0,
+      "totalPoints": 3,
+      "gwPoints": 3,
       "form": 5,
       "selectedByPercent": 5,
       "isAvailable": true,
-      "gwStats": {}
+      "gwStats": {
+        "1": {
+          "minutes": 20,
+          "goals": 0,
+          "assists": 0,
+          "cleanSheet": true,
+          "yellowCards": 0,
+          "redCards": 0,
+          "penaltiesSaved": 0,
+          "penaltiesMissed": 0,
+          "ownGoals": 0,
+          "isMVP": false,
+          "saves": 0
+        }
+      }
     },
     "p_12_6_chachia": {
       "id": "p_12_6_chachia",
@@ -4956,8 +5320,8 @@
           "id": "user_1790357898196",
           "managerName": "Nika",
           "teamName": "Chaga XI",
-          "totalPoints": 26,
-          "gwPoints": 26,
+          "totalPoints": 38,
+          "gwPoints": 38,
           "rank": 1,
           "previousRank": 1,
           "activeChip": null,
@@ -4993,7 +5357,7 @@
               "isCaptain": false,
               "isViceCaptain": false,
               "benchOrder": 0,
-              "points": 0
+              "points": 6
             },
             {
               "playerId": "p_qavtaradze",
@@ -5015,7 +5379,7 @@
               "isCaptain": false,
               "isViceCaptain": false,
               "benchOrder": 1,
-              "points": 0
+              "points": 6
             },
             {
               "playerId": "p_9_1_dekanosidze",
@@ -5067,8 +5431,8 @@
           "id": "user_1790177803568",
           "managerName": "My Team Manager",
           "teamName": "Apex XI",
-          "totalPoints": 7,
-          "gwPoints": 7,
+          "totalPoints": 15,
+          "gwPoints": 15,
           "rank": 2,
           "previousRank": 2,
           "activeChip": null,
@@ -5137,7 +5501,7 @@
               "isCaptain": false,
               "isViceCaptain": false,
               "benchOrder": 1,
-              "points": 0
+              "points": 2
             },
             {
               "playerId": "p_custom_1790244156863",
@@ -5170,7 +5534,7 @@
               "isCaptain": false,
               "isViceCaptain": false,
               "benchOrder": 3,
-              "points": 0
+              "points": 6
             }
           ]
         },
@@ -5178,8 +5542,8 @@
           "id": "user_1790353103544",
           "managerName": "Ilia",
           "teamName": "giorgievski's tractati",
-          "totalPoints": 3,
-          "gwPoints": 3,
+          "totalPoints": 9,
+          "gwPoints": 9,
           "rank": 3,
           "previousRank": 3,
           "activeChip": null,
@@ -5204,7 +5568,7 @@
               "isCaptain": false,
               "isViceCaptain": false,
               "benchOrder": 1,
-              "points": 0
+              "points": 6
             },
             {
               "playerId": "p_10_5_gelashvili",
@@ -5526,6 +5890,17 @@
           "gwPoints": 0,
           "rank": 8,
           "previousRank": 8,
+          "activeChip": null,
+          "lineup": []
+        },
+        {
+          "id": "user_1790448153758",
+          "managerName": "acc",
+          "teamName": "acc",
+          "totalPoints": 0,
+          "gwPoints": 0,
+          "rank": 9,
+          "previousRank": 9,
           "activeChip": null,
           "lineup": []
         }
@@ -6005,6 +6380,26 @@
         }
       },
       "joinedAt": "2026-09-26T12:50:11.159Z"
+    },
+    "user_1790448153758": {
+      "id": "user_1790448153758",
+      "managerName": "acc",
+      "teamName": "acc",
+      "squad": {
+        "teamName": "acc",
+        "managerName": "acc",
+        "players": [],
+        "bank": 60,
+        "freeTransfers": 1,
+        "transfersMadeThisGW": 0,
+        "activeChip": null,
+        "usedChips": {
+          "triple_captain": false,
+          "bench_boost": false,
+          "wildcard": false
+        }
+      },
+      "joinedAt": "2026-09-26T18:42:33.760Z"
     }
   },
   "users": {
@@ -6019,7 +6414,7 @@
       "createdAt": "2026-09-25T16:18:23.548Z",
       "role": "admin",
       "isAdmin": true,
-      "token": "2518d34166eb4135c608d9fc1733386e7b7bc01f17c429820cbc55e856f518ac"
+      "token": "eb462c27a2694e636403351cc54e118c895ed1dfcdf8bea99621949a8bf64b69"
     },
     "user_1790357898196": {
       "id": "user_1790357898196",
@@ -6055,6 +6450,19 @@
       "teamName": "Samada",
       "token": "a7ba25439f7320ca1c8514055dd2f3afedff207a2fb8d2451800a511ec05c68f",
       "createdAt": "2026-09-26T12:50:11.159Z",
+      "isApproved": true
+    },
+    "user_1790448153758": {
+      "id": "user_1790448153758",
+      "username": "acc",
+      "email": "acc@fantasy.pl",
+      "passwordHash": "1a6aa0f8545f10046ad8949a4d91942993e12bdc7a97c701a2f9185bb9aad0fb03288884797e6a6cb2aa735350d18714caf19c7795aa6a230f2a5a4a761b2d1b",
+      "salt": "9b1c2515b3bf2c6fceeb9bda8f7876c8",
+      "managerName": "acc",
+      "teamName": "acc",
+      "createdAt": "2026-09-26T18:42:33.759Z",
+      "role": "user",
+      "isAdmin": false,
       "isApproved": true
     }
   },
