@@ -1267,6 +1267,7 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         goals: 0,
         assists: 0,
         cleanSheet: false,
+        goalsConceded: 0,
         yellowCards: 0,
         redCards: 0,
         penaltiesSaved: 0,

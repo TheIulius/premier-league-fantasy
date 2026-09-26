@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useFPL, TabType } from '../../context/FPLContext';
-import { Sparkles, Wrench, Users, Shirt, ArrowLeftRight, Zap, Trophy, Calendar, Sun, Moon, Clock, Eye, Shield } from 'lucide-react';
+import { Sparkles, Wrench, Users, Shirt, ArrowLeftRight, Zap, Trophy, Calendar, Sun, Moon, Clock, Eye, Shield, BookOpen } from 'lucide-react';
+import { RulesModal } from '../common/RulesModal';
 
 interface TabItem {
   id: TabType;
@@ -38,6 +39,7 @@ export const TopHeader: React.FC = () => {
   } = useFPL();
 
   const [timeLeft, setTimeLeft] = useState<string>('');
+  const [isRulesModalOpen, setIsRulesModalOpen] = useState(false);
 
   useEffect(() => {
     if (!deadline) {
@@ -141,6 +143,17 @@ export const TopHeader: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-1.5 md:gap-2">
+          {/* Rules & Scoring System Modal Button */}
+          <button
+            onClick={() => setIsRulesModalOpen(true)}
+            className="p-1.5 md:px-3 md:py-1.5 rounded-full text-xs font-semibold border transition-all flex items-center gap-1.5 bg-slate-100 dark:bg-white/[0.05] border-slate-200 dark:border-white/[0.09] text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-white/[0.09]"
+            title="ტურნირის წესები და ქულები / Official Rules & Scoring"
+            aria-label="Tournament Rules"
+          >
+            <BookOpen className="w-3.5 h-3.5 text-emerald-500 flex-shrink-0" />
+            <span className="hidden sm:inline font-bold">წესები</span>
+          </button>
+
           {/* Theme Toggle Button (Light / Dark) */}
           <button
             onClick={toggleTheme}
@@ -257,6 +270,9 @@ export const TopHeader: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Official Rules & Scoring Modal */}
+      <RulesModal isOpen={isRulesModalOpen} onClose={() => setIsRulesModalOpen(false)} />
     </header>
   );
 };

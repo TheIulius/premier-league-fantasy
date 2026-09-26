@@ -68,8 +68,9 @@ export const FixturesView: React.FC = () => {
             return (
               <div
                 key={fix.id}
-                className="p-2.5 md:p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs hover:border-slate-300 dark:hover:border-slate-700 transition-colors flex items-center justify-between"
+                className="rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs hover:border-slate-300 dark:hover:border-slate-700 transition-colors flex flex-col"
               >
+                <div className="p-2.5 md:p-3 flex items-center justify-between">
                 {/* Home Team */}
                 <div className="flex-1 flex items-center justify-end space-x-2 text-right">
                   <span className="text-xs md:text-sm font-bold text-slate-800 dark:text-slate-100 truncate max-w-[110px] md:max-w-[140px]">
@@ -121,6 +122,21 @@ export const FixturesView: React.FC = () => {
                   </span>
                 </div>
               </div>
+
+              {/* Match Details Footer (Venue + Kickoff Time) */}
+              <div className="flex items-center justify-between px-2.5 pb-2 -mt-1 text-[10px] text-slate-400">
+                <span className="font-mono text-slate-500 dark:text-slate-400">{fix.kickoffTime || 'TBD'}</span>
+                <span
+                  className={`px-1.5 py-0.5 rounded-md font-bold text-[9px] ${
+                    fix.venue === 'one_price'
+                      ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/30'
+                      : 'bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-white/10'
+                  }`}
+                >
+                  {fix.venue === 'one_price' ? '🏢 One Price Stadium' : '🏟️ Delisi Stadium'}
+                </span>
+              </div>
+            </div>
             );
           })
         )}

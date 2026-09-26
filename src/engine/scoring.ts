@@ -70,6 +70,14 @@ export function calculatePlayerPoints(
     // FWD: 0 points for clean sheet
   }
 
+  // 4b. Goals conceded (KCL: -1 point for every 2 goals conceded for GKP and DEF)
+  if (position === 'GKP' || position === 'DEF') {
+    const conceded = stats.goalsConceded || 0;
+    if (conceded >= 2) {
+      points -= Math.floor(conceded / 2);
+    }
+  }
+
   // 5. Penalty saved (KCL: +3 for GK only)
   if (position === 'GKP') {
     points += (stats.penaltiesSaved || 0) * 3;

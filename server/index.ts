@@ -2297,12 +2297,14 @@ app.post('/api/admin/match-events', (req: Request, res: Response) => {
 
     const isHomeTeam = homePlayers.some((p: Player) => p.id === player.id);
     const hasCleanSheet = isHomeTeam ? homeCleanSheet : awayCleanSheet;
+    const goalsConceded = isHomeTeam ? (awayScore || 0) : (homeScore || 0);
 
     const stats: PlayerStats = {
       minutes: mins,
       goals: goalCount[player.id] || 0,
       assists: assistCount[player.id] || 0,
       cleanSheet: hasCleanSheet && mins >= 20,
+      goalsConceded: goalsConceded,
       yellowCards: (yellowCards || []).filter((id: string) => id === player.id).length,
       redCards: (redCards || []).filter((id: string) => id === player.id).length,
       penaltiesSaved: penaltiesSaved?.[player.id] || 0,

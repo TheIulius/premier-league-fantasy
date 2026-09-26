@@ -62,7 +62,7 @@ export interface Squad {
   usedChips: Record<ChipType, boolean>;
 }
 
-export type Venue = 'parki' | 'one_price';
+export type Venue = 'parki' | 'delisi' | 'one_price';
 
 export interface MatchGoal {
   playerId: string;

@@ -119,7 +119,7 @@ export const AdminPortal: React.FC = () => {
   const [newFixHome, setNewFixHome] = useState('SCH_11_5');
   const [newFixAway, setNewFixAway] = useState('SCH_11_2');
   const [newFixKickoff, setNewFixKickoff] = useState('Fri 15:30');
-  const [newFixVenue, setNewFixVenue] = useState<'parki' | 'one_price'>('parki');
+  const [newFixVenue, setNewFixVenue] = useState<'parki' | 'delisi' | 'one_price'>('delisi');
 
   // Step 1: Player roster state
   const [isAddingPlayer, setIsAddingPlayer] = useState(false);
@@ -839,14 +839,14 @@ export const AdminPortal: React.FC = () => {
                       />
                     </div>
                     <div>
-                      <label className="text-[10px] uppercase font-bold text-zinc-400 block mb-1">Venue</label>
+                      <label className="text-[10px] uppercase font-bold text-zinc-400 block mb-1">Venue / Stadium</label>
                       <select
                         value={newFixVenue}
                         onChange={(e) => setNewFixVenue(e.target.value as any)}
                         className="w-full bg-zinc-900 border border-white/10 rounded-xl p-2 text-white outline-none"
                       >
-                        <option value="parki">Stadium Parki (Standard Rules)</option>
-                        <option value="one_price">One Price Arena (Points Double!)</option>
+                        <option value="delisi">🏟️ Delisi Stadium (Parki - Standard Rules)</option>
+                        <option value="one_price">🏢 One Price Stadium (-1 pt Goals/Assists/MVP)</option>
                       </select>
                     </div>
                   </div>
@@ -888,6 +888,15 @@ export const AdminPortal: React.FC = () => {
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="text-[10px] text-zinc-400 font-mono">{f.kickoffTime}</span>
+                        <span
+                          className={`text-[9px] px-1.5 py-0.5 rounded font-bold ${
+                            f.venue === 'one_price'
+                              ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
+                              : 'bg-white/5 text-zinc-400 border border-white/10'
+                          }`}
+                        >
+                          {f.venue === 'one_price' ? '🏢 One Price' : '🏟️ Delisi'}
+                        </span>
                         <button
                           onClick={() => deleteFixture(f.id)}
                           className="p-1 text-zinc-500 hover:text-rose-400"
