@@ -5613,6 +5613,17 @@
               "isViceCaptain": false,
               "benchOrder": 0,
               "points": 0
+            },
+            {
+              "playerId": "p_custom_1790279796584",
+              "webName": "Kila",
+              "clubId": "SCH_11_4",
+              "position": "MID",
+              "isStarter": true,
+              "isCaptain": false,
+              "isViceCaptain": false,
+              "benchOrder": 0,
+              "points": 0
             }
           ]
         },
@@ -5887,9 +5898,16 @@
             "benchOrder": 0,
             "isCaptain": false,
             "isViceCaptain": false
+          },
+          {
+            "playerId": "p_custom_1790279796584",
+            "isStarter": true,
+            "benchOrder": 0,
+            "isCaptain": false,
+            "isViceCaptain": false
           }
         ],
-        "bank": 37,
+        "bank": 28,
         "freeTransfers": 1,
         "transfersMadeThisGW": 0,
         "activeChip": null,
@@ -5933,7 +5951,8 @@
       "teamName": "giorgievski's tractati",
       "createdAt": "2026-09-25T16:18:23.548Z",
       "role": "admin",
-      "isAdmin": true
+      "isAdmin": true,
+      "token": "f66ee8696a52941c2d28990a7121aa2ca4f56e7024817b89a955dd5fbeeae15b"
     },
     "user_1790357898196": {
       "id": "user_1790357898196",
