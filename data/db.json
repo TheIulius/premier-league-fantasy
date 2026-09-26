@@ -5152,24 +5152,13 @@
           "activeChip": "bench_boost",
           "lineup": [
             {
-              "playerId": "p_9_3_chiviashvili",
-              "webName": "Chiviashvili",
-              "clubId": "SCH_9_3",
-              "position": "FWD",
-              "isStarter": true,
-              "isCaptain": true,
-              "isViceCaptain": false,
-              "benchOrder": 0,
-              "points": 0
-            },
-            {
               "playerId": "p_10_1_shengelia",
               "webName": "N. Shengelia",
               "clubId": "SCH_10_1",
               "position": "FWD",
               "isStarter": true,
-              "isCaptain": false,
-              "isViceCaptain": true,
+              "isCaptain": true,
+              "isViceCaptain": false,
               "benchOrder": 0,
               "points": 0
             }
@@ -5752,21 +5741,14 @@
         "managerName": "Nika",
         "players": [
           {
-            "playerId": "p_9_3_chiviashvili",
+            "playerId": "p_10_1_shengelia",
             "isStarter": true,
             "benchOrder": 0,
             "isCaptain": true,
             "isViceCaptain": false
-          },
-          {
-            "playerId": "p_10_1_shengelia",
-            "isStarter": true,
-            "benchOrder": 0,
-            "isCaptain": false,
-            "isViceCaptain": true
           }
         ],
-        "bank": 46.9,
+        "bank": 51,
         "freeTransfers": 1,
         "transfersMadeThisGW": 0,
         "activeChip": "bench_boost",
