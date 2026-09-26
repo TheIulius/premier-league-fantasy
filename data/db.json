@@ -4576,135 +4576,13 @@
       "isGlobal": true,
       "members": [
         {
-          "id": "user_1",
-          "managerName": "Apex Manager",
-          "teamName": "Apex XI",
-          "totalPoints": 0,
-          "gwPoints": 0,
-          "rank": 1,
-          "previousRank": 1,
-          "activeChip": null,
-          "lineup": [
-            {
-              "playerId": "p_9_4_jafarashvili",
-              "webName": "Jafarashvili",
-              "clubId": "SCH_9_4",
-              "position": "GKP",
-              "isStarter": true,
-              "isCaptain": false,
-              "isViceCaptain": false,
-              "benchOrder": 0,
-              "points": 0
-            },
-            {
-              "playerId": "p_9_6_chelidze",
-              "webName": "Chelidze",
-              "clubId": "SCH_9_6",
-              "position": "DEF",
-              "isStarter": false,
-              "isCaptain": false,
-              "isViceCaptain": false,
-              "benchOrder": 1,
-              "points": 0
-            },
-            {
-              "playerId": "p_10_5_gelashvili",
-              "webName": "Z. Gelashvili",
-              "clubId": "SCH_10_5",
-              "position": "DEF",
-              "isStarter": true,
-              "isCaptain": true,
-              "isViceCaptain": false,
-              "benchOrder": 0,
-              "points": 0
-            },
-            {
-              "playerId": "p_10_1_katamadze",
-              "webName": "E. Katamadze",
-              "clubId": "SCH_10_1",
-              "position": "MID",
-              "isStarter": true,
-              "isCaptain": false,
-              "isViceCaptain": false,
-              "benchOrder": 0,
-              "points": 0
-            },
-            {
-              "playerId": "p_9_2_gogichashvili",
-              "webName": "Gogichashvili",
-              "clubId": "SCH_9_2",
-              "position": "MID",
-              "isStarter": false,
-              "isCaptain": false,
-              "isViceCaptain": false,
-              "benchOrder": 2,
-              "points": 0
-            },
-            {
-              "playerId": "p_10_2_xachidze",
-              "webName": "N. Xachidze",
-              "clubId": "SCH_10_2",
-              "position": "FWD",
-              "isStarter": true,
-              "isCaptain": false,
-              "isViceCaptain": false,
-              "benchOrder": 0,
-              "points": 0
-            },
-            {
-              "playerId": "p_11_6_amiko",
-              "webName": "Amiko",
-              "clubId": "SCH_11_6",
-              "position": "DEF",
-              "isStarter": true,
-              "isCaptain": false,
-              "isViceCaptain": true,
-              "benchOrder": 0,
-              "points": 0
-            },
-            {
-              "playerId": "p_custom_1790166342439",
-              "webName": "Samada",
-              "clubId": "SCH_11_5",
-              "position": "MID",
-              "isStarter": false,
-              "isCaptain": false,
-              "isViceCaptain": false,
-              "benchOrder": 3,
-              "points": 0
-            },
-            {
-              "playerId": "p_10_1_shengelia",
-              "webName": "N. Shengelia",
-              "clubId": "SCH_10_1",
-              "position": "FWD",
-              "isStarter": true,
-              "isCaptain": false,
-              "isViceCaptain": false,
-              "benchOrder": 0,
-              "points": 0
-            }
-          ]
-        },
-        {
-          "id": "user_1789929998559",
-          "managerName": "Jack",
-          "teamName": "Jack FC",
-          "totalPoints": 0,
-          "gwPoints": 0,
-          "rank": 2,
-          "previousRank": 2,
-          "activeChip": null,
-          "lineup": []
-        },
-        {
           "id": "user_1790177145368",
           "managerName": "My Team Manager",
           "teamName": "Apex XI",
           "totalPoints": 0,
           "gwPoints": 0,
-          "rank": 3,
-          "previousRank": 3,
+          "rank": 1,
+          "previousRank": 1,
           "activeChip": null,
           "lineup": [
             {
@@ -4803,8 +4681,8 @@
           "teamName": "Apex XI",
           "totalPoints": 0,
           "gwPoints": 0,
-          "rank": 4,
-          "previousRank": 4,
+          "rank": 2,
+          "previousRank": 2,
           "activeChip": null,
           "lineup": [
             {
@@ -4914,8 +4792,8 @@
           "teamName": "Apex XI",
           "totalPoints": 0,
           "gwPoints": 0,
-          "rank": 5,
-          "previousRank": 5,
+          "rank": 3,
+          "previousRank": 3,
           "activeChip": null,
           "lineup": []
         },
@@ -4925,8 +4803,8 @@
           "teamName": "Apex XI",
           "totalPoints": 0,
           "gwPoints": 0,
-          "rank": 6,
-          "previousRank": 6,
+          "rank": 4,
+          "previousRank": 4,
           "activeChip": null,
           "lineup": [
             {
@@ -5036,8 +4914,8 @@
           "teamName": "giorgievski's tractati",
           "totalPoints": 0,
           "gwPoints": 0,
-          "rank": 7,
-          "previousRank": 7,
+          "rank": 5,
+          "previousRank": 5,
           "activeChip": null,
           "lineup": [
             {
@@ -5147,8 +5025,8 @@
           "teamName": "Chaga XI",
           "totalPoints": 0,
           "gwPoints": 0,
-          "rank": 8,
-          "previousRank": 8,
+          "rank": 6,
+          "previousRank": 6,
           "activeChip": null,
           "lineup": [
             {
@@ -5258,8 +5136,8 @@
           "teamName": "FC vigaceebi",
           "totalPoints": 0,
           "gwPoints": 0,
-          "rank": 9,
-          "previousRank": 9,
+          "rank": 7,
+          "previousRank": 7,
           "activeChip": null,
           "lineup": []
         },
@@ -5269,8 +5147,8 @@
           "teamName": "11/5",
           "totalPoints": 0,
           "gwPoints": 0,
-          "rank": 10,
-          "previousRank": 10,
+          "rank": 8,
+          "previousRank": 8,
           "activeChip": null,
           "lineup": [
             {
@@ -5325,8 +5203,8 @@
           "teamName": "Samada",
           "totalPoints": 0,
           "gwPoints": 0,
-          "rank": 11,
-          "previousRank": 11,
+          "rank": 9,
+          "previousRank": 9,
           "activeChip": null,
           "lineup": []
         },
@@ -5336,8 +5214,8 @@
           "teamName": "Samada",
           "totalPoints": 0,
           "gwPoints": 0,
-          "rank": 12,
-          "previousRank": 12,
+          "rank": 10,
+          "previousRank": 10,
           "activeChip": null,
           "lineup": []
         },
@@ -5347,8 +5225,8 @@
           "teamName": "FC komarovi",
           "totalPoints": 0,
           "gwPoints": 0,
-          "rank": 13,
-          "previousRank": 13,
+          "rank": 11,
+          "previousRank": 11,
           "activeChip": null,
           "lineup": []
         },
@@ -5358,8 +5236,8 @@
           "teamName": "fc samada123",
           "totalPoints": 0,
           "gwPoints": 0,
-          "rank": 14,
-          "previousRank": 14,
+          "rank": 12,
+          "previousRank": 12,
           "activeChip": null,
           "lineup": []
         },
@@ -5369,8 +5247,8 @@
           "teamName": "Fc new_acc",
           "totalPoints": 0,
           "gwPoints": 0,
-          "rank": 15,
-          "previousRank": 15,
+          "rank": 13,
+          "previousRank": 13,
           "activeChip": null,
           "lineup": []
         }
@@ -5378,110 +5256,6 @@
     }
   ],
   "managers": {
-    "user_1": {
-      "id": "user_1",
-      "managerName": "Apex Manager",
-      "teamName": "Apex XI",
-      "squad": {
-        "teamName": "Apex XI",
-        "managerName": "Apex Manager",
-        "players": [
-          {
-            "playerId": "p_9_4_jafarashvili",
-            "isStarter": true,
-            "benchOrder": 0,
-            "isCaptain": false,
-            "isViceCaptain": false
-          },
-          {
-            "playerId": "p_9_6_chelidze",
-            "isStarter": false,
-            "benchOrder": 1,
-            "isCaptain": false,
-            "isViceCaptain": false
-          },
-          {
-            "playerId": "p_10_5_gelashvili",
-            "isStarter": true,
-            "benchOrder": 0,
-            "isCaptain": true,
-            "isViceCaptain": false
-          },
-          {
-            "playerId": "p_10_1_katamadze",
-            "isStarter": true,
-            "benchOrder": 0,
-            "isCaptain": false,
-            "isViceCaptain": false
-          },
-          {
-            "playerId": "p_9_2_gogichashvili",
-            "isStarter": false,
-            "benchOrder": 2,
-            "isCaptain": false,
-            "isViceCaptain": false
-          },
-          {
-            "playerId": "p_10_2_xachidze",
-            "isStarter": true,
-            "benchOrder": 0,
-            "isCaptain": false,
-            "isViceCaptain": false
-          },
-          {
-            "playerId": "p_11_6_amiko",
-            "isStarter": true,
-            "benchOrder": 0,
-            "isCaptain": false,
-            "isViceCaptain": true
-          },
-          {
-            "playerId": "p_custom_1790166342439",
-            "isStarter": false,
-            "benchOrder": 3,
-            "isCaptain": false,
-            "isViceCaptain": false
-          },
-          {
-            "playerId": "p_10_1_shengelia",
-            "isStarter": true,
-            "benchOrder": 0,
-            "isCaptain": false,
-            "isViceCaptain": false
-          }
-        ],
-        "bank": 8.4,
-        "freeTransfers": 1,
-        "transfersMadeThisGW": 0,
-        "activeChip": null,
-        "usedChips": {
-          "triple_captain": false,
-          "bench_boost": false,
-          "wildcard": false
-        }
-      },
-      "joinedAt": "2026-09-20T18:46:31.883Z"
-    },
-    "user_1789929998559": {
-      "id": "user_1789929998559",
-      "managerName": "Jack",
-      "teamName": "Jack FC",
-      "squad": {
-        "teamName": "Jack FC",
-        "managerName": "Jack",
-        "players": [],
-        "bank": 60,
-        "freeTransfers": 1,
-        "transfersMadeThisGW": 0,
-        "activeChip": null,
-        "usedChips": {
-          "triple_captain": false,
-          "bench_boost": false,
-          "wildcard": false
-        }
-      },
-      "joinedAt": "2026-09-20T18:46:38.559Z"
-    },
     "user_1790177145368": {
       "id": "user_1790177145368",
       "managerName": "My Team Manager",
@@ -6086,27 +5860,6 @@
     }
   },
   "users": {
-    "user_1": {
-      "id": "user_1",
-      "username": "apex",
-      "email": "apex@fantasy.pl",
-      "passwordHash": "ceee86ecf15b5e97c30f7e29ccd49fffa40ab12a501f8723a3c3abb8204925d148f166d23939ad415a234dccf99bbc689523e7c61d477a880ac21d8777c44712",
-      "salt": "e0d0f193e407a627a6290db57632b39d",
-      "managerName": "Apex Manager",
-      "teamName": "Apex XI",
-      "token": "token_apex_demo",
-      "createdAt": "2026-09-20T18:46:31.882Z"
-    },
-    "user_1789929998559": {
-      "id": "user_1789929998559",
-      "username": "jack",
-      "email": "jack@gmail.com",
-      "passwordHash": "be4e5488b03269937403e84c015b5f4a0aeb581bef246156c8ab145c0960aa588f8254b0d1108202fb95554b8cb146fab298b2c06f71cdbd3e857f56a78d7eae",
-      "salt": "324cf7988d16f71ed6877c17f659cc37",
-      "managerName": "Jack",
-      "teamName": "Jack FC",
-      "createdAt": "2026-09-20T18:46:38.559Z"
-    },
     "user_1790353103544": {
       "id": "user_1790353103544",
       "username": "theiulius",
