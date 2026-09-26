@@ -4758,9 +4758,9 @@
               "points": 0
             },
             {
-              "playerId": "p_10_4_meskhi",
-              "webName": "Meskhi",
-              "clubId": "SCH_10_4",
+              "playerId": "p_10_2_xachidze",
+              "webName": "N. Xachidze",
+              "clubId": "SCH_10_2",
               "position": "FWD",
               "isStarter": true,
               "isCaptain": true,
@@ -5167,7 +5167,7 @@
             "isViceCaptain": false
           },
           {
-            "playerId": "p_10_4_meskhi",
+            "playerId": "p_10_2_xachidze",
             "isStarter": true,
             "benchOrder": 0,
             "isCaptain": true,
@@ -5195,9 +5195,9 @@
             "isViceCaptain": false
           }
         ],
-        "bank": 6.3,
+        "bank": 7.5,
         "freeTransfers": 1,
-        "transfersMadeThisGW": 1,
+        "transfersMadeThisGW": 2,
         "activeChip": null,
         "usedChips": {
           "triple_captain": false,
