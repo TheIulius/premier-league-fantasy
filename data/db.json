@@ -4741,7 +4741,7 @@
               "clubId": "SCH_10_1",
               "position": "MID",
               "isStarter": true,
-              "isCaptain": true,
+              "isCaptain": false,
               "isViceCaptain": false,
               "benchOrder": 0,
               "points": 0
@@ -4785,7 +4785,7 @@
               "clubId": "SCH_11_5",
               "position": "MID",
               "isStarter": true,
-              "isCaptain": false,
+              "isCaptain": true,
               "isViceCaptain": false,
               "benchOrder": 0,
               "points": 0
@@ -5156,7 +5156,7 @@
             "playerId": "p_10_1_katamadze",
             "isStarter": true,
             "benchOrder": 0,
-            "isCaptain": true,
+            "isCaptain": false,
             "isViceCaptain": false
           },
           {
@@ -5184,7 +5184,7 @@
             "playerId": "p_custom_1790166342439",
             "isStarter": true,
             "benchOrder": 0,
-            "isCaptain": false,
+            "isCaptain": true,
             "isViceCaptain": false
           },
           {
