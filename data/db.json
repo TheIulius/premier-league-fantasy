@@ -4597,7 +4597,107 @@
           "rank": 1,
           "previousRank": 1,
           "activeChip": null,
-          "lineup": []
+          "lineup": [
+            {
+              "playerId": "p_chaga",
+              "webName": "Chaga",
+              "clubId": "SCH_11_5",
+              "position": "FWD",
+              "isStarter": true,
+              "isCaptain": true,
+              "isViceCaptain": false,
+              "benchOrder": 0,
+              "points": 0
+            },
+            {
+              "playerId": "p_10_1_gogsadze",
+              "webName": "Gogsadze",
+              "clubId": "SCH_10_1",
+              "position": "GKP",
+              "isStarter": true,
+              "isCaptain": false,
+              "isViceCaptain": true,
+              "benchOrder": 0,
+              "points": 0
+            },
+            {
+              "playerId": "p_9_6_mzhavanadze",
+              "webName": "Mzhavanadze",
+              "clubId": "SCH_9_6",
+              "position": "DEF",
+              "isStarter": true,
+              "isCaptain": false,
+              "isViceCaptain": false,
+              "benchOrder": 0,
+              "points": 0
+            },
+            {
+              "playerId": "p_qavtaradze",
+              "webName": "Qavtaradze",
+              "clubId": "SCH_11_1",
+              "position": "DEF",
+              "isStarter": false,
+              "isCaptain": false,
+              "isViceCaptain": false,
+              "benchOrder": 3,
+              "points": 0
+            },
+            {
+              "playerId": "p_9_6_sanikidze",
+              "webName": "Sanikidze",
+              "clubId": "SCH_9_6",
+              "position": "DEF",
+              "isStarter": false,
+              "isCaptain": false,
+              "isViceCaptain": false,
+              "benchOrder": 1,
+              "points": 0
+            },
+            {
+              "playerId": "p_9_1_dekanosidze",
+              "webName": "Dekanosidze",
+              "clubId": "SCH_9_1",
+              "position": "MID",
+              "isStarter": false,
+              "isCaptain": false,
+              "isViceCaptain": false,
+              "benchOrder": 2,
+              "points": 0
+            },
+            {
+              "playerId": "p_rati",
+              "webName": "Rati",
+              "clubId": "SCH_11_5",
+              "position": "FWD",
+              "isStarter": true,
+              "isCaptain": false,
+              "isViceCaptain": false,
+              "benchOrder": 0,
+              "points": 0
+            },
+            {
+              "playerId": "p_custom_1790279796584",
+              "webName": "Kila",
+              "clubId": "SCH_11_4",
+              "position": "MID",
+              "isStarter": true,
+              "isCaptain": false,
+              "isViceCaptain": false,
+              "benchOrder": 0,
+              "points": 0
+            },
+            {
+              "playerId": "p_custom_1790244156863",
+              "webName": "Atunashvili",
+              "clubId": "SCH_11_3",
+              "position": "MID",
+              "isStarter": true,
+              "isCaptain": false,
+              "isViceCaptain": false,
+              "benchOrder": 0,
+              "points": 0
+            }
+          ]
         },
         {
           "id": "user_1790353103544",
@@ -4945,8 +5045,7 @@
       "teamName": "giorgievski's tractati",
       "createdAt": "2026-09-25T16:18:23.548Z",
       "role": "admin",
-      "isAdmin": true,
-      "token": "6d9c83c662eef56dafe83335855e660e4cd50504d5d607a1eac712675898e118"
+      "isAdmin": true
     },
     "user_1790357898196": {
       "id": "user_1790357898196",
