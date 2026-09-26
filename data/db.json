@@ -5149,105 +5149,17 @@
           "gwPoints": 0,
           "rank": 8,
           "previousRank": 8,
-          "activeChip": null,
+          "activeChip": "bench_boost",
           "lineup": [
-            {
-              "playerId": "p_9_2_yvavadze",
-              "webName": "Yvavadze",
-              "clubId": "SCH_9_2",
-              "position": "GKP",
-              "isStarter": true,
-              "isCaptain": false,
-              "isViceCaptain": false,
-              "benchOrder": 0,
-              "points": 0
-            },
-            {
-              "playerId": "p_zarno",
-              "webName": "Zarno",
-              "clubId": "SCH_11_5",
-              "position": "DEF",
-              "isStarter": true,
-              "isCaptain": true,
-              "isViceCaptain": false,
-              "benchOrder": 0,
-              "points": 0
-            },
-            {
-              "playerId": "p_dito",
-              "webName": "Dito",
-              "clubId": "SCH_11_5",
-              "position": "DEF",
-              "isStarter": true,
-              "isCaptain": false,
-              "isViceCaptain": true,
-              "benchOrder": 0,
-              "points": 0
-            },
-            {
-              "playerId": "p_giorguna",
-              "webName": "Giorguna",
-              "clubId": "SCH_11_1",
-              "position": "MID",
-              "isStarter": true,
-              "isCaptain": false,
-              "isViceCaptain": false,
-              "benchOrder": 0,
-              "points": 0
-            },
-            {
-              "playerId": "p_9_1_papuashvili",
-              "webName": "Papuashvili",
-              "clubId": "SCH_9_1",
-              "position": "MID",
-              "isStarter": true,
-              "isCaptain": false,
-              "isViceCaptain": false,
-              "benchOrder": 0,
-              "points": 0
-            },
-            {
-              "playerId": "p_tarkashvili",
-              "webName": "Tarkashvili",
-              "clubId": "SCH_11_1",
-              "position": "FWD",
-              "isStarter": true,
-              "isCaptain": false,
-              "isViceCaptain": false,
-              "benchOrder": 0,
-              "points": 0
-            },
-            {
-              "playerId": "p_9_1_kikolashvili",
-              "webName": "Kikolashvili",
-              "clubId": "SCH_9_1",
-              "position": "DEF",
-              "isStarter": false,
-              "isCaptain": false,
-              "isViceCaptain": false,
-              "benchOrder": 3,
-              "points": 0
-            },
-            {
-              "playerId": "p_9_2_laliashvili",
-              "webName": "Laliashvili",
-              "clubId": "SCH_9_2",
-              "position": "MID",
-              "isStarter": false,
-              "isCaptain": false,
-              "isViceCaptain": false,
-              "benchOrder": 2,
-              "points": 0
-            },
             {
               "playerId": "p_9_3_chiviashvili",
               "webName": "Chiviashvili",
               "clubId": "SCH_9_3",
               "position": "FWD",
-              "isStarter": false,
-              "isCaptain": false,
+              "isStarter": true,
+              "isCaptain": true,
               "isViceCaptain": false,
-              "benchOrder": 1,
+              "benchOrder": 0,
               "points": 0
             }
           ]
@@ -5829,73 +5741,17 @@
         "managerName": "Nika",
         "players": [
           {
-            "playerId": "p_9_2_yvavadze",
-            "isStarter": true,
-            "benchOrder": 0,
-            "isCaptain": false,
-            "isViceCaptain": false
-          },
-          {
-            "playerId": "p_zarno",
+            "playerId": "p_9_3_chiviashvili",
             "isStarter": true,
             "benchOrder": 0,
             "isCaptain": true,
             "isViceCaptain": false
-          },
-          {
-            "playerId": "p_dito",
-            "isStarter": true,
-            "benchOrder": 0,
-            "isCaptain": false,
-            "isViceCaptain": true
-          },
-          {
-            "playerId": "p_giorguna",
-            "isStarter": true,
-            "benchOrder": 0,
-            "isCaptain": false,
-            "isViceCaptain": false
-          },
-          {
-            "playerId": "p_9_1_papuashvili",
-            "isStarter": true,
-            "benchOrder": 0,
-            "isCaptain": false,
-            "isViceCaptain": false
-          },
-          {
-            "playerId": "p_tarkashvili",
-            "isStarter": true,
-            "benchOrder": 0,
-            "isCaptain": false,
-            "isViceCaptain": false
-          },
-          {
-            "playerId": "p_9_1_kikolashvili",
-            "isStarter": false,
-            "benchOrder": 3,
-            "isCaptain": false,
-            "isViceCaptain": false
-          },
-          {
-            "playerId": "p_9_2_laliashvili",
-            "isStarter": false,
-            "benchOrder": 2,
-            "isCaptain": false,
-            "isViceCaptain": false
-          },
-          {
-            "playerId": "p_9_3_chiviashvili",
-            "isStarter": false,
-            "benchOrder": 1,
-            "isCaptain": false,
-            "isViceCaptain": false
           }
         ],
-        "bank": 9,
+        "bank": 55.9,
         "freeTransfers": 1,
         "transfersMadeThisGW": 0,
-        "activeChip": null,
+        "activeChip": "bench_boost",
         "usedChips": {
           "triple_captain": false,
           "bench_boost": false,
@@ -6019,7 +5875,7 @@
       "salt": "bf561a201267f9bc1552d255a30d0ce4",
       "managerName": "Ilia",
       "teamName": "giorgievski's tractati",
-      "token": "cfe472799da0ca890c39fe8baf9fb9153c45ac387e95db33f64e7244ac2a073a",
+      "token": "56f16c096b2bffe866f400db3df3a13bfe4a94aceb7eaac486c284d157b85d71",
       "createdAt": "2026-09-25T16:18:23.548Z",
       "role": "admin",
       "isAdmin": true
