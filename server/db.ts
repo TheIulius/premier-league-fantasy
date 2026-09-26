@@ -126,7 +126,7 @@ function getDefaultData(): DatabaseSchema {
       user_1: defaultUser,
     },
     paymentSettings: {
-      bogLink: '',
+      bogLink: 'https://egreve.bog.ge/KCL26_charity',
       tbcLink: '',
       entryFeeGEL: 3,
       requireActivationCode: false,
@@ -152,11 +152,13 @@ class Database {
         }
         if (!this.data.paymentSettings) {
           this.data.paymentSettings = {
-            bogLink: '',
+            bogLink: 'https://egreve.bog.ge/KCL26_charity',
             tbcLink: '',
             entryFeeGEL: 3,
             requireActivationCode: false,
           };
+        } else if (!this.data.paymentSettings.bogLink) {
+          this.data.paymentSettings.bogLink = 'https://egreve.bog.ge/KCL26_charity';
         }
         if (!Array.isArray(this.data.activationCodes)) {
           this.data.activationCodes = [];

@@ -72,7 +72,7 @@ app.get('/api/state', (req: Request, res: Response) => {
     activeManager: manager,
     deadline: data.deadline || null,
     paymentSettings: {
-      bogLink: data.paymentSettings?.bogLink || '',
+      bogLink: data.paymentSettings?.bogLink || 'https://egreve.bog.ge/KCL26_charity',
       tbcLink: data.paymentSettings?.tbcLink || '',
       entryFeeGEL: data.paymentSettings?.entryFeeGEL || 3,
       requireActivationCode: Boolean(data.paymentSettings?.requireActivationCode),
@@ -1094,7 +1094,7 @@ app.post('/api/admin/db/import', (req: Request, res: Response) => {
 app.get('/api/payment-settings', (req: Request, res: Response) => {
   const data = db.getData();
   res.json({
-    bogLink: data.paymentSettings?.bogLink || '',
+    bogLink: data.paymentSettings?.bogLink || 'https://egreve.bog.ge/KCL26_charity',
     tbcLink: data.paymentSettings?.tbcLink || '',
     entryFeeGEL: data.paymentSettings?.entryFeeGEL || 3,
     requireActivationCode: Boolean(data.paymentSettings?.requireActivationCode),

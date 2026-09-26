@@ -76,7 +76,8 @@ export const AuthLandingView: React.FC = () => {
   };
 
   const handleOpenPaymentLink = (bank: 'bog' | 'tbc') => {
-    const link = bank === 'bog' ? paymentSettings?.bogLink : paymentSettings?.tbcLink;
+    const defaultBog = 'https://egreve.bog.ge/KCL26_charity';
+    const link = bank === 'bog' ? (paymentSettings?.bogLink?.trim() || defaultBog) : paymentSettings?.tbcLink?.trim();
     if (link && link.trim()) {
       window.open(link.trim(), '_blank', 'noopener,noreferrer');
     } else {
@@ -241,11 +242,11 @@ export const AuthLandingView: React.FC = () => {
                     type="button"
                     onClick={() => handleOpenPaymentLink('bog')}
                     className="group flex items-center justify-between px-2.5 py-2 rounded-xl text-left bg-orange-500/10 hover:bg-orange-500/15 border border-orange-500/30 text-orange-400 transition-colors"
-                    title="Open Bank of Georgia payment link"
+                    title="Open Bank of Georgia eGreve charity page"
                   >
                     <div>
                       <div className="text-[10px] font-black uppercase tracking-tight">Bank of Georgia</div>
-                      <div className="text-[9px] font-semibold text-orange-400/80">3.00 ₾ Pay Link</div>
+                      <div className="text-[9px] font-semibold text-orange-400/80">eGreve Link</div>
                     </div>
                     <ExternalLink className="w-3.5 h-3.5 text-orange-400 group-hover:translate-x-0.5 transition-transform" />
                   </button>
@@ -259,10 +260,18 @@ export const AuthLandingView: React.FC = () => {
                   >
                     <div>
                       <div className="text-[10px] font-black uppercase tracking-tight">TBC Bank</div>
-                      <div className="text-[9px] font-semibold text-sky-400/80">3.00 ₾ Pay Link</div>
+                      <div className="text-[9px] font-semibold text-sky-400/80">Transfer Link</div>
                     </div>
                     <ExternalLink className="w-3.5 h-3.5 text-sky-400 group-hover:translate-x-0.5 transition-transform" />
                   </button>
+                </div>
+
+                {/* Explicit amount reminder since BOG eGreve doesn't prefill the 3 GEL value */}
+                <div className="rounded-xl bg-orange-500/10 border border-orange-500/20 px-2.5 py-1.5 text-[10px] text-orange-300 flex items-start gap-1.5">
+                  <span className="font-bold shrink-0">💡 Note:</span>
+                  <span className="leading-snug">
+                    On the Bank of Georgia eGreve page, please enter <strong>3.00 ₾</strong> manually as the transfer amount (თანხა: <strong>3 ₾</strong>).
+                  </span>
                 </div>
               </div>
 

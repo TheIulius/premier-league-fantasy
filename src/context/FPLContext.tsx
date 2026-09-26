@@ -344,7 +344,7 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Payment & Charity Links Settings
   const [paymentSettings, setPaymentSettings] = useState<PaymentSettings>({
-    bogLink: '',
+    bogLink: 'https://egreve.bog.ge/KCL26_charity',
     tbcLink: '',
     entryFeeGEL: 3,
     requireActivationCode: false,
