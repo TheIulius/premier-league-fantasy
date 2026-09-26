@@ -2,7 +2,7 @@ import express, { Request, Response } from 'express';
 import cors from 'cors';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { db, ManagerProfile, hashPassword, verifyPassword, generateToken, UserAccount } from './db';
+import { db, ManagerProfile, hashPassword, verifyPassword, generateToken, UserAccount, PaymentSettings, ActivationCode } from './db';
 import { calculateGameweekSquadPoints, calculatePlayerPoints } from '../src/engine/scoring';
 import { DEFAULT_SQUAD_PLAYER_IDS } from '../src/data/seedPlayers';
 import { CLUBS } from '../src/data/clubs';
@@ -71,6 +71,12 @@ app.get('/api/state', (req: Request, res: Response) => {
     managers: managersList,
     activeManager: manager,
     deadline: data.deadline || null,
+    paymentSettings: {
+      bogLink: data.paymentSettings?.bogLink || '',
+      tbcLink: data.paymentSettings?.tbcLink || '',
+      entryFeeGEL: data.paymentSettings?.entryFeeGEL || 3,
+      requireActivationCode: Boolean(data.paymentSettings?.requireActivationCode),
+    },
   });
 });
 
@@ -126,9 +132,9 @@ app.get('/api/manager/:id', (req: Request, res: Response) => {
 
 // --- AUTHENTICATION & SEPARATE ACCOUNTS ---
 
-// Register Account with Password
+// Register Account with Password (Supports 3 GEL Charity BOG/TBC Activation Codes)
 app.post('/api/auth/register', (req: Request, res: Response) => {
-  const { username, email, password, managerName, teamName } = req.body;
+  const { username, email, password, managerName, teamName, activationCode } = req.body;
 
   if (!username || !password || !managerName || !teamName) {
     return res.status(400).json({ error: 'Username, password, manager name and team name are required' });
@@ -140,6 +146,30 @@ app.post('/api/auth/register', (req: Request, res: Response) => {
 
   const data = db.getData();
   if (!data.users) data.users = {};
+
+  // Check Activation Code requirement
+  const requireActivation = Boolean(data.paymentSettings?.requireActivationCode);
+  const cleanCode = (activationCode || '').trim().toUpperCase();
+  let matchedCodeObj: any = null;
+
+  if (requireActivation || cleanCode) {
+    if (!cleanCode) {
+      return res.status(400).json({
+        error: `A ${data.paymentSettings?.entryFeeGEL || 3} ₾ entry activation code is required. Please pay via Bank of Georgia or TBC Bank to get your code.`,
+      });
+    }
+    matchedCodeObj = (data.activationCodes || []).find((c: any) => c.code.toUpperCase() === cleanCode);
+    if (!matchedCodeObj) {
+      return res.status(400).json({
+        error: 'Invalid activation code. Please verify the code or contact tournament admins.',
+      });
+    }
+    if (matchedCodeObj.isUsed) {
+      return res.status(400).json({
+        error: 'This activation code has already been redeemed by another manager.',
+      });
+    }
+  }
 
   const cleanUser = username.trim().toLowerCase();
   const cleanEmail = (email || `${cleanUser}@fantasy.pl`).trim().toLowerCase();
@@ -192,6 +222,13 @@ app.post('/api/auth/register', (req: Request, res: Response) => {
 
   data.users[id] = newUser;
   data.managers[id] = newManager;
+
+  // Mark activation code as redeemed
+  if (matchedCodeObj) {
+    matchedCodeObj.isUsed = true;
+    matchedCodeObj.usedBy = cleanUser;
+    matchedCodeObj.usedAt = new Date().toISOString();
+  }
 
   // Add to Global League
   const globalLeague = data.leagues.find((l) => l.isGlobal);
@@ -1021,6 +1058,90 @@ app.post('/api/admin/db/import', (req: Request, res: Response) => {
   db.setData(dbData);
   scheduleAutoSyncToGitHub('Imported database JSON');
   res.json({ success: true, message: 'Database imported and saved successfully!' });
+});
+
+// 12. Payment & Charity Links Settings
+app.get('/api/payment-settings', (req: Request, res: Response) => {
+  const data = db.getData();
+  res.json({
+    bogLink: data.paymentSettings?.bogLink || '',
+    tbcLink: data.paymentSettings?.tbcLink || '',
+    entryFeeGEL: data.paymentSettings?.entryFeeGEL || 3,
+    requireActivationCode: Boolean(data.paymentSettings?.requireActivationCode),
+  });
+});
+
+app.post('/api/admin/payment-settings', (req: Request, res: Response) => {
+  const { bogLink, tbcLink, entryFeeGEL, requireActivationCode } = req.body;
+  const data = db.getData();
+
+  data.paymentSettings = {
+    bogLink: typeof bogLink === 'string' ? bogLink.trim() : (data.paymentSettings?.bogLink || ''),
+    tbcLink: typeof tbcLink === 'string' ? tbcLink.trim() : (data.paymentSettings?.tbcLink || ''),
+    entryFeeGEL: typeof entryFeeGEL === 'number' ? entryFeeGEL : (data.paymentSettings?.entryFeeGEL || 3),
+    requireActivationCode: typeof requireActivationCode === 'boolean' ? requireActivationCode : Boolean(data.paymentSettings?.requireActivationCode),
+  };
+
+  db.save();
+  scheduleAutoSyncToGitHub('Updated BOG/TBC payment settings');
+  res.json({ success: true, settings: data.paymentSettings });
+});
+
+// 13. Activation Codes Management
+app.get('/api/admin/activation-codes', (req: Request, res: Response) => {
+  const data = db.getData();
+  res.json({ codes: data.activationCodes || [] });
+});
+
+app.post('/api/admin/activation-codes/generate', (req: Request, res: Response) => {
+  const { count } = req.body;
+  const numCodes = Math.min(50, Math.max(1, Number(count) || 1));
+  const data = db.getData();
+  if (!Array.isArray(data.activationCodes)) {
+    data.activationCodes = [];
+  }
+
+  const charset = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
+  const newCodes: ActivationCode[] = [];
+
+  for (let i = 0; i < numCodes; i++) {
+    let rand = '';
+    for (let c = 0; c < 4; c++) {
+      rand += charset.charAt(Math.floor(Math.random() * charset.length));
+    }
+    const code = `KCL-${rand}`;
+    if (!data.activationCodes.some((existing) => existing.code === code)) {
+      const codeObj: ActivationCode = {
+        code,
+        createdAt: new Date().toISOString(),
+        isUsed: false,
+      };
+      data.activationCodes.unshift(codeObj);
+      newCodes.push(codeObj);
+    }
+  }
+
+  db.save();
+  scheduleAutoSyncToGitHub(`Generated ${newCodes.length} activation codes`);
+  res.json({ success: true, codes: newCodes, allCodes: data.activationCodes });
+});
+
+app.delete('/api/admin/activation-codes/:code', (req: Request, res: Response) => {
+  const targetCode = req.params.code.toUpperCase();
+  const data = db.getData();
+  if (!Array.isArray(data.activationCodes)) {
+    data.activationCodes = [];
+  }
+
+  const initialLen = data.activationCodes.length;
+  data.activationCodes = data.activationCodes.filter((c) => c.code.toUpperCase() !== targetCode);
+
+  if (data.activationCodes.length !== initialLen) {
+    db.save();
+    scheduleAutoSyncToGitHub(`Revoked activation code ${targetCode}`);
+  }
+
+  res.json({ success: true });
 });
 
 // In-memory runtime GitHub token (can be set via environment variable or admin portal)

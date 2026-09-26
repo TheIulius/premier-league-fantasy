@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useFPL } from '../../context/FPLContext';
-import { Position, Player, Fixture } from '../../types/fpl';
+import { Position, Player, Fixture, ActivationCode } from '../../types/fpl';
 import { CLUBS, getSortedSchoolClubs } from '../../data/clubs';
 import { KitJersey } from '../pitch/KitJersey';
 import { ClassShieldBadge } from '../common/ClassShieldBadge';
@@ -44,6 +44,9 @@ import {
   AlertTriangle,
   ArrowLeft,
   Shield,
+  Ticket,
+  CreditCard,
+  Copy,
 } from 'lucide-react';
 import {
   adminFetchUsersApi,
@@ -53,6 +56,9 @@ import {
   adminSyncGithubApi,
   adminGetSyncStatusApi,
   adminSetServerTokenApi,
+  adminFetchActivationCodesApi,
+  adminGenerateActivationCodesApi,
+  adminDeleteActivationCodeApi,
 } from '../../services/api';
 import confetti from 'canvas-confetti';
 
@@ -83,6 +89,8 @@ export const AdminPortal: React.FC = () => {
     setDeadline,
     isSquadLocked,
     setActiveTab,
+    paymentSettings,
+    updatePaymentSettings,
   } = useFPL();
 
   const [pinInput, setPinInput] = useState('');
@@ -127,6 +135,19 @@ export const AdminPortal: React.FC = () => {
   const [serverSyncStatus, setServerSyncStatus] = useState<any>(null);
   const [isImportingDb, setIsImportingDb] = useState(false);
 
+  // Step 2 & Settings: Charity Payment & Activation Codes
+  const [bogLinkInput, setBogLinkInput] = useState(paymentSettings?.bogLink || '');
+  const [tbcLinkInput, setTbcLinkInput] = useState(paymentSettings?.tbcLink || '');
+  const [entryFeeInput, setEntryFeeInput] = useState(paymentSettings?.entryFeeGEL || 3);
+  const [requireCodeInput, setRequireCodeInput] = useState(Boolean(paymentSettings?.requireActivationCode));
+  const [isSavingPaymentSettings, setIsSavingPaymentSettings] = useState(false);
+  const [activationCodes, setActivationCodes] = useState<ActivationCode[]>([]);
+  const [isLoadingCodes, setIsLoadingCodes] = useState(false);
+  const [isGeneratingCodes, setIsGeneratingCodes] = useState(false);
+  const [copiedCode, setCopiedCode] = useState<string | null>(null);
+  const [codeFilter, setCodeFilter] = useState<'all' | 'unused' | 'used'>('all');
+  const [codeSearch, setCodeSearch] = useState('');
+
   const showNotification = (msg: string) => {
     setBannerNotice(msg);
     setTimeout(() => setBannerNotice(null), 4000);
@@ -136,8 +157,83 @@ export const AdminPortal: React.FC = () => {
     if (isDevAuthenticated) {
       adminGetSyncStatusApi().then(setServerSyncStatus).catch(() => {});
       loadUsers();
+      loadActivationCodes();
     }
   }, [isDevAuthenticated]);
+
+  useEffect(() => {
+    if (paymentSettings) {
+      setBogLinkInput(paymentSettings.bogLink || '');
+      setTbcLinkInput(paymentSettings.tbcLink || '');
+      setEntryFeeInput(paymentSettings.entryFeeGEL ?? 3);
+      setRequireCodeInput(Boolean(paymentSettings.requireActivationCode));
+    }
+  }, [paymentSettings]);
+
+  const loadActivationCodes = async () => {
+    setIsLoadingCodes(true);
+    try {
+      const codes = await adminFetchActivationCodesApi();
+      setActivationCodes(codes);
+    } catch {
+      showNotification('Failed to fetch activation codes');
+    } finally {
+      setIsLoadingCodes(false);
+    }
+  };
+
+  const handleSavePaymentSettings = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    setIsSavingPaymentSettings(true);
+    try {
+      await updatePaymentSettings({
+        bogLink: bogLinkInput.trim(),
+        tbcLink: tbcLinkInput.trim(),
+        entryFeeGEL: Number(entryFeeInput) || 3,
+        requireActivationCode: Boolean(requireCodeInput),
+      });
+      showNotification('✅ Payment settings saved successfully!');
+    } catch (err: any) {
+      alert(err.message || 'Failed to save payment settings');
+    } finally {
+      setIsSavingPaymentSettings(false);
+    }
+  };
+
+  const handleGenerateCodes = async (count: number = 1) => {
+    setIsGeneratingCodes(true);
+    try {
+      const res = await adminGenerateActivationCodesApi(count);
+      if (res && res.allCodes) {
+        setActivationCodes(res.allCodes);
+      } else {
+        await loadActivationCodes();
+      }
+      showNotification(`✨ Generated ${count} new activation code${count > 1 ? 's' : ''}!`);
+      confetti({ particleCount: 30, spread: 50, origin: { y: 0.6 } });
+    } catch (err: any) {
+      alert(err.message || 'Failed to generate codes');
+    } finally {
+      setIsGeneratingCodes(false);
+    }
+  };
+
+  const handleDeleteCode = async (code: string) => {
+    if (!confirm(`Are you sure you want to revoke code ${code}?`)) return;
+    try {
+      await adminDeleteActivationCodeApi(code);
+      setActivationCodes((prev) => prev.filter((c) => c.code.toUpperCase() !== code.toUpperCase()));
+      showNotification(`Revoked code ${code}`);
+    } catch (err: any) {
+      alert(err.message || 'Failed to delete code');
+    }
+  };
+
+  const handleCopyCode = (code: string) => {
+    navigator.clipboard.writeText(code);
+    setCopiedCode(code);
+    setTimeout(() => setCopiedCode(null), 2000);
+  };
 
   const loadUsers = async () => {
     setIsLoadingUsers(true);
@@ -790,6 +886,278 @@ export const AdminPortal: React.FC = () => {
               </div>
             </div>
 
+            {/* Charity Entry & Activation Codes Management */}
+            <div className="p-4 sm:p-5 rounded-2xl bg-zinc-900 border border-white/10 space-y-4">
+              {/* Card Header */}
+              <div className="flex items-center justify-between pb-3 border-b border-white/10 flex-wrap gap-2">
+                <div className="flex items-center gap-2.5">
+                  <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                    <Ticket className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h3 className="font-black text-sm text-white">Charity Entry & 1-Time Activation Codes</h3>
+                    <p className="text-[11px] text-zinc-400">Manage BOG & TBC 3 ₾ payment links and issue registration codes</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={loadActivationCodes}
+                    disabled={isLoadingCodes}
+                    className="p-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-zinc-400 hover:text-white transition-colors"
+                    title="Refresh Codes"
+                  >
+                    <RefreshCw className={`w-4 h-4 ${isLoadingCodes ? 'animate-spin' : ''}`} />
+                  </button>
+                  <button
+                    onClick={() => handleGenerateCodes(1)}
+                    disabled={isGeneratingCodes}
+                    className="px-3 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs flex items-center gap-1.5 transition-all shadow-xs"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>+1 Code</span>
+                  </button>
+                  <button
+                    onClick={() => handleGenerateCodes(5)}
+                    disabled={isGeneratingCodes}
+                    className="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs flex items-center gap-1.5 transition-all"
+                  >
+                    <Plus className="w-3.5 h-3.5 text-emerald-400" />
+                    <span>+5 Codes</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Top Config Grid: Payment Links, Entry Fee & Enforcement */}
+              <form onSubmit={handleSavePaymentSettings} className="p-3.5 rounded-xl bg-zinc-950 border border-white/5 space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-zinc-300 flex items-center gap-1.5">
+                    <CreditCard className="w-3.5 h-3.5 text-emerald-400" />
+                    Official Payment Gateways & Rules
+                  </span>
+                  <button
+                    type="submit"
+                    disabled={isSavingPaymentSettings}
+                    className="px-3 py-1 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs transition-colors flex items-center gap-1"
+                  >
+                    <Save className="w-3 h-3" />
+                    <span>{isSavingPaymentSettings ? 'Saving...' : 'Save Settings'}</span>
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+                  {/* BOG Link */}
+                  <div>
+                    <label className="text-[10px] uppercase font-bold text-zinc-400 flex items-center justify-between mb-1">
+                      <span className="text-orange-400">Bank of Georgia Link</span>
+                      {bogLinkInput && (
+                        <a
+                          href={bogLinkInput}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-orange-400 hover:underline flex items-center gap-0.5 text-[9px]"
+                        >
+                          Test <ExternalLink className="w-2.5 h-2.5" />
+                        </a>
+                      )}
+                    </label>
+                    <input
+                      type="url"
+                      placeholder="https://pay.bog.ge/..."
+                      value={bogLinkInput}
+                      onChange={(e) => setBogLinkInput(e.target.value)}
+                      className="w-full bg-zinc-900 border border-white/10 rounded-xl px-3 py-1.5 text-xs text-white placeholder-zinc-600 outline-none focus:border-orange-500/50"
+                    />
+                  </div>
+
+                  {/* TBC Link */}
+                  <div>
+                    <label className="text-[10px] uppercase font-bold text-zinc-400 flex items-center justify-between mb-1">
+                      <span className="text-sky-400">TBC Bank Link</span>
+                      {tbcLinkInput && (
+                        <a
+                          href={tbcLinkInput}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-sky-400 hover:underline flex items-center gap-0.5 text-[9px]"
+                        >
+                          Test <ExternalLink className="w-2.5 h-2.5" />
+                        </a>
+                      )}
+                    </label>
+                    <input
+                      type="url"
+                      placeholder="https://tbcpay.ge/..."
+                      value={tbcLinkInput}
+                      onChange={(e) => setTbcLinkInput(e.target.value)}
+                      className="w-full bg-zinc-900 border border-white/10 rounded-xl px-3 py-1.5 text-xs text-white placeholder-zinc-600 outline-none focus:border-sky-500/50"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap items-center justify-between gap-3 pt-1 border-t border-white/5 text-xs">
+                  <div className="flex items-center gap-2">
+                    <label className="text-[11px] font-bold text-zinc-400">Entry Fee (₾):</label>
+                    <input
+                      type="number"
+                      min="1"
+                      max="50"
+                      value={entryFeeInput}
+                      onChange={(e) => setEntryFeeInput(Number(e.target.value))}
+                      className="w-16 bg-zinc-900 border border-white/10 rounded-lg px-2.5 py-1 text-center font-bold text-white text-xs outline-none focus:border-emerald-500"
+                    />
+                  </div>
+
+                  <label className="flex items-center gap-2 cursor-pointer select-none">
+                    <input
+                      type="checkbox"
+                      checked={requireCodeInput}
+                      onChange={(e) => setRequireCodeInput(e.target.checked)}
+                      className="w-4 h-4 rounded text-emerald-500 bg-zinc-900 border-white/20 focus:ring-0 cursor-pointer"
+                    />
+                    <span className="text-xs font-bold text-zinc-300">
+                      Strict Mode: Require Activation Code on Register
+                    </span>
+                  </label>
+                </div>
+              </form>
+
+              {/* Codes List & Filter Bar */}
+              <div className="space-y-2.5">
+                {/* Filter & Search Bar */}
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div className="flex items-center gap-1 bg-zinc-950 p-1 rounded-xl border border-white/5 text-[11px] font-bold">
+                    <button
+                      type="button"
+                      onClick={() => setCodeFilter('all')}
+                      className={`px-2.5 py-1 rounded-lg transition-colors ${
+                        codeFilter === 'all' ? 'bg-white/15 text-white' : 'text-zinc-400 hover:text-white'
+                      }`}
+                    >
+                      All ({activationCodes.length})
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setCodeFilter('unused')}
+                      className={`px-2.5 py-1 rounded-lg transition-colors ${
+                        codeFilter === 'unused' ? 'bg-emerald-500/20 text-emerald-400' : 'text-zinc-400 hover:text-white'
+                      }`}
+                    >
+                      Unused ({activationCodes.filter((c) => !c.isUsed).length})
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setCodeFilter('used')}
+                      className={`px-2.5 py-1 rounded-lg transition-colors ${
+                        codeFilter === 'used' ? 'bg-white/15 text-zinc-300' : 'text-zinc-400 hover:text-white'
+                      }`}
+                    >
+                      Redeemed ({activationCodes.filter((c) => c.isUsed).length})
+                    </button>
+                  </div>
+
+                  <div className="relative">
+                    <Search className="w-3.5 h-3.5 text-zinc-500 absolute left-2.5 top-2" />
+                    <input
+                      type="text"
+                      placeholder="Filter code or user..."
+                      value={codeSearch}
+                      onChange={(e) => setCodeSearch(e.target.value)}
+                      className="bg-zinc-950 border border-white/10 rounded-xl pl-8 pr-3 py-1.5 text-xs text-white placeholder-zinc-600 outline-none w-44 focus:w-56 transition-all"
+                    />
+                  </div>
+                </div>
+
+                {/* Codes Table / Grid */}
+                {activationCodes.length === 0 ? (
+                  <div className="p-6 text-center rounded-xl bg-zinc-950/40 border border-dashed border-white/10 text-xs text-zinc-500">
+                    No activation codes generated yet. Tap <span className="text-emerald-400 font-bold">+1 Code</span> to generate your first 1-time code.
+                  </div>
+                ) : (
+                  <div className="divide-y divide-white/[0.04] max-h-[280px] overflow-y-auto rounded-xl bg-zinc-950/40 border border-white/5">
+                    {activationCodes
+                      .filter((c) => {
+                        if (codeFilter === 'unused' && c.isUsed) return false;
+                        if (codeFilter === 'used' && !c.isUsed) return false;
+                        if (codeSearch) {
+                          const q = codeSearch.toLowerCase();
+                          return c.code.toLowerCase().includes(q) || (c.usedBy && c.usedBy.toLowerCase().includes(q));
+                        }
+                        return true;
+                      })
+                      .map((c) => (
+                        <div
+                          key={c.code}
+                          className="py-2 px-3 flex items-center justify-between hover:bg-white/[0.02] text-xs transition-colors"
+                        >
+                          <div className="flex items-center gap-3">
+                            <span className="font-mono font-black text-sm text-white tracking-wider px-2 py-0.5 rounded bg-white/5 border border-white/10">
+                              {c.code}
+                            </span>
+
+                            {c.isUsed ? (
+                              <div className="flex items-center gap-1.5">
+                                <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-zinc-800 text-zinc-400 border border-zinc-700">
+                                  Redeemed
+                                </span>
+                                <span className="text-[11px] text-zinc-400">
+                                  by <strong className="text-emerald-400">@{c.usedBy}</strong>
+                                  {c.usedAt && (
+                                    <span className="text-[10px] text-zinc-500 ml-1">
+                                      ({new Date(c.usedAt).toLocaleDateString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })})
+                                    </span>
+                                  )}
+                                </span>
+                              </div>
+                            ) : (
+                              <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center gap-1">
+                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                                Unused • Ready
+                              </span>
+                            )}
+                          </div>
+
+                          <div className="flex items-center gap-1.5">
+                            <button
+                              type="button"
+                              onClick={() => handleCopyCode(c.code)}
+                              className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1 ${
+                                copiedCode === c.code
+                                  ? 'bg-emerald-500 text-slate-950 font-black'
+                                  : 'bg-white/5 hover:bg-white/10 text-zinc-300 hover:text-white'
+                              }`}
+                              title="Copy code to clipboard"
+                            >
+                              {copiedCode === c.code ? (
+                                <>
+                                  <Check className="w-3 h-3" />
+                                  <span>Copied</span>
+                                </>
+                              ) : (
+                                <>
+                                  <Copy className="w-3 h-3 text-zinc-400" />
+                                  <span>Copy</span>
+                                </>
+                              )}
+                            </button>
+
+                            {!c.isUsed && (
+                              <button
+                                type="button"
+                                onClick={() => handleDeleteCode(c.code)}
+                                className="p-1 rounded-lg text-zinc-500 hover:text-rose-400 hover:bg-rose-500/10 transition-colors"
+                                title="Revoke / Delete Code"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
             {/* Registered Users & Squad Inspection */}
             <div className="p-4 sm:p-5 rounded-2xl bg-zinc-900 border border-white/10 space-y-3">
               <div className="flex items-center justify-between pb-2 border-b border-white/10">
@@ -1085,6 +1453,82 @@ export const AdminPortal: React.FC = () => {
 
               {/* Drawer Content */}
               <div className="flex-1 overflow-y-auto p-4 space-y-5 text-xs">
+                {/* Charity Payment Links & Gateways */}
+                <div className="space-y-3 p-4 rounded-xl bg-zinc-950 border border-white/5">
+                  <div className="flex items-center justify-between">
+                    <span className="font-black text-white flex items-center gap-1.5">
+                      <Ticket className="w-4 h-4 text-emerald-400" />
+                      <span>Charity Payment Gateways</span>
+                    </span>
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded font-black bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                      {entryFeeInput} ₾ Fee
+                    </span>
+                  </div>
+
+                  <p className="text-[11px] text-zinc-400">
+                    Set the Bank of Georgia and TBC Bank 3.00 ₾ payment links and registration rules.
+                  </p>
+
+                  <div className="space-y-2">
+                    <div>
+                      <label className="text-[10px] font-bold text-orange-400 block mb-0.5">Bank of Georgia (BOG) URL</label>
+                      <input
+                        type="url"
+                        placeholder="https://pay.bog.ge/..."
+                        value={bogLinkInput}
+                        onChange={(e) => setBogLinkInput(e.target.value)}
+                        className="w-full bg-zinc-900 border border-white/10 rounded-lg p-2 font-mono text-xs text-white outline-none focus:border-orange-500/50"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="text-[10px] font-bold text-sky-400 block mb-0.5">TBC Bank URL</label>
+                      <input
+                        type="url"
+                        placeholder="https://tbcpay.ge/..."
+                        value={tbcLinkInput}
+                        onChange={(e) => setTbcLinkInput(e.target.value)}
+                        className="w-full bg-zinc-900 border border-white/10 rounded-lg p-2 font-mono text-xs text-white outline-none focus:border-sky-500/50"
+                      />
+                    </div>
+
+                    <div className="flex items-center justify-between pt-1">
+                      <label className="flex items-center gap-2 cursor-pointer select-none">
+                        <input
+                          type="checkbox"
+                          checked={requireCodeInput}
+                          onChange={(e) => setRequireCodeInput(e.target.checked)}
+                          className="w-4 h-4 rounded text-emerald-500 bg-zinc-900 border-white/20 cursor-pointer"
+                        />
+                        <span className="text-[11px] font-bold text-zinc-300">Require Code</span>
+                      </label>
+
+                      <button
+                        onClick={() => handleSavePaymentSettings()}
+                        disabled={isSavingPaymentSettings}
+                        className="px-3 py-1.5 rounded-lg bg-emerald-500 text-slate-950 font-black text-xs hover:bg-emerald-400 transition-colors"
+                      >
+                        {isSavingPaymentSettings ? 'Saving...' : 'Save Settings'}
+                      </button>
+                    </div>
+
+                    <div className="pt-2 border-t border-white/5 flex items-center justify-between">
+                      <span className="text-[11px] text-zinc-400">
+                        {activationCodes.filter((c) => !c.isUsed).length} unused codes ready
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => handleGenerateCodes(1)}
+                        disabled={isGeneratingCodes}
+                        className="px-2.5 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-white font-bold text-[11px] flex items-center gap-1"
+                      >
+                        <Plus className="w-3 h-3 text-emerald-400" />
+                        <span>+1 Code</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
                 {/* GitHub Auto-Sync Engine */}
                 <div className="space-y-3 p-4 rounded-xl bg-zinc-950 border border-white/5">
                   <div className="flex items-center justify-between">

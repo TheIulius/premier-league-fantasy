@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useFPL } from '../../context/FPLContext';
-import { Lock, LogOut, Key, User, X } from 'lucide-react';
+import { Lock, LogOut, Key, User, X, ExternalLink, Ticket, CreditCard } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 interface AuthModalProps {
@@ -9,7 +9,7 @@ interface AuthModalProps {
 }
 
 export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
-  const { authUser, loginUser, registerUser, logoutUser } = useFPL();
+  const { authUser, loginUser, registerUser, logoutUser, paymentSettings } = useFPL();
   const [tab, setTab] = useState<'login' | 'register'>('login');
 
   // Login inputs
@@ -22,6 +22,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
   const [regPassword, setRegPassword] = useState('');
   const [regManagerName, setRegManagerName] = useState('');
   const [regTeamName, setRegTeamName] = useState('');
+  const [regActivationCode, setRegActivationCode] = useState('');
 
   // Status
   const [errorMessage, setErrorMessage] = useState('');
@@ -52,7 +53,12 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
   const handleRegisterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!regUsername.trim() || !regPassword.trim() || !regManagerName.trim() || !regTeamName.trim()) {
-      setErrorMessage('All fields are required.');
+      setErrorMessage('Username, password, your name, and team name are required.');
+      return;
+    }
+
+    if (paymentSettings?.requireActivationCode && !regActivationCode.trim()) {
+      setErrorMessage(`An activation code is required. Please pay ${paymentSettings.entryFeeGEL || 3} ₾ via BOG or TBC to receive your code.`);
       return;
     }
 
@@ -65,6 +71,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
         password: regPassword.trim(),
         managerName: regManagerName.trim(),
         teamName: regTeamName.trim(),
+        activationCode: regActivationCode.trim() ? regActivationCode.trim().toUpperCase() : undefined,
       });
       confetti({ particleCount: 60, spread: 70, origin: { y: 0.6 } });
       onClose();
@@ -72,6 +79,15 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
       setErrorMessage(err.message || 'Registration failed.');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleOpenPaymentLink = (bank: 'bog' | 'tbc') => {
+    const link = bank === 'bog' ? paymentSettings?.bogLink : paymentSettings?.tbcLink;
+    if (link && link.trim()) {
+      window.open(link.trim(), '_blank', 'noopener,noreferrer');
+    } else {
+      alert(`${bank === 'bog' ? 'Bank of Georgia' : 'TBC Bank'} direct link will be activated shortly. Please contact Komarovi organizers directly for the account details.`);
     }
   };
 
@@ -227,7 +243,54 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
               </form>
             ) : (
               /* REGISTER FORM */
-              <form onSubmit={handleRegisterSubmit} className="space-y-2.5">
+              <form onSubmit={handleRegisterSubmit} className="space-y-3">
+                {/* Charity Entry Fee & Bank Payment Redirects */}
+                <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1.5">
+                      <CreditCard className="w-3.5 h-3.5 text-emerald-500" />
+                      Charity Entry Fee
+                    </span>
+                    <span className="px-2 py-0.5 rounded-full text-[11px] font-black bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                      {paymentSettings?.entryFeeGEL || 3}.00 ₾
+                    </span>
+                  </div>
+
+                  <p className="text-[10px] text-slate-500 dark:text-slate-400 leading-relaxed">
+                    Tap your bank below to transfer the 3 ₾ entry fee directly to the school charity fund:
+                  </p>
+
+                  <div className="grid grid-cols-2 gap-2 pt-0.5">
+                    {/* Bank of Georgia Button */}
+                    <button
+                      type="button"
+                      onClick={() => handleOpenPaymentLink('bog')}
+                      className="group flex items-center justify-between px-2.5 py-2 rounded-xl text-left bg-orange-500/10 hover:bg-orange-500/15 border border-orange-500/30 text-orange-700 dark:text-orange-400 transition-colors"
+                      title="Open Bank of Georgia payment link"
+                    >
+                      <div>
+                        <div className="text-[10px] font-black uppercase tracking-tight">Bank of Georgia</div>
+                        <div className="text-[9px] font-semibold text-orange-600/80 dark:text-orange-400/80">3.00 ₾ Pay Link</div>
+                      </div>
+                      <ExternalLink className="w-3.5 h-3.5 text-orange-600 dark:text-orange-400 group-hover:translate-x-0.5 transition-transform" />
+                    </button>
+
+                    {/* TBC Bank Button */}
+                    <button
+                      type="button"
+                      onClick={() => handleOpenPaymentLink('tbc')}
+                      className="group flex items-center justify-between px-2.5 py-2 rounded-xl text-left bg-sky-500/10 hover:bg-sky-500/15 border border-sky-500/30 text-sky-700 dark:text-sky-400 transition-colors"
+                      title="Open TBC Bank payment link"
+                    >
+                      <div>
+                        <div className="text-[10px] font-black uppercase tracking-tight">TBC Bank</div>
+                        <div className="text-[9px] font-semibold text-sky-600/80 dark:text-sky-400/80">3.00 ₾ Pay Link</div>
+                      </div>
+                      <ExternalLink className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400 group-hover:translate-x-0.5 transition-transform" />
+                    </button>
+                  </div>
+                </div>
+
                 <div>
                   <label className="text-[10px] font-bold text-slate-600 dark:text-slate-300 block mb-0.5">
                     Username
@@ -297,6 +360,31 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                       required
                     />
                   </div>
+                </div>
+
+                {/* Activation / Receipt Code */}
+                <div>
+                  <div className="flex items-center justify-between mb-0.5">
+                    <label className="text-[10px] font-bold text-slate-600 dark:text-slate-300 flex items-center gap-1">
+                      <Ticket className="w-3 h-3 text-emerald-500" />
+                      Activation Code
+                    </label>
+                    {paymentSettings?.requireActivationCode ? (
+                      <span className="text-[9px] font-black text-rose-500 dark:text-rose-400 uppercase tracking-wider">Required</span>
+                    ) : (
+                      <span className="text-[9px] font-semibold text-slate-400">Optional / 3 ₾ Receipt</span>
+                    )}
+                  </div>
+                  <input
+                    type="text"
+                    placeholder="e.g. KCL-7X9B"
+                    value={regActivationCode}
+                    onChange={(e) => setRegActivationCode(e.target.value.toUpperCase())}
+                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-1.5 text-xs font-mono font-bold tracking-wider text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-emerald-500 uppercase"
+                  />
+                  <p className="text-[9px] text-slate-400 mt-0.5">
+                    1-time code issued by tournament admins upon payment receipt.
+                  </p>
                 </div>
 
                 <button

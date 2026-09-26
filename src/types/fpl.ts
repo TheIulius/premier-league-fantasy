@@ -116,3 +116,18 @@ export interface GameweekInfo {
   highestScore: number;
   averageScore: number;
 }
+
+export interface PaymentSettings {
+  bogLink: string;
+  tbcLink: string;
+  entryFeeGEL: number;
+  requireActivationCode: boolean;
+}
+
+export interface ActivationCode {
+  code: string;
+  createdAt: string;
+  isUsed: boolean;
+  usedBy?: string;
+  usedAt?: string;
+}

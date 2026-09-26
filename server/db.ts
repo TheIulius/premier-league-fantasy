@@ -30,6 +30,21 @@ export interface ManagerProfile {
   joinedAt: string;
 }
 
+export interface PaymentSettings {
+  bogLink: string;
+  tbcLink: string;
+  entryFeeGEL: number;
+  requireActivationCode: boolean;
+}
+
+export interface ActivationCode {
+  code: string;
+  createdAt: string;
+  isUsed: boolean;
+  usedBy?: string;
+  usedAt?: string;
+}
+
 export interface DatabaseSchema {
   currentGW: number;
   players: Record<string, Player>;
@@ -38,6 +53,8 @@ export interface DatabaseSchema {
   leagues: League[];
   managers: Record<string, ManagerProfile>;
   users: Record<string, UserAccount>; // Keyed by user ID
+  paymentSettings?: PaymentSettings;
+  activationCodes?: ActivationCode[];
 }
 
 export function hashPassword(password: string, salt?: string): { hash: string; salt: string } {
@@ -108,6 +125,13 @@ function getDefaultData(): DatabaseSchema {
     users: {
       user_1: defaultUser,
     },
+    paymentSettings: {
+      bogLink: '',
+      tbcLink: '',
+      entryFeeGEL: 3,
+      requireActivationCode: false,
+    },
+    activationCodes: [],
   };
 }
 
@@ -125,6 +149,17 @@ class Database {
         this.data = JSON.parse(raw);
         if (!this.data.users) {
           this.data.users = {};
+        }
+        if (!this.data.paymentSettings) {
+          this.data.paymentSettings = {
+            bogLink: '',
+            tbcLink: '',
+            entryFeeGEL: 3,
+            requireActivationCode: false,
+          };
+        }
+        if (!Array.isArray(this.data.activationCodes)) {
+          this.data.activationCodes = [];
         }
         if (
           !this.data.clubs ||

@@ -1,4 +1,4 @@
-import { SquadPlayer, ChipType, PlayerStats, Fixture, Club } from '../types/fpl';
+import { SquadPlayer, ChipType, PlayerStats, Fixture, Club, PaymentSettings, ActivationCode } from '../types/fpl';
 
 const API_BASE = ''; // Same host (works for both local Vite proxy and production Express)
 
@@ -8,6 +8,7 @@ export async function authRegister(data: {
   password: string;
   managerName: string;
   teamName: string;
+  activationCode?: string;
 }) {
   const res = await fetch(`${API_BASE}/api/auth/register`, {
     method: 'POST',
@@ -391,6 +392,52 @@ export async function adminSaveMatchEventsApi(payload: {
   });
   const data = await res.json();
   if (!res.ok) throw new Error(data.error || 'Failed to save match events');
+  return data;
+}
+
+// Payment Settings & Charity Links
+export async function fetchPaymentSettingsApi(): Promise<PaymentSettings> {
+  const res = await fetch(`${API_BASE}/api/payment-settings`);
+  if (!res.ok) throw new Error('Failed to fetch payment settings');
+  return res.json();
+}
+
+export async function adminUpdatePaymentSettingsApi(settings: Partial<PaymentSettings>): Promise<{ success: boolean; settings: PaymentSettings }> {
+  const res = await fetch(`${API_BASE}/api/admin/payment-settings`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(settings),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Failed to update payment settings');
+  return data;
+}
+
+// 1-Time Activation Codes Management
+export async function adminFetchActivationCodesApi(): Promise<ActivationCode[]> {
+  const res = await fetch(`${API_BASE}/api/admin/activation-codes`);
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Failed to fetch activation codes');
+  return data.codes || [];
+}
+
+export async function adminGenerateActivationCodesApi(count: number = 1): Promise<{ success: boolean; codes: ActivationCode[]; allCodes: ActivationCode[] }> {
+  const res = await fetch(`${API_BASE}/api/admin/activation-codes/generate`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ count }),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Failed to generate activation codes');
+  return data;
+}
+
+export async function adminDeleteActivationCodeApi(code: string): Promise<{ success: boolean }> {
+  const res = await fetch(`${API_BASE}/api/admin/activation-codes/${encodeURIComponent(code)}`, {
+    method: 'DELETE',
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Failed to delete activation code');
   return data;
 }
 

@@ -9,6 +9,7 @@ import {
   Position,
   PlayerStats,
   Club,
+  PaymentSettings,
 } from '../types/fpl';
 import { SEED_PLAYERS, DEFAULT_SQUAD_PLAYER_IDS } from '../data/seedPlayers';
 import { SEED_FIXTURES, SEED_LEAGUES } from '../data/seedFixtures';
@@ -99,8 +100,10 @@ interface FPLContextType {
   isAuthModalOpen: boolean;
   setIsAuthModalOpen: (open: boolean) => void;
   loginUser: (login: string, pass: string) => Promise<void>;
-  registerUser: (data: { username: string; email?: string; password: string; managerName: string; teamName: string }) => Promise<void>;
+  registerUser: (data: { username: string; email?: string; password: string; managerName: string; teamName: string; activationCode?: string }) => Promise<void>;
   logoutUser: () => void;
+  paymentSettings: PaymentSettings;
+  updatePaymentSettings: (settings: Partial<PaymentSettings>) => Promise<{ success: boolean; settings: PaymentSettings }>;
   theme: 'dark' | 'light';
   setTheme: (theme: 'dark' | 'light') => void;
   toggleTheme: () => void;
@@ -319,9 +322,33 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       setDeadlineState(d);
     } catch (err) {
       console.error('Failed to set deadline:', err);
-      setDeadlineState(d);
     }
   }, []);
+
+  // Payment & Charity Links Settings
+  const [paymentSettings, setPaymentSettings] = useState<PaymentSettings>({
+    bogLink: '',
+    tbcLink: '',
+    entryFeeGEL: 3,
+    requireActivationCode: false,
+  });
+
+  const updatePaymentSettings = useCallback(async (settings: Partial<PaymentSettings>) => {
+    try {
+      const res = await api.adminUpdatePaymentSettingsApi(settings);
+      if (res && res.settings) {
+        setPaymentSettings(res.settings);
+        return res;
+      }
+      const updated = { ...paymentSettings, ...settings };
+      setPaymentSettings(updated);
+      return { success: true, settings: updated };
+    } catch (err: any) {
+      console.error('Failed to update payment settings:', err);
+      throw err;
+    }
+  }, [paymentSettings]);
+
 
   // Sync state from server API
   const refreshServerState = useCallback(async () => {
@@ -339,6 +366,7 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         if (data.currentGW) setCurrentGW(data.currentGW);
         if (data.managers) setAvailableManagers(data.managers);
         if (data.deadline !== undefined) setDeadlineState(data.deadline || null);
+        if (data.paymentSettings) setPaymentSettings(data.paymentSettings);
         if (data.activeManager) {
           setCurrentManager({
             id: data.activeManager.id,
@@ -558,6 +586,7 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     password: string;
     managerName: string;
     teamName: string;
+    activationCode?: string;
   }) => {
     const res = await api.authRegister(data);
     if (res.token && res.user) {
@@ -1439,6 +1468,8 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         loginUser,
         registerUser,
         logoutUser,
+        paymentSettings,
+        updatePaymentSettings,
         theme,
         setTheme,
         toggleTheme,
