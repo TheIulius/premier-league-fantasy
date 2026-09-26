@@ -5067,10 +5067,10 @@
               "webName": "Z. Gelashvili",
               "clubId": "SCH_10_5",
               "position": "DEF",
-              "isStarter": true,
-              "isCaptain": true,
+              "isStarter": false,
+              "isCaptain": false,
               "isViceCaptain": false,
-              "benchOrder": 0,
+              "benchOrder": 2,
               "points": 0
             },
             {
@@ -5089,10 +5089,10 @@
               "webName": "Gogichashvili",
               "clubId": "SCH_9_2",
               "position": "MID",
-              "isStarter": false,
-              "isCaptain": false,
+              "isStarter": true,
+              "isCaptain": true,
               "isViceCaptain": false,
-              "benchOrder": 2,
+              "benchOrder": 0,
               "points": 0
             },
             {
@@ -5760,9 +5760,9 @@
           },
           {
             "playerId": "p_10_5_gelashvili",
-            "isStarter": true,
-            "benchOrder": 0,
-            "isCaptain": true,
+            "isStarter": false,
+            "benchOrder": 2,
+            "isCaptain": false,
             "isViceCaptain": false
           },
           {
@@ -5774,9 +5774,9 @@
           },
           {
             "playerId": "p_9_2_gogichashvili",
-            "isStarter": false,
-            "benchOrder": 2,
-            "isCaptain": false,
+            "isStarter": true,
+            "benchOrder": 0,
+            "isCaptain": true,
             "isViceCaptain": false
           },
           {
