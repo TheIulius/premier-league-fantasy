@@ -6058,5 +6058,31 @@
     "entryFeeGEL": 3,
     "requireActivationCode": false
   },
-  "activationCodes": []
+  "activationCodes": [
+    {
+      "code": "KCL-T3LY",
+      "createdAt": "2026-09-26T10:49:38.680Z",
+      "isUsed": false
+    },
+    {
+      "code": "KCL-WCWB",
+      "createdAt": "2026-09-26T10:49:38.679Z",
+      "isUsed": false
+    },
+    {
+      "code": "KCL-6HXA",
+      "createdAt": "2026-09-26T10:49:38.679Z",
+      "isUsed": false
+    },
+    {
+      "code": "KCL-8GND",
+      "createdAt": "2026-09-26T10:49:38.679Z",
+      "isUsed": false
+    },
+    {
+      "code": "KCL-W2NE",
+      "createdAt": "2026-09-26T10:49:38.679Z",
+      "isUsed": false
+    }
+  ]
 }
