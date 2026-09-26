@@ -4072,7 +4072,8 @@
       "awayScore": null,
       "isFinished": false,
       "isLive": false,
-      "kickoffTime": "Matchday 2"
+      "kickoffTime": "Matchday 2",
+      "events": []
     },
     {
       "id": "fix_gw2_2",
@@ -4083,7 +4084,8 @@
       "awayScore": null,
       "isFinished": false,
       "isLive": false,
-      "kickoffTime": "Matchday 2"
+      "kickoffTime": "Matchday 2",
+      "events": []
     },
     {
       "id": "fix_gw2_3",
@@ -4094,7 +4096,8 @@
       "awayScore": null,
       "isFinished": false,
       "isLive": false,
-      "kickoffTime": "Matchday 2"
+      "kickoffTime": "Matchday 2",
+      "events": []
     },
     {
       "id": "fix_gw2_4",
@@ -4105,7 +4108,8 @@
       "awayScore": null,
       "isFinished": false,
       "isLive": false,
-      "kickoffTime": "Matchday 2"
+      "kickoffTime": "Matchday 2",
+      "events": []
     },
     {
       "id": "fix_gw2_5",
@@ -4116,7 +4120,8 @@
       "awayScore": null,
       "isFinished": false,
       "isLive": false,
-      "kickoffTime": "Matchday 2"
+      "kickoffTime": "Matchday 2",
+      "events": []
     },
     {
       "id": "fix_gw2_6",
@@ -4127,7 +4132,8 @@
       "awayScore": null,
       "isFinished": false,
       "isLive": false,
-      "kickoffTime": "Matchday 2"
+      "kickoffTime": "Matchday 2",
+      "events": []
     },
     {
       "id": "fix_gw2_7",
@@ -4138,7 +4144,8 @@
       "awayScore": null,
       "isFinished": false,
       "isLive": false,
-      "kickoffTime": "Matchday 2"
+      "kickoffTime": "Matchday 2",
+      "events": []
     },
     {
       "id": "fix_gw2_8",
@@ -4149,7 +4156,8 @@
       "awayScore": null,
       "isFinished": false,
       "isLive": false,
-      "kickoffTime": "Matchday 2"
+      "kickoffTime": "Matchday 2",
+      "events": []
     },
     {
       "id": "fix_gw2_9",
@@ -4160,7 +4168,8 @@
       "awayScore": null,
       "isFinished": false,
       "isLive": false,
-      "kickoffTime": "Matchday 2"
+      "kickoffTime": "Matchday 2",
+      "events": []
     },
     {
       "id": "fix_gw2_10",
@@ -4171,7 +4180,8 @@
       "awayScore": null,
       "isFinished": false,
       "isLive": false,
-      "kickoffTime": "Matchday 2"
+      "kickoffTime": "Matchday 2",
+      "events": []
     },
     {
       "id": "fix_gw2_11",
@@ -4182,7 +4192,8 @@
       "awayScore": null,
       "isFinished": false,
       "isLive": false,
-      "kickoffTime": "Matchday 2"
+      "kickoffTime": "Matchday 2",
+      "events": []
     },
     {
       "id": "fix_gw2_12",
@@ -4193,7 +4204,8 @@
       "awayScore": null,
       "isFinished": false,
       "isLive": false,
-      "kickoffTime": "Matchday 2"
+      "kickoffTime": "Matchday 2",
+      "events": []
     },
     {
       "id": "fix_gw2_13",
@@ -4204,7 +4216,8 @@
       "awayScore": null,
       "isFinished": false,
       "isLive": false,
-      "kickoffTime": "Matchday 2"
+      "kickoffTime": "Matchday 2",
+      "events": []
     },
     {
       "id": "fix_gw2_14",
@@ -4215,7 +4228,8 @@
       "awayScore": null,
       "isFinished": false,
       "isLive": false,
-      "kickoffTime": "Matchday 2"
+      "kickoffTime": "Matchday 2",
+      "events": []
     },
     {
       "id": "fix_gw3_1",
@@ -4226,7 +4240,8 @@
       "awayScore": null,
       "isFinished": false,
       "isLive": false,
-      "kickoffTime": "Matchday 3"
+      "kickoffTime": "Matchday 3",
+      "events": []
     },
     {
       "id": "fix_gw3_2",
@@ -4237,7 +4252,8 @@
       "awayScore": null,
       "isFinished": false,
       "isLive": false,
-      "kickoffTime": "Matchday 3"
+      "kickoffTime": "Matchday 3",
+      "events": []
     },
     {
       "id": "fix_gw3_3",
@@ -4248,7 +4264,8 @@
       "awayScore": null,
       "isFinished": false,
       "isLive": false,
-      "kickoffTime": "Matchday 3"
+      "kickoffTime": "Matchday 3",
+      "events": []
     },
     {
       "id": "fix_gw3_4",
@@ -4259,7 +4276,8 @@
       "awayScore": null,
       "isFinished": false,
       "isLive": false,
-      "kickoffTime": "Matchday 3"
+      "kickoffTime": "Matchday 3",
+      "events": []
     },
     {
       "id": "fix_gw3_5",
@@ -4270,7 +4288,8 @@
       "awayScore": null,
       "isFinished": false,
       "isLive": false,
-      "kickoffTime": "Matchday 3"
+      "kickoffTime": "Matchday 3",
+      "events": []
     },
     {
       "id": "fix_gw3_6",
@@ -4281,7 +4300,8 @@
       "awayScore": null,
       "isFinished": false,
       "isLive": false,
-      "kickoffTime": "Matchday 3"
+      "kickoffTime": "Matchday 3",
+      "events": []
     },
     {
       "id": "fix_gw3_7",
@@ -4292,7 +4312,8 @@
       "awayScore": null,
       "isFinished": false,
       "isLive": false,
-      "kickoffTime": "Matchday 3"
+      "kickoffTime": "Matchday 3",
+      "events": []
     },
     {
       "id": "fix_gw3_8",
@@ -4303,7 +4324,8 @@
       "awayScore": null,
       "isFinished": false,
       "isLive": false,
-      "kickoffTime": "Matchday 3"
+      "kickoffTime": "Matchday 3",
+      "events": []
     },
     {
       "id": "fix_gw3_9",
@@ -4314,7 +4336,8 @@
       "awayScore": null,
       "isFinished": false,
       "isLive": false,
-      "kickoffTime": "Matchday 3"
+      "kickoffTime": "Matchday 3",
+      "events": []
     },
     {
       "id": "fix_gw3_10",
@@ -4325,7 +4348,8 @@
       "awayScore": null,
       "isFinished": false,
       "isLive": false,
-      "kickoffTime": "Matchday 3"
+      "kickoffTime": "Matchday 3",
+      "events": []
     },
     {
       "id": "fix_gw3_11",
@@ -4336,7 +4360,8 @@
       "awayScore": null,
       "isFinished": false,
       "isLive": false,
-      "kickoffTime": "Matchday 3"
+      "kickoffTime": "Matchday 3",
+      "events": []
     },
     {
       "id": "fix_gw3_12",
@@ -4347,7 +4372,8 @@
       "awayScore": null,
       "isFinished": false,
       "isLive": false,
-      "kickoffTime": "Matchday 3"
+      "kickoffTime": "Matchday 3",
+      "events": []
     },
     {
       "id": "fix_gw3_13",
@@ -4358,7 +4384,8 @@
       "awayScore": null,
       "isFinished": false,
       "isLive": false,
-      "kickoffTime": "Matchday 3"
+      "kickoffTime": "Matchday 3",
+      "events": []
     },
     {
       "id": "fix_gw3_14",
@@ -4369,7 +4396,8 @@
       "awayScore": null,
       "isFinished": false,
       "isLive": false,
-      "kickoffTime": "Matchday 3"
+      "kickoffTime": "Matchday 3",
+      "events": []
     },
     {
       "id": "fix_gw4_1",
@@ -4380,7 +4408,8 @@
       "awayScore": null,
       "isFinished": false,
       "isLive": false,
-      "kickoffTime": "Matchday 4"
+      "kickoffTime": "Matchday 4",
+      "events": []
     },
     {
       "id": "fix_gw4_2",
@@ -4391,7 +4420,8 @@
       "awayScore": null,
       "isFinished": false,
       "isLive": false,
-      "kickoffTime": "Matchday 4"
+      "kickoffTime": "Matchday 4",
+      "events": []
     },
     {
       "id": "fix_gw4_3",
@@ -4402,7 +4432,8 @@
       "awayScore": null,
       "isFinished": false,
       "isLive": false,
-      "kickoffTime": "Matchday 4"
+      "kickoffTime": "Matchday 4",
+      "events": []
     },
     {
       "id": "fix_gw4_4",
@@ -4413,7 +4444,8 @@
       "awayScore": null,
       "isFinished": false,
       "isLive": false,
-      "kickoffTime": "Matchday 4"
+      "kickoffTime": "Matchday 4",
+      "events": []
     },
     {
       "id": "fix_gw4_5",
@@ -4424,7 +4456,8 @@
       "awayScore": null,
       "isFinished": false,
       "isLive": false,
-      "kickoffTime": "Matchday 4"
+      "kickoffTime": "Matchday 4",
+      "events": []
     },
     {
       "id": "fix_gw4_6",
@@ -4435,7 +4468,8 @@
       "awayScore": null,
       "isFinished": false,
       "isLive": false,
-      "kickoffTime": "Matchday 4"
+      "kickoffTime": "Matchday 4",
+      "events": []
     },
     {
       "id": "fix_gw4_7",
@@ -4446,7 +4480,8 @@
       "awayScore": null,
       "isFinished": false,
       "isLive": false,
-      "kickoffTime": "Matchday 4"
+      "kickoffTime": "Matchday 4",
+      "events": []
     },
     {
       "id": "fix_gw4_8",
@@ -4457,7 +4492,8 @@
       "awayScore": null,
       "isFinished": false,
       "isLive": false,
-      "kickoffTime": "Matchday 4"
+      "kickoffTime": "Matchday 4",
+      "events": []
     },
     {
       "id": "fix_gw4_9",
@@ -4468,7 +4504,8 @@
       "awayScore": null,
       "isFinished": false,
       "isLive": false,
-      "kickoffTime": "Matchday 4"
+      "kickoffTime": "Matchday 4",
+      "events": []
     },
     {
       "id": "fix_gw4_10",
@@ -4479,7 +4516,8 @@
       "awayScore": null,
       "isFinished": false,
       "isLive": false,
-      "kickoffTime": "Matchday 4"
+      "kickoffTime": "Matchday 4",
+      "events": []
     },
     {
       "id": "fix_gw4_11",
@@ -4490,7 +4528,8 @@
       "awayScore": null,
       "isFinished": false,
       "isLive": false,
-      "kickoffTime": "Matchday 4"
+      "kickoffTime": "Matchday 4",
+      "events": []
     },
     {
       "id": "fix_gw4_12",
@@ -4501,7 +4540,8 @@
       "awayScore": null,
       "isFinished": false,
       "isLive": false,
-      "kickoffTime": "Matchday 4"
+      "kickoffTime": "Matchday 4",
+      "events": []
     },
     {
       "id": "fix_gw4_13",
@@ -4512,7 +4552,8 @@
       "awayScore": null,
       "isFinished": false,
       "isLive": false,
-      "kickoffTime": "Matchday 4"
+      "kickoffTime": "Matchday 4",
+      "events": []
     },
     {
       "id": "fix_gw4_14",
@@ -4523,7 +4564,8 @@
       "awayScore": null,
       "isFinished": false,
       "isLive": false,
-      "kickoffTime": "Matchday 4"
+      "kickoffTime": "Matchday 4",
+      "events": []
     }
   ],
   "leagues": [
@@ -5007,19 +5049,8 @@
           "gwPoints": 0,
           "rank": 8,
           "previousRank": 8,
-          "activeChip": "bench_boost",
+          "activeChip": null,
           "lineup": [
-            {
-              "playerId": "p_9_2_yvavadze",
-              "webName": "Yvavadze",
-              "clubId": "SCH_9_2",
-              "position": "GKP",
-              "isStarter": true,
-              "isCaptain": false,
-              "isViceCaptain": false,
-              "benchOrder": 0,
-              "points": 0
-            },
             {
               "playerId": "p_zarno",
               "webName": "Zarno",
@@ -5029,83 +5060,6 @@
               "isCaptain": true,
               "isViceCaptain": false,
               "benchOrder": 0,
-              "points": 0
-            },
-            {
-              "playerId": "p_dito",
-              "webName": "Dito",
-              "clubId": "SCH_11_5",
-              "position": "DEF",
-              "isStarter": true,
-              "isCaptain": false,
-              "isViceCaptain": true,
-              "benchOrder": 0,
-              "points": 0
-            },
-            {
-              "playerId": "p_giorguna",
-              "webName": "Giorguna",
-              "clubId": "SCH_11_1",
-              "position": "MID",
-              "isStarter": true,
-              "isCaptain": false,
-              "isViceCaptain": false,
-              "benchOrder": 0,
-              "points": 0
-            },
-            {
-              "playerId": "p_9_1_papuashvili",
-              "webName": "Papuashvili",
-              "clubId": "SCH_9_1",
-              "position": "MID",
-              "isStarter": true,
-              "isCaptain": false,
-              "isViceCaptain": false,
-              "benchOrder": 0,
-              "points": 0
-            },
-            {
-              "playerId": "p_tarkashvili",
-              "webName": "Tarkashvili",
-              "clubId": "SCH_11_1",
-              "position": "FWD",
-              "isStarter": true,
-              "isCaptain": false,
-              "isViceCaptain": false,
-              "benchOrder": 0,
-              "points": 0
-            },
-            {
-              "playerId": "p_9_1_kikolashvili",
-              "webName": "Kikolashvili",
-              "clubId": "SCH_9_1",
-              "position": "DEF",
-              "isStarter": false,
-              "isCaptain": false,
-              "isViceCaptain": false,
-              "benchOrder": 1,
-              "points": 0
-            },
-            {
-              "playerId": "p_9_2_laliashvili",
-              "webName": "Laliashvili",
-              "clubId": "SCH_9_2",
-              "position": "MID",
-              "isStarter": false,
-              "isCaptain": false,
-              "isViceCaptain": false,
-              "benchOrder": 2,
-              "points": 0
-            },
-            {
-              "playerId": "p_9_3_chiviashvili",
-              "webName": "Chiviashvili",
-              "clubId": "SCH_9_3",
-              "position": "FWD",
-              "isStarter": false,
-              "isCaptain": false,
-              "isViceCaptain": false,
-              "benchOrder": 3,
               "points": 0
             }
           ]
@@ -5129,7 +5083,7 @@
         "usedChips": {
           "triple_captain": false,
           "bench_boost": false,
-          "free_hit": false
+          "wildcard": false
         }
       },
       "joinedAt": "2026-09-20T18:46:31.883Z"
@@ -5149,7 +5103,7 @@
         "usedChips": {
           "triple_captain": false,
           "bench_boost": false,
-          "free_hit": false
+          "wildcard": false
         }
       },
       "joinedAt": "2026-09-20T18:46:38.559Z"
@@ -5226,7 +5180,7 @@
         "usedChips": {
           "triple_captain": false,
           "bench_boost": false,
-          "free_hit": false
+          "wildcard": false
         }
       },
       "joinedAt": "2026-09-23T16:19:27.106Z"
@@ -5310,7 +5264,7 @@
         "usedChips": {
           "triple_captain": false,
           "bench_boost": false,
-          "free_hit": false
+          "wildcard": false
         }
       },
       "joinedAt": "2026-09-23T18:33:34.834Z"
@@ -5330,7 +5284,7 @@
         "usedChips": {
           "triple_captain": false,
           "bench_boost": false,
-          "free_hit": false
+          "wildcard": false
         }
       },
       "joinedAt": "2026-09-23T20:14:59.585Z"
@@ -5414,7 +5368,7 @@
         "usedChips": {
           "triple_captain": false,
           "bench_boost": false,
-          "free_hit": false
+          "wildcard": false
         }
       },
       "joinedAt": "2026-09-24T15:28:26.423Z"
@@ -5493,12 +5447,11 @@
         ],
         "bank": 8.4,
         "freeTransfers": 1,
-        "transfersMadeThisGW": 3,
+        "transfersMadeThisGW": 0,
         "activeChip": null,
         "usedChips": {
           "triple_captain": false,
           "bench_boost": false,
-          "free_hit": false,
           "wildcard": false
         }
       },
@@ -5513,77 +5466,20 @@
         "managerName": "Nika",
         "players": [
           {
-            "playerId": "p_9_2_yvavadze",
-            "isStarter": true,
-            "benchOrder": 0,
-            "isCaptain": false,
-            "isViceCaptain": false
-          },
-          {
             "playerId": "p_zarno",
             "isStarter": true,
             "benchOrder": 0,
             "isCaptain": true,
             "isViceCaptain": false
-          },
-          {
-            "playerId": "p_dito",
-            "isStarter": true,
-            "benchOrder": 0,
-            "isCaptain": false,
-            "isViceCaptain": true
-          },
-          {
-            "playerId": "p_giorguna",
-            "isStarter": true,
-            "benchOrder": 0,
-            "isCaptain": false,
-            "isViceCaptain": false
-          },
-          {
-            "playerId": "p_9_1_papuashvili",
-            "isStarter": true,
-            "benchOrder": 0,
-            "isCaptain": false,
-            "isViceCaptain": false
-          },
-          {
-            "playerId": "p_tarkashvili",
-            "isStarter": true,
-            "benchOrder": 0,
-            "isCaptain": false,
-            "isViceCaptain": false
-          },
-          {
-            "playerId": "p_9_1_kikolashvili",
-            "isStarter": false,
-            "benchOrder": 1,
-            "isCaptain": false,
-            "isViceCaptain": false
-          },
-          {
-            "playerId": "p_9_2_laliashvili",
-            "isStarter": false,
-            "benchOrder": 2,
-            "isCaptain": false,
-            "isViceCaptain": false
-          },
-          {
-            "playerId": "p_9_3_chiviashvili",
-            "isStarter": false,
-            "benchOrder": 3,
-            "isCaptain": false,
-            "isViceCaptain": false
           }
         ],
-        "bank": 9,
+        "bank": 53.5,
         "freeTransfers": 1,
         "transfersMadeThisGW": 0,
-        "activeChip": "bench_boost",
+        "activeChip": null,
         "usedChips": {
           "triple_captain": false,
           "bench_boost": false,
-          "free_hit": false,
           "wildcard": false
         }
       },
