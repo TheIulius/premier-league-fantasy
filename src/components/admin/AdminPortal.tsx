@@ -49,10 +49,14 @@ import {
   Copy,
   UserCheck,
   UserX,
+  UserPlus,
 } from 'lucide-react';
 import {
   adminFetchUsersApi,
   adminApproveUserApi,
+  adminCreateUserApi,
+  adminDeleteUserApi,
+  adminResetUserEverythingApi,
   adminResetPasswordApi,
   adminExportDbUrl,
   adminImportDbApi,
@@ -132,6 +136,18 @@ export const AdminPortal: React.FC = () => {
   const [newPasswordInput, setNewPasswordInput] = useState('');
   const [isResettingPass, setIsResettingPass] = useState(false);
   const [approvingUserId, setApprovingUserId] = useState<string | null>(null);
+  const [actionInProgressUserId, setActionInProgressUserId] = useState<string | null>(null);
+
+  // Add New User Form State
+  const [isAddUserOpen, setIsAddUserOpen] = useState(false);
+  const [newUsername, setNewUsername] = useState('');
+  const [newManagerName, setNewManagerName] = useState('');
+  const [newTeamName, setNewTeamName] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [newEmail, setNewEmail] = useState('');
+  const [newRole, setNewRole] = useState<'user' | 'admin'>('user');
+  const [newIsApproved, setNewIsApproved] = useState(true);
+  const [isCreatingUser, setIsCreatingUser] = useState(false);
 
   // Settings: Database Sync state
   const [githubToken, setGithubToken] = useState<string>(() => {
@@ -288,6 +304,93 @@ export const AdminPortal: React.FC = () => {
       alert(err?.message || 'Failed to reset password');
     } finally {
       setIsResettingPass(false);
+    }
+  };
+
+  const handleCreateUser = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newUsername.trim() || !newManagerName.trim() || !newTeamName.trim() || !newPassword.trim()) {
+      alert('Please fill in username, manager name, team name, and password.');
+      return;
+    }
+    if (newPassword.trim().length < 4) {
+      alert('Password must be at least 4 characters long.');
+      return;
+    }
+
+    setIsCreatingUser(true);
+    try {
+      const res = await adminCreateUserApi({
+        username: newUsername.trim(),
+        password: newPassword.trim(),
+        managerName: newManagerName.trim(),
+        teamName: newTeamName.trim(),
+        email: newEmail.trim() || undefined,
+        isApproved: newIsApproved,
+        role: newRole,
+      });
+
+      if (res.success) {
+        confetti({ particleCount: 45, spread: 65, origin: { y: 0.6 } });
+        showNotification(res.message || `Manager @${newUsername} created!`);
+        setIsAddUserOpen(false);
+        setNewUsername('');
+        setNewManagerName('');
+        setNewTeamName('');
+        setNewPassword('');
+        setNewEmail('');
+        setNewIsApproved(true);
+        setNewRole('user');
+        loadUsers();
+      }
+    } catch (err: any) {
+      alert(err?.message || 'Failed to create user.');
+    } finally {
+      setIsCreatingUser(false);
+    }
+  };
+
+  const handleDeleteUser = async (userId: string, username: string, managerName: string) => {
+    if (username === 'theiulius' || username === 'chaga') {
+      alert('Cannot delete protected moderator account.');
+      return;
+    }
+    const confirmed = window.confirm(
+      `⚠️ PERMANENT DELETE\n\nAre you sure you want to permanently delete manager @${username} (${managerName}) and remove their team from all leagues?\n\nThis cannot be undone.`
+    );
+    if (!confirmed) return;
+
+    setActionInProgressUserId(userId);
+    try {
+      const res = await adminDeleteUserApi(userId, username);
+      if (res.success) {
+        showNotification(res.message || `Deleted user @${username}`);
+        setUsersList((prev) => prev.filter((u) => u.id !== userId));
+      }
+    } catch (err: any) {
+      alert(err?.message || 'Failed to delete user.');
+    } finally {
+      setActionInProgressUserId(null);
+    }
+  };
+
+  const handleResetUserEverything = async (userId: string, username: string, managerName: string) => {
+    const confirmed = window.confirm(
+      `🔄 FULL RESET FOR @${username} (${managerName})\n\nThis will:\n1. Wipe their squad completely to 0 players\n2. Reset budget back to £60.0m\n3. Reset all chips and transfers\n4. Reset points and league lineups to 0\n\nProceed with reset?`
+    );
+    if (!confirmed) return;
+
+    setActionInProgressUserId(userId);
+    try {
+      const res = await adminResetUserEverythingApi(userId);
+      if (res.success) {
+        showNotification(res.message || `Reset everything for @${username}`);
+        loadUsers();
+      }
+    } catch (err: any) {
+      alert(err?.message || 'Failed to reset user.');
+    } finally {
+      setActionInProgressUserId(null);
     }
   };
 
@@ -1219,15 +1322,140 @@ export const AdminPortal: React.FC = () => {
                     </span>
                   )}
                 </div>
-                <button
-                  onClick={loadUsers}
-                  disabled={isLoadingUsers}
-                  className="p-1 text-zinc-400 hover:text-white cursor-pointer"
-                  title="Refresh User List"
-                >
-                  <RefreshCw className={`w-4 h-4 ${isLoadingUsers ? 'animate-spin' : ''}`} />
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setIsAddUserOpen((prev) => !prev)}
+                    className="px-2.5 py-1 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/25 text-xs font-bold transition-colors flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <UserPlus className="w-3.5 h-3.5" />
+                    <span>{isAddUserOpen ? 'Close' : 'Add Manager'}</span>
+                  </button>
+                  <button
+                    onClick={loadUsers}
+                    disabled={isLoadingUsers}
+                    className="p-1 text-zinc-400 hover:text-white cursor-pointer"
+                    title="Refresh User List"
+                  >
+                    <RefreshCw className={`w-4 h-4 ${isLoadingUsers ? 'animate-spin' : ''}`} />
+                  </button>
+                </div>
               </div>
+
+              {/* Add New User Collapsible Form */}
+              {isAddUserOpen && (
+                <form
+                  onSubmit={handleCreateUser}
+                  className="p-4 rounded-2xl bg-zinc-950 border border-emerald-500/30 space-y-3 animate-fade-in text-xs"
+                >
+                  <div className="flex items-center justify-between pb-2 border-b border-white/10">
+                    <span className="font-extrabold text-white flex items-center gap-2">
+                      <UserPlus className="w-4 h-4 text-emerald-400" />
+                      Create New Manager Account
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setIsAddUserOpen(false)}
+                      className="text-zinc-500 hover:text-white cursor-pointer"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    <div>
+                      <label className="text-[10px] text-zinc-400 font-bold block mb-1">Username (@)</label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="e.g. gio_fpl"
+                        value={newUsername}
+                        onChange={(e) => setNewUsername(e.target.value)}
+                        className="w-full bg-zinc-900 border border-white/10 rounded-lg px-2.5 py-1.5 text-white font-mono text-xs outline-none focus:border-emerald-500/50"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10px] text-zinc-400 font-bold block mb-1">Manager Full Name</label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="e.g. Giorgi Samada"
+                        value={newManagerName}
+                        onChange={(e) => setNewManagerName(e.target.value)}
+                        className="w-full bg-zinc-900 border border-white/10 rounded-lg px-2.5 py-1.5 text-white text-xs outline-none focus:border-emerald-500/50"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10px] text-zinc-400 font-bold block mb-1">Team Name</label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="e.g. FC Saburtalo"
+                        value={newTeamName}
+                        onChange={(e) => setNewTeamName(e.target.value)}
+                        className="w-full bg-zinc-900 border border-white/10 rounded-lg px-2.5 py-1.5 text-white text-xs outline-none focus:border-emerald-500/50"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10px] text-zinc-400 font-bold block mb-1">Password</label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="min 4 characters"
+                        value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                        className="w-full bg-zinc-900 border border-white/10 rounded-lg px-2.5 py-1.5 text-white font-mono text-xs outline-none focus:border-emerald-500/50"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10px] text-zinc-400 font-bold block mb-1">Email (Optional)</label>
+                      <input
+                        type="email"
+                        placeholder="optional email"
+                        value={newEmail}
+                        onChange={(e) => setNewEmail(e.target.value)}
+                        className="w-full bg-zinc-900 border border-white/10 rounded-lg px-2.5 py-1.5 text-white text-xs outline-none focus:border-emerald-500/50"
+                      />
+                    </div>
+                    <div className="flex items-center gap-4 pt-4">
+                      <label className="flex items-center gap-1.5 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={newIsApproved}
+                          onChange={(e) => setNewIsApproved(e.target.checked)}
+                          className="rounded accent-emerald-500"
+                        />
+                        <span className="text-zinc-300 font-bold text-[11px]">Approved Immediately</span>
+                      </label>
+                      <label className="flex items-center gap-1.5 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={newRole === 'admin'}
+                          onChange={(e) => setNewRole(e.target.checked ? 'admin' : 'user')}
+                          className="rounded accent-purple-500"
+                        />
+                        <span className="text-purple-300 font-bold text-[11px]">Admin Privileges</span>
+                      </label>
+                    </div>
+                  </div>
+                  <div className="flex justify-end gap-2 pt-2 border-t border-white/10">
+                    <button
+                      type="button"
+                      onClick={() => setIsAddUserOpen(false)}
+                      className="px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white cursor-pointer"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={isCreatingUser}
+                      className="px-4 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs shadow-md transition-all disabled:opacity-50 cursor-pointer flex items-center gap-1.5"
+                    >
+                      <UserPlus className="w-3.5 h-3.5" />
+                      <span>{isCreatingUser ? 'Creating...' : 'Create Account'}</span>
+                    </button>
+                  </div>
+                </form>
+              )}
 
               {/* Pending Approvals Queue Banner */}
               {(() => {
@@ -1257,15 +1485,26 @@ export const AdminPortal: React.FC = () => {
                               {u.email && <span>• {u.email}</span>}
                             </div>
                           </div>
-                          <button
-                            type="button"
-                            onClick={() => handleToggleApproval(u.id, u.username, true)}
-                            disabled={approvingUserId === u.id}
-                            className="px-3 py-1.5 rounded-xl font-black text-[11px] uppercase tracking-wider bg-emerald-500 hover:bg-emerald-400 text-slate-950 shadow-md transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50 shrink-0"
-                          >
-                            <UserCheck className="w-3.5 h-3.5" />
-                            <span>{approvingUserId === u.id ? 'Approving...' : 'Approve Manager'}</span>
-                          </button>
+                          <div className="flex items-center gap-1.5">
+                            <button
+                              type="button"
+                              onClick={() => handleToggleApproval(u.id, u.username, true)}
+                              disabled={approvingUserId === u.id}
+                              className="px-3 py-1.5 rounded-xl font-black text-[11px] uppercase tracking-wider bg-emerald-500 hover:bg-emerald-400 text-slate-950 shadow-md transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50 shrink-0"
+                            >
+                              <UserCheck className="w-3.5 h-3.5" />
+                              <span>{approvingUserId === u.id ? 'Approving...' : 'Approve Manager'}</span>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteUser(u.id, u.username, u.managerName)}
+                              disabled={actionInProgressUserId === u.id}
+                              className="p-1.5 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 hover:bg-rose-500/20 hover:text-rose-300 transition-colors cursor-pointer"
+                              title="Delete application"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
                         </div>
                       ))}
                     </div>
@@ -1362,15 +1601,41 @@ export const AdminPortal: React.FC = () => {
                           )
                         )}
 
+                        {/* Reset Password */}
                         <button
                           onClick={() => {
                             setResetTargetUser(u.username);
                             setNewPasswordInput('');
                           }}
                           className="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] font-bold text-zinc-300 hover:text-white cursor-pointer"
+                          title="Reset Password"
                         >
                           PW
                         </button>
+
+                        {/* Reset User Everything (Squad, Points, Chips) */}
+                        <button
+                          type="button"
+                          onClick={() => handleResetUserEverything(u.id, u.username, u.managerName)}
+                          disabled={actionInProgressUserId === u.id}
+                          className="p-1.5 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-400 hover:bg-amber-500/20 hover:text-amber-300 transition-colors cursor-pointer"
+                          title={`Reset everything for @${u.username} (lineup to 0, bank to £60m, chips and points reset)`}
+                        >
+                          <RotateCcw className={`w-3 h-3 ${actionInProgressUserId === u.id ? 'animate-spin' : ''}`} />
+                        </button>
+
+                        {/* Delete User Account */}
+                        {!isUserAdm && (
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteUser(u.id, u.username, u.managerName)}
+                            disabled={actionInProgressUserId === u.id}
+                            className="p-1.5 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-400 hover:bg-rose-500/20 hover:text-rose-300 transition-colors cursor-pointer"
+                            title={`Delete @${u.username} permanently`}
+                          >
+                            <Trash2 className="w-3 h-3" />
+                          </button>
+                        )}
                       </div>
                     </div>
                   );

@@ -319,6 +319,47 @@ export async function adminApproveUserApi(target: { userId?: string; username?: 
   return data;
 }
 
+export async function adminCreateUserApi(payload: {
+  username: string;
+  password: string;
+  managerName: string;
+  teamName: string;
+  email?: string;
+  isApproved?: boolean;
+  role?: 'admin' | 'user';
+}) {
+  const res = await fetch(`${API_BASE}/api/admin/user/create`, {
+    method: 'POST',
+    headers: getAuthHeaders(),
+    body: JSON.stringify(payload),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Failed to create user');
+  return data;
+}
+
+export async function adminDeleteUserApi(userId: string, username?: string) {
+  const res = await fetch(`${API_BASE}/api/admin/user/delete`, {
+    method: 'POST',
+    headers: getAuthHeaders(),
+    body: JSON.stringify({ userId, username }),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Failed to delete user');
+  return data;
+}
+
+export async function adminResetUserEverythingApi(userId: string, newPassword?: string) {
+  const res = await fetch(`${API_BASE}/api/admin/user/reset`, {
+    method: 'POST',
+    headers: getAuthHeaders(),
+    body: JSON.stringify({ userId, newPassword }),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Failed to reset user');
+  return data;
+}
+
 export const adminExportDbUrl = `${API_BASE}/api/admin/db/export`;
 
 export async function adminImportDbApi(dbData: any) {

@@ -1552,6 +1552,224 @@ app.post('/api/admin/user/reset-password', (req: Request, res: Response) => {
   });
 });
 
+// 11f. Developer Admin: Add New User Account
+app.post('/api/admin/user/create', (req: Request, res: Response) => {
+  const { username, password, managerName, teamName, email, isApproved, role } = req.body;
+  if (!username || !password || !managerName || !teamName) {
+    return res.status(400).json({ error: 'Username, password, manager name and team name are required.' });
+  }
+  if (password.length < 4) {
+    return res.status(400).json({ error: 'Password must be at least 4 characters long.' });
+  }
+
+  const data = db.getData();
+  if (!data.users) data.users = {};
+  if (!data.managers) data.managers = {};
+
+  const cleanUser = username.trim().toLowerCase();
+  const cleanEmail = (email || `${cleanUser}@fantasy.pl`).trim().toLowerCase();
+
+  const existing = Object.values(data.users).find(
+    (u) => u.username.toLowerCase() === cleanUser || (u.email && u.email.toLowerCase() === cleanEmail)
+  );
+  if (existing) {
+    return res.status(400).json({ error: `Username "${cleanUser}" or email is already taken.` });
+  }
+
+  const id = 'user_' + Date.now();
+  const pwd = hashPassword(password);
+  const isAdm = role === 'admin' || isUserAdmin(cleanUser);
+  const approved = isAdm || (typeof isApproved === 'boolean' ? isApproved : true);
+
+  const newUser: UserAccount = {
+    id,
+    username: cleanUser,
+    email: cleanEmail,
+    passwordHash: pwd.hash,
+    salt: pwd.salt,
+    managerName: managerName.trim(),
+    teamName: teamName.trim(),
+    createdAt: new Date().toISOString(),
+    role: isAdm ? 'admin' : 'user',
+    isAdmin: isAdm,
+    isApproved: approved,
+  };
+
+  const newManager: ManagerProfile = {
+    id,
+    managerName: managerName.trim(),
+    teamName: teamName.trim(),
+    squad: {
+      teamName: teamName.trim(),
+      managerName: managerName.trim(),
+      players: [],
+      bank: 60.0,
+      freeTransfers: 1,
+      transfersMadeThisGW: 0,
+      activeChip: null,
+      usedChips: { triple_captain: false, bench_boost: false, wildcard: false },
+    },
+    joinedAt: new Date().toISOString(),
+  };
+
+  data.users[id] = newUser;
+  data.managers[id] = newManager;
+
+  // Add to Global League
+  const globalLeague = data.leagues?.find((l) => l.isGlobal);
+  if (globalLeague) {
+    globalLeague.members.push({
+      id,
+      managerName: newManager.managerName,
+      teamName: newManager.teamName,
+      totalPoints: 0,
+      gwPoints: 0,
+      rank: globalLeague.members.length + 1,
+      previousRank: globalLeague.members.length + 1,
+    });
+  }
+
+  db.save();
+  scheduleAutoSyncToGitHub(`Admin created user @${cleanUser}`);
+
+  res.json({
+    success: true,
+    message: `Account for @${cleanUser} (${newManager.managerName}) created successfully!`,
+    user: {
+      id: newUser.id,
+      username: newUser.username,
+      managerName: newUser.managerName,
+      teamName: newUser.teamName,
+      email: newUser.email,
+      role: newUser.role,
+      isAdmin: newUser.isAdmin,
+      isApproved: newUser.isApproved,
+    },
+  });
+});
+
+// 11g. Developer Admin: Remove User Account
+app.post('/api/admin/user/delete', (req: Request, res: Response) => {
+  const { userId, username } = req.body;
+  const data = db.getData();
+  if (!data.users) data.users = {};
+
+  const clean = (username || '').trim().toLowerCase();
+  const user = Object.values(data.users).find(
+    (u) => (userId && u.id === userId) || (clean && u.username.toLowerCase() === clean)
+  );
+
+  if (!user) {
+    return res.status(404).json({ error: 'User not found.' });
+  }
+
+  if (isUserAdmin(user.username) || user.username === 'theiulius' || user.username === 'chaga') {
+    return res.status(403).json({ error: `Cannot delete protected moderator account @${user.username}.` });
+  }
+
+  const targetId = user.id;
+  const targetUsername = user.username;
+
+  // 1. Delete user
+  delete data.users[targetId];
+
+  // 2. Delete manager
+  if (data.managers) {
+    delete data.managers[targetId];
+  }
+
+  // 3. Remove from all leagues
+  if (data.leagues) {
+    data.leagues.forEach((l) => {
+      if (l.members) {
+        l.members = l.members.filter((m) => m.id !== targetId);
+      }
+    });
+  }
+
+  db.save();
+  scheduleAutoSyncToGitHub(`Admin deleted user @${targetUsername}`);
+
+  res.json({
+    success: true,
+    message: `User @${targetUsername} has been permanently deleted.`,
+  });
+});
+
+// 11h. Developer Admin: Reset User's Everything (Squad, Points, Chips, Transfers)
+app.post('/api/admin/user/reset', (req: Request, res: Response) => {
+  const { userId, username, newPassword } = req.body;
+  const data = db.getData();
+  if (!data.users) data.users = {};
+
+  const clean = (username || '').trim().toLowerCase();
+  const user = Object.values(data.users).find(
+    (u) => (userId && u.id === userId) || (clean && u.username.toLowerCase() === clean)
+  );
+
+  if (!user) {
+    return res.status(404).json({ error: 'User not found.' });
+  }
+
+  const targetId = user.id;
+
+  // 1. Reset Manager profile & squad
+  if (data.managers && data.managers[targetId]) {
+    const m = data.managers[targetId];
+    m.teamName = user.teamName;
+    m.managerName = user.managerName;
+    m.squad = {
+      teamName: user.teamName,
+      managerName: user.managerName,
+      players: [],
+      bank: 60.0,
+      freeTransfers: 1,
+      transfersMadeThisGW: 0,
+      activeChip: null,
+      usedChips: {
+        triple_captain: false,
+        bench_boost: false,
+        wildcard: false,
+      },
+    };
+  }
+
+  // 2. Reset points and lineup in all leagues
+  if (data.leagues) {
+    data.leagues.forEach((l) => {
+      if (l.members) {
+        const mem = l.members.find((m) => m.id === targetId);
+        if (mem) {
+          mem.totalPoints = 0;
+          mem.gwPoints = 0;
+          mem.activeChip = null;
+          mem.lineup = [];
+          mem.teamName = user.teamName;
+          mem.managerName = user.managerName;
+        }
+      }
+    });
+  }
+
+  // 3. Optional password reset
+  if (newPassword && newPassword.length >= 4) {
+    const pwd = hashPassword(newPassword);
+    user.passwordHash = pwd.hash;
+    user.salt = pwd.salt;
+  }
+
+  // Invalidate current session
+  user.token = undefined;
+
+  db.save();
+  scheduleAutoSyncToGitHub(`Admin reset everything for user @${user.username}`);
+
+  res.json({
+    success: true,
+    message: `Everything for @${user.username} (${user.managerName}) has been reset: squad emptied, bank £60.0m, chips and points reset to 0.`,
+  });
+});
+
 // 12. Create / Join / Delete Mini-League
 app.post('/api/league/create', (req: Request, res: Response) => {
   const { name, managerId } = req.body;
