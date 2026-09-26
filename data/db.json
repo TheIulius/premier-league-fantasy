@@ -5862,6 +5862,17 @@
               "points": 0
             }
           ]
+        },
+        {
+          "id": "user_1790447072394",
+          "managerName": "new_acc",
+          "teamName": "Fc new_acc",
+          "totalPoints": 0,
+          "gwPoints": 0,
+          "rank": 15,
+          "previousRank": 15,
+          "activeChip": null,
+          "lineup": []
         }
       ]
     }
@@ -6872,6 +6883,26 @@
         }
       },
       "joinedAt": "2026-09-26T18:20:52.459Z"
+    },
+    "user_1790447072394": {
+      "id": "user_1790447072394",
+      "managerName": "new_acc",
+      "teamName": "Fc new_acc",
+      "squad": {
+        "teamName": "Fc new_acc",
+        "managerName": "new_acc",
+        "players": [],
+        "bank": 60,
+        "freeTransfers": 1,
+        "transfersMadeThisGW": 0,
+        "activeChip": null,
+        "usedChips": {
+          "triple_captain": false,
+          "bench_boost": false,
+          "wildcard": false
+        }
+      },
+      "joinedAt": "2026-09-26T18:24:32.395Z"
     }
   },
   "users": {
@@ -6985,6 +7016,20 @@
       "managerName": "samada123",
       "teamName": "fc samada123",
       "createdAt": "2026-09-26T18:20:52.459Z"
+    },
+    "user_1790447072394": {
+      "id": "user_1790447072394",
+      "username": "new_acc",
+      "email": "new_acc@fantasy.pl",
+      "passwordHash": "7f7e96c966d39dc485ee665c69ab4d883f49b8b036044f9a2729abdbc9a79527bbaf7fc8ae3111df5f07e193f451d2fbe483df007432a3dfc0223910d8c05d57",
+      "salt": "184db040b41636ef6e6ebee6c9b04180",
+      "managerName": "new_acc",
+      "teamName": "Fc new_acc",
+      "token": "bf39786132e81dcb0841f86f7f60ed0736ee93ca48169d4f60c0b20ae2b5fd7c",
+      "createdAt": "2026-09-26T18:24:32.395Z",
+      "role": "user",
+      "isAdmin": false,
+      "isApproved": false
     }
   },
   "deadline": {
