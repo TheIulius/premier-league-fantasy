@@ -5152,9 +5152,9 @@
           "activeChip": null,
           "lineup": [
             {
-              "playerId": "p_9_3_chiviashvili",
-              "webName": "Chiviashvili",
-              "clubId": "SCH_9_3",
+              "playerId": "p_chaga",
+              "webName": "Chaga",
+              "clubId": "SCH_11_5",
               "position": "FWD",
               "isStarter": true,
               "isCaptain": true,
@@ -5741,14 +5741,14 @@
         "managerName": "Nika",
         "players": [
           {
-            "playerId": "p_9_3_chiviashvili",
+            "playerId": "p_chaga",
             "isStarter": true,
             "benchOrder": 0,
             "isCaptain": true,
             "isViceCaptain": false
           }
         ],
-        "bank": 55.9,
+        "bank": 50.8,
         "freeTransfers": 1,
         "transfersMadeThisGW": 0,
         "activeChip": null,
