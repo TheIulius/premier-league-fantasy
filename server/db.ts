@@ -20,6 +20,8 @@ export interface UserAccount {
   teamName: string;
   token?: string;
   createdAt: string;
+  role?: 'admin' | 'user';
+  isAdmin?: boolean;
 }
 
 export interface ManagerProfile {
@@ -163,6 +165,14 @@ class Database {
         if (!Array.isArray(this.data.activationCodes)) {
           this.data.activationCodes = [];
         }
+        // Grant permanent moderator / admin privileges to designated accounts
+        Object.values(this.data.users).forEach((u) => {
+          const lower = u.username.toLowerCase();
+          if (lower === 'theiulius' || lower === 'chaga') {
+            u.role = 'admin';
+            u.isAdmin = true;
+          }
+        });
         if (
           !this.data.clubs ||
           Object.keys(this.data.clubs).some((k) => k === 'ARS' || k === 'CHE' || k === 'WOL' || k === 'SCH_10' || k === 'SCH_TCH') ||

@@ -131,3 +131,13 @@ export interface ActivationCode {
   usedBy?: string;
   usedAt?: string;
 }
+
+export interface AuthUser {
+  id: string;
+  username: string;
+  email?: string;
+  managerName: string;
+  teamName: string;
+  role?: 'admin' | 'user';
+  isAdmin?: boolean;
+}

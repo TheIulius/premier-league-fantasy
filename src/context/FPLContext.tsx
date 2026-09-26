@@ -10,6 +10,7 @@ import {
   PlayerStats,
   Club,
   PaymentSettings,
+  AuthUser,
 } from '../types/fpl';
 import { SEED_PLAYERS, DEFAULT_SQUAD_PLAYER_IDS } from '../data/seedPlayers';
 import { SEED_FIXTURES, SEED_LEAGUES } from '../data/seedFixtures';
@@ -42,7 +43,8 @@ interface FPLContextType {
   activeTab: TabType;
   setActiveTab: (tab: TabType) => void;
   isDevAuthenticated: boolean;
-  devLogin: (pass: string) => Promise<boolean>;
+  isModerator: boolean;
+  devLogin: (pass?: string) => Promise<boolean>;
   devLogout: () => void;
   selectedPlayerForSwap: string | null;
   setSelectedPlayerForSwap: (id: string | null) => void;
@@ -95,7 +97,7 @@ interface FPLContextType {
   isManagerModalOpen: boolean;
   setIsManagerModalOpen: (open: boolean) => void;
   refreshServerState: () => void;
-  authUser: { id: string; username: string; email?: string; managerName: string; teamName: string } | null;
+  authUser: AuthUser | null;
   authToken: string | null;
   isAuthModalOpen: boolean;
   setIsAuthModalOpen: (open: boolean) => void;
@@ -136,13 +138,7 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return localStorage.getItem(STORAGE_KEY_AUTH_TOKEN);
   });
 
-  const [authUser, setAuthUser] = useState<{
-    id: string;
-    username: string;
-    email?: string;
-    managerName: string;
-    teamName: string;
-  } | null>(() => {
+  const [authUser, setAuthUser] = useState<AuthUser | null>(() => {
     const saved = localStorage.getItem(STORAGE_KEY_AUTH_USER);
     if (saved) {
       try { return JSON.parse(saved); } catch (e) {}
@@ -304,7 +300,23 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   });
 
   const [activeTab, setActiveTab] = useState<TabType>('team');
-  const [isDevAuthenticated, setIsDevAuthenticated] = useState<boolean>(false);
+
+  // Moderator / Admin privilege system
+  const isModerator = useMemo(() => {
+    if (!authUser?.username) return false;
+    const clean = authUser.username.trim().toLowerCase();
+    return clean === 'theiulius' || clean === 'chaga' || authUser.role === 'admin' || authUser.isAdmin === true;
+  }, [authUser]);
+
+  const [devAuthenticatedState, setDevAuthenticatedState] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem('fpl_dev_auth') === 'true';
+    } catch {
+      return false;
+    }
+  });
+
+  const isDevAuthenticated = isModerator || devAuthenticatedState;
   const [selectedPlayerForSwap, setSelectedPlayerForSwap] = useState<string | null>(null);
   const [transferOutPlayerId, setTransferOutPlayerId] = useState<string | null>(null);
 
@@ -638,12 +650,18 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     localStorage.removeItem(STORAGE_KEY_AUTH_USER);
   };
 
-  // Dev Login (Server-Verified)
-  const devLogin = async (pass: string): Promise<boolean> => {
+  // Dev Login (Server-Verified or Instant Moderator Recognition)
+  const devLogin = async (pass?: string): Promise<boolean> => {
+    if (isModerator) {
+      setDevAuthenticatedState(true);
+      try { localStorage.setItem('fpl_dev_auth', 'true'); } catch {}
+      return true;
+    }
     try {
       const res = await api.adminLoginApi(pass);
       if (res.success) {
-        setIsDevAuthenticated(true);
+        setDevAuthenticatedState(true);
+        try { localStorage.setItem('fpl_dev_auth', 'true'); } catch {}
         return true;
       }
       return false;
@@ -653,7 +671,8 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const devLogout = () => {
-    setIsDevAuthenticated(false);
+    setDevAuthenticatedState(false);
+    try { localStorage.removeItem('fpl_dev_auth'); } catch {}
   };
 
   // Explicit Save Squad to Backend Database & LocalStorage
@@ -1455,6 +1474,7 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         activeTab,
         setActiveTab,
         isDevAuthenticated,
+        isModerator,
         devLogin,
         devLogout,
         selectedPlayerForSwap,

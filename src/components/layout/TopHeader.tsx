@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useFPL, TabType } from '../../context/FPLContext';
-import { Sparkles, Wrench, Users, Shirt, ArrowLeftRight, Zap, Trophy, Calendar, Sun, Moon, Clock, Eye } from 'lucide-react';
+import { Sparkles, Wrench, Users, Shirt, ArrowLeftRight, Zap, Trophy, Calendar, Sun, Moon, Clock, Eye, Shield } from 'lucide-react';
 
 interface TabItem {
   id: TabType;
@@ -24,6 +24,7 @@ export const TopHeader: React.FC = () => {
     setActiveTab,
     activeTab,
     isDevAuthenticated,
+    isModerator,
     authUser,
     setIsAuthModalOpen,
     leagues,
@@ -164,7 +165,7 @@ export const TopHeader: React.FC = () => {
             {authUser && <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />}
           </button>
 
-          {/* Developer Portal shortcut button (mobile only) */}
+          {/* Developer / Moderator Portal shortcut button (mobile only) */}
           <button
             onClick={() => setActiveTab('dev')}
             className={`md:hidden p-1.5 rounded-full transition-all border ${
@@ -172,10 +173,10 @@ export const TopHeader: React.FC = () => {
                 ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-950 border-transparent font-bold'
                 : 'bg-slate-100 dark:bg-white/[0.05] text-slate-600 dark:text-slate-300 border-slate-200 dark:border-white/[0.09]'
             }`}
-            title="Dev Portal"
-            aria-label="Dev Portal"
+            title={isModerator ? 'Moderator Console' : 'Dev Portal'}
+            aria-label={isModerator ? 'Moderator Console' : 'Dev Portal'}
           >
-            <Wrench className="w-4 h-4" />
+            {isModerator ? <Shield className="w-4 h-4 text-amber-400" /> : <Wrench className="w-4 h-4" />}
           </button>
         </div>
       </div>
@@ -184,9 +185,10 @@ export const TopHeader: React.FC = () => {
       <nav className="hidden md:flex items-center justify-center bg-slate-50 dark:bg-[#070b12] border-t border-slate-200 dark:border-slate-800/80 select-none">
         <div className="w-full max-w-6xl mx-auto flex items-center justify-center gap-1.5 px-6 py-1.5">
           {DESKTOP_TABS.map((tab) => {
-            const Icon = tab.icon;
+            const Icon = tab.id === 'dev' && isModerator ? Shield : tab.icon;
             const isActive = activeTab === tab.id;
             const isDev = tab.id === 'dev';
+            const displayLabel = isDev && isModerator ? 'Mod Console' : tab.label;
 
             return (
               <button
@@ -198,8 +200,8 @@ export const TopHeader: React.FC = () => {
                     : 'bg-transparent text-slate-500 dark:text-slate-400 border-transparent hover:bg-slate-200/60 dark:hover:bg-white/[0.04] hover:text-slate-900 dark:hover:text-slate-200'
                 }`}
               >
-                <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-emerald-400' : 'text-slate-400'}`} />
-                <span>{tab.label}</span>
+                <Icon className={`w-3.5 h-3.5 ${isActive ? (isDev && isModerator ? 'text-amber-400' : 'text-emerald-400') : 'text-slate-400'}`} />
+                <span>{displayLabel}</span>
                 {isDev && isDevAuthenticated && (
                   <span className="w-1.5 h-1.5 rounded-full bg-amber-400/80" />
                 )}

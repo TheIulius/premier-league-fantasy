@@ -2,6 +2,20 @@ import { SquadPlayer, ChipType, PlayerStats, Fixture, Club, PaymentSettings, Act
 
 const API_BASE = ''; // Same host (works for both local Vite proxy and production Express)
 
+export function getAuthHeaders(extra: Record<string, string> = {}): Record<string, string> {
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    ...extra,
+  };
+  try {
+    const token = typeof localStorage !== 'undefined' ? localStorage.getItem('fpl_auth_token_v1') : null;
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+  } catch (e) {}
+  return headers;
+}
+
 export async function authRegister(data: {
   username: string;
   email?: string;
@@ -12,7 +26,7 @@ export async function authRegister(data: {
 }) {
   const res = await fetch(`${API_BASE}/api/auth/register`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: getAuthHeaders(),
     body: JSON.stringify(data),
   });
   const json = await res.json();
@@ -23,7 +37,7 @@ export async function authRegister(data: {
 export async function authLogin(data: { login: string; password: string }) {
   const res = await fetch(`${API_BASE}/api/auth/login`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: getAuthHeaders(),
     body: JSON.stringify(data),
   });
   const json = await res.json();
@@ -50,11 +64,12 @@ export async function authLogout(token: string) {
   });
 }
 
-export async function adminLoginApi(password: string) {
+export async function adminLoginApi(password?: string) {
+  const token = typeof localStorage !== 'undefined' ? localStorage.getItem('fpl_auth_token_v1') : null;
   const res = await fetch(`${API_BASE}/api/admin/login`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ password }),
+    headers: getAuthHeaders(),
+    body: JSON.stringify({ password: password || '', token }),
   });
   const data = await res.json();
   if (!res.ok) throw new Error(data.error || 'Incorrect developer password');
@@ -77,7 +92,7 @@ export async function fetchManagerSquadApi(managerId: string) {
 export async function loginManagerApi(managerName: string, teamName: string) {
   const res = await fetch(`${API_BASE}/api/manager/login`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: getAuthHeaders(),
     body: JSON.stringify({ managerName, teamName }),
   });
   if (!res.ok) throw new Error('Failed to login manager');
@@ -93,7 +108,7 @@ export async function saveSquadApi(
 ) {
   const res = await fetch(`${API_BASE}/api/squad/save`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: getAuthHeaders(),
     body: JSON.stringify({ managerId, players, teamName, bank, validateComplete }),
   });
   const data = await res.json().catch(() => ({}));
@@ -104,7 +119,7 @@ export async function saveSquadApi(
 export async function transferPlayerApi(managerId: string, outPlayerId: string, inPlayerId: string) {
   const res = await fetch(`${API_BASE}/api/squad/transfer`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: getAuthHeaders(),
     body: JSON.stringify({ managerId, outPlayerId, inPlayerId }),
   });
   const data = await res.json();
@@ -115,7 +130,7 @@ export async function transferPlayerApi(managerId: string, outPlayerId: string, 
 export async function activateChipApi(managerId: string, chip: ChipType) {
   const res = await fetch(`${API_BASE}/api/squad/chip`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: getAuthHeaders(),
     body: JSON.stringify({ managerId, chip }),
   });
   const data = await res.json();
@@ -126,7 +141,7 @@ export async function activateChipApi(managerId: string, chip: ChipType) {
 export async function adminUpdateStatApi(playerId: string, gw: number, stats: Partial<PlayerStats>) {
   const res = await fetch(`${API_BASE}/api/admin/stat`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: getAuthHeaders(),
     body: JSON.stringify({ playerId, gw, stats }),
   });
   if (!res.ok) throw new Error('Failed to update stats');
@@ -136,7 +151,7 @@ export async function adminUpdateStatApi(playerId: string, gw: number, stats: Pa
 export async function adminSimulateApi(gw: number) {
   const res = await fetch(`${API_BASE}/api/admin/simulate`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: getAuthHeaders(),
     body: JSON.stringify({ gw }),
   });
   if (!res.ok) throw new Error('Failed to simulate');
@@ -146,7 +161,7 @@ export async function adminSimulateApi(gw: number) {
 export async function adminFinalizeApi() {
   const res = await fetch(`${API_BASE}/api/admin/finalize`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: getAuthHeaders(),
   });
   if (!res.ok) throw new Error('Failed to finalize');
   return res.json();
@@ -155,7 +170,7 @@ export async function adminFinalizeApi() {
 export async function adminGameweekApi(action: 'advance' | 'set_gw' | 'reset_current_gw' | 'reset_all_gws', gw?: number) {
   const res = await fetch(`${API_BASE}/api/admin/gameweek`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: getAuthHeaders(),
     body: JSON.stringify({ action, gw }),
   });
   if (!res.ok) throw new Error('Failed gameweek action');
@@ -165,7 +180,7 @@ export async function adminGameweekApi(action: 'advance' | 'set_gw' | 'reset_cur
 export async function adminPlayerApi(payload: any) {
   const res = await fetch(`${API_BASE}/api/admin/player`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: getAuthHeaders(),
     body: JSON.stringify(payload),
   });
   if (!res.ok) throw new Error('Failed player action');
@@ -175,7 +190,7 @@ export async function adminPlayerApi(payload: any) {
 export async function adminResetApi() {
   const res = await fetch(`${API_BASE}/api/admin/reset`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: getAuthHeaders(),
   });
   if (!res.ok) throw new Error('Failed to reset');
   return res.json();
@@ -184,7 +199,7 @@ export async function adminResetApi() {
 export async function createLeagueApi(managerId: string, name: string) {
   const res = await fetch(`${API_BASE}/api/league/create`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: getAuthHeaders(),
     body: JSON.stringify({ managerId, name }),
   });
   if (!res.ok) throw new Error('Failed to create league');
@@ -194,7 +209,7 @@ export async function createLeagueApi(managerId: string, name: string) {
 export async function joinLeagueApi(managerId: string, code: string) {
   const res = await fetch(`${API_BASE}/api/league/join`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: getAuthHeaders(),
     body: JSON.stringify({ managerId, code }),
   });
   const data = await res.json();
@@ -205,7 +220,7 @@ export async function joinLeagueApi(managerId: string, code: string) {
 export async function deleteLeagueApi(leagueId: string) {
   const res = await fetch(`${API_BASE}/api/league/delete`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: getAuthHeaders(),
     body: JSON.stringify({ leagueId }),
   });
   const data = await res.json();
@@ -225,7 +240,7 @@ export async function adminAddFixtureApi(payload: {
 }) {
   const res = await fetch(`${API_BASE}/api/admin/fixture/add`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: getAuthHeaders(),
     body: JSON.stringify(payload),
   });
   const data = await res.json();
@@ -236,7 +251,7 @@ export async function adminAddFixtureApi(payload: {
 export async function adminUpdateFixtureApi(id: string, updates: Partial<Fixture>) {
   const res = await fetch(`${API_BASE}/api/admin/fixture/update`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: getAuthHeaders(),
     body: JSON.stringify({ id, updates }),
   });
   const data = await res.json();
@@ -247,7 +262,7 @@ export async function adminUpdateFixtureApi(id: string, updates: Partial<Fixture
 export async function adminDeleteFixtureApi(id: string) {
   const res = await fetch(`${API_BASE}/api/admin/fixture/delete`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: getAuthHeaders(),
     body: JSON.stringify({ id }),
   });
   const data = await res.json();
@@ -265,7 +280,7 @@ export async function adminAddClubApi(club: {
 }) {
   const res = await fetch(`${API_BASE}/api/admin/club/add`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: getAuthHeaders(),
     body: JSON.stringify(club),
   });
   const data = await res.json();
@@ -274,7 +289,9 @@ export async function adminAddClubApi(club: {
 }
 
 export async function adminFetchUsersApi() {
-  const res = await fetch(`${API_BASE}/api/admin/users`);
+  const res = await fetch(`${API_BASE}/api/admin/users`, {
+    headers: getAuthHeaders(),
+  });
   const data = await res.json();
   if (!res.ok) throw new Error(data.error || 'Failed to fetch users');
   return data;
@@ -283,7 +300,7 @@ export async function adminFetchUsersApi() {
 export async function adminResetPasswordApi(username: string, newPassword: string) {
   const res = await fetch(`${API_BASE}/api/admin/user/reset-password`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: getAuthHeaders(),
     body: JSON.stringify({ username, newPassword }),
   });
   const data = await res.json();
@@ -296,7 +313,7 @@ export const adminExportDbUrl = `${API_BASE}/api/admin/db/export`;
 export async function adminImportDbApi(dbData: any) {
   const res = await fetch(`${API_BASE}/api/admin/db/import`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: getAuthHeaders(),
     body: JSON.stringify({ dbData }),
   });
   const data = await res.json();
@@ -313,7 +330,7 @@ export async function adminSyncGithubApi(params: {
 }) {
   const res = await fetch(`${API_BASE}/api/admin/db/sync-github`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: getAuthHeaders(),
     body: JSON.stringify(params),
   });
   const data = await res.json();
@@ -327,7 +344,9 @@ export async function adminGetSyncStatusApi(): Promise<{
   repo: string;
   branch: string;
 }> {
-  const res = await fetch(`${API_BASE}/api/admin/db/sync-status`);
+  const res = await fetch(`${API_BASE}/api/admin/db/sync-status`, {
+    headers: getAuthHeaders(),
+  });
   if (!res.ok) throw new Error('Failed to get sync status');
   return res.json();
 }
@@ -335,7 +354,7 @@ export async function adminGetSyncStatusApi(): Promise<{
 export async function adminSetServerTokenApi(token: string) {
   const res = await fetch(`${API_BASE}/api/admin/db/set-token`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: getAuthHeaders(),
     body: JSON.stringify({ token }),
   });
   const data = await res.json();
@@ -353,7 +372,7 @@ export async function fetchDeadlineApi(): Promise<{ deadline: { gameweek: number
 export async function adminSetDeadlineApi(gameweek: number, deadlineTime: string) {
   const res = await fetch(`${API_BASE}/api/admin/deadline`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: getAuthHeaders(),
     body: JSON.stringify({ gameweek, deadlineTime }),
   });
   const data = await res.json();
@@ -364,7 +383,7 @@ export async function adminSetDeadlineApi(gameweek: number, deadlineTime: string
 export async function adminClearDeadlineApi() {
   const res = await fetch(`${API_BASE}/api/admin/deadline/clear`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: getAuthHeaders(),
   });
   const data = await res.json();
   if (!res.ok) throw new Error(data.error || 'Failed to clear deadline');
@@ -387,7 +406,7 @@ export async function adminSaveMatchEventsApi(payload: {
 }) {
   const res = await fetch(`${API_BASE}/api/admin/match-events`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: getAuthHeaders(),
     body: JSON.stringify(payload),
   });
   const data = await res.json();
@@ -405,7 +424,7 @@ export async function fetchPaymentSettingsApi(): Promise<PaymentSettings> {
 export async function adminUpdatePaymentSettingsApi(settings: Partial<PaymentSettings>): Promise<{ success: boolean; settings: PaymentSettings }> {
   const res = await fetch(`${API_BASE}/api/admin/payment-settings`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: getAuthHeaders(),
     body: JSON.stringify(settings),
   });
   const data = await res.json();
@@ -415,7 +434,9 @@ export async function adminUpdatePaymentSettingsApi(settings: Partial<PaymentSet
 
 // 1-Time Activation Codes Management
 export async function adminFetchActivationCodesApi(): Promise<ActivationCode[]> {
-  const res = await fetch(`${API_BASE}/api/admin/activation-codes`);
+  const res = await fetch(`${API_BASE}/api/admin/activation-codes`, {
+    headers: getAuthHeaders(),
+  });
   const data = await res.json();
   if (!res.ok) throw new Error(data.error || 'Failed to fetch activation codes');
   return data.codes || [];
@@ -424,7 +445,7 @@ export async function adminFetchActivationCodesApi(): Promise<ActivationCode[]> 
 export async function adminGenerateActivationCodesApi(count: number = 1): Promise<{ success: boolean; codes: ActivationCode[]; allCodes: ActivationCode[] }> {
   const res = await fetch(`${API_BASE}/api/admin/activation-codes/generate`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: getAuthHeaders(),
     body: JSON.stringify({ count }),
   });
   const data = await res.json();

@@ -67,6 +67,8 @@ export type LifecycleStep = 1 | 2 | 3 | 4;
 export const AdminPortal: React.FC = () => {
   const {
     isDevAuthenticated,
+    isModerator,
+    authUser,
     devLogin,
     devLogout,
     players,
@@ -386,36 +388,50 @@ export const AdminPortal: React.FC = () => {
     return (
       <div className="flex flex-col items-center justify-center min-h-[70vh] p-4 text-center">
         <div className="bg-zinc-900 border border-white/10 p-8 rounded-3xl shadow-2xl max-w-sm w-full space-y-5">
-          <div className="w-14 h-14 bg-emerald-500/15 border border-emerald-500/30 rounded-2xl flex items-center justify-center mx-auto text-emerald-400">
+          <div className="w-14 h-14 bg-amber-500/15 border border-amber-500/30 rounded-2xl flex items-center justify-center mx-auto text-amber-400">
             <Lock className="w-7 h-7" />
           </div>
           <div>
             <h2 className="text-xl font-black text-white">Matchday Command Center</h2>
-            <p className="text-xs text-zinc-400 mt-1">Authorized Match Officials & Admin Only</p>
+            <p className="text-xs text-zinc-400 mt-1">
+              Authorized Moderators Only (<strong>@theiulius</strong>, <strong>@chaga</strong>)
+            </p>
           </div>
-          <form onSubmit={handleLogin} className="space-y-4">
+
+          {authUser ? (
+            <div className="p-3 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs">
+              Signed in as <strong>@{authUser.username}</strong> (Regular Player). This account does not have moderator privileges.
+            </div>
+          ) : (
+            <div className="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs">
+              Please sign in with a moderator account (<strong>theiulius</strong> or <strong>chaga</strong>) for instant access.
+            </div>
+          )}
+
+          <form onSubmit={handleLogin} className="space-y-3 pt-2 border-t border-white/5">
+            <p className="text-[10px] text-zinc-500 font-semibold">Or enter emergency root PIN:</p>
             <input
               type="password"
               value={pinInput}
               onChange={(e) => setPinInput(e.target.value)}
-              placeholder="Enter Admin Password"
+              placeholder="Enter Emergency PIN"
               maxLength={64}
-              autoFocus
-              className="w-full text-center tracking-widest text-xl font-mono py-3 px-4 rounded-xl bg-zinc-950 border border-white/10 text-white outline-none focus:border-emerald-500"
+              className="w-full text-center tracking-widest text-sm font-mono py-2.5 px-4 rounded-xl bg-zinc-950 border border-white/10 text-white outline-none focus:border-amber-500"
             />
             {loginError && (
-              <p className="text-rose-400 text-xs font-bold animate-shake">Incorrect Admin Password. Try again.</p>
+              <p className="text-rose-400 text-xs font-bold animate-shake">Incorrect Admin PIN. Try again.</p>
             )}
             <button
               type="submit"
-              className="w-full py-3 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs uppercase tracking-wider rounded-xl transition-all shadow-lg active:scale-98"
+              className="w-full py-2.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 font-bold text-xs uppercase tracking-wider rounded-xl transition-all shadow-md active:scale-98 cursor-pointer"
             >
-              Access Console
+              Verify PIN
             </button>
           </form>
+
           <button
             onClick={() => setActiveTab('team')}
-            className="text-xs font-bold text-zinc-500 hover:text-zinc-300 block mx-auto"
+            className="text-xs font-bold text-zinc-500 hover:text-zinc-300 block mx-auto pt-2 cursor-pointer"
           >
             ← Return to Fantasy League
           </button>
@@ -449,6 +465,15 @@ export const AdminPortal: React.FC = () => {
               GW {currentGW}
             </span>
           </div>
+
+          {/* Moderator Badge */}
+          {authUser && isModerator && (
+            <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-[10px] font-bold text-amber-300">
+              <Shield className="w-3 h-3 text-amber-400" />
+              <span>@{authUser.username}</span>
+              <span className="text-[9px] uppercase tracking-wider text-amber-400/80 font-black">Moderator</span>
+            </div>
+          )}
 
           {/* Ambient GitHub Sync Status Pill */}
           <div
