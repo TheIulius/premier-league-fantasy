@@ -5549,34 +5549,12 @@
           "activeChip": null,
           "lineup": [
             {
-              "playerId": "p_chaga",
-              "webName": "Chaga",
-              "clubId": "SCH_11_5",
-              "position": "FWD",
-              "isStarter": true,
-              "isCaptain": true,
-              "isViceCaptain": false,
-              "benchOrder": 0,
-              "points": 0
-            },
-            {
               "playerId": "p_9_6_chigladze",
               "webName": "Chigladze",
               "clubId": "SCH_9_6",
               "position": "FWD",
               "isStarter": true,
-              "isCaptain": false,
-              "isViceCaptain": true,
-              "benchOrder": 0,
-              "points": 0
-            },
-            {
-              "playerId": "p_custom_1790279796584",
-              "webName": "Kila",
-              "clubId": "SCH_11_4",
-              "position": "MID",
-              "isStarter": true,
-              "isCaptain": false,
+              "isCaptain": true,
               "isViceCaptain": false,
               "benchOrder": 0,
               "points": 0
@@ -5588,7 +5566,7 @@
               "position": "DEF",
               "isStarter": true,
               "isCaptain": false,
-              "isViceCaptain": false,
+              "isViceCaptain": true,
               "benchOrder": 0,
               "points": 0
             }
@@ -5775,24 +5753,10 @@
         "managerName": "Aleksandre",
         "players": [
           {
-            "playerId": "p_chaga",
-            "isStarter": true,
-            "benchOrder": 0,
-            "isCaptain": true,
-            "isViceCaptain": false
-          },
-          {
             "playerId": "p_9_6_chigladze",
             "isStarter": true,
             "benchOrder": 0,
-            "isCaptain": false,
-            "isViceCaptain": true
-          },
-          {
-            "playerId": "p_custom_1790279796584",
-            "isStarter": true,
-            "benchOrder": 0,
-            "isCaptain": false,
+            "isCaptain": true,
             "isViceCaptain": false
           },
           {
@@ -5800,10 +5764,10 @@
             "isStarter": true,
             "benchOrder": 0,
             "isCaptain": false,
-            "isViceCaptain": false
+            "isViceCaptain": true
           }
         ],
-        "bank": 27.2,
+        "bank": 45.4,
         "freeTransfers": 1,
         "transfersMadeThisGW": 0,
         "activeChip": null,
