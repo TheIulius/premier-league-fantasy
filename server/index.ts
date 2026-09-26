@@ -644,6 +644,13 @@ app.post('/api/squad/save', (req: Request, res: Response) => {
 app.post('/api/squad/chip', (req: Request, res: Response) => {
   const { managerId, chip } = req.body;
   const data = db.getData();
+
+  // Account approval check
+  const user = data.users?.[managerId];
+  if (user && !isUserAdmin(user.username) && !user.isApproved) {
+    return res.status(403).json({ error: 'Your account is pending approval by administrators.' });
+  }
+
   let manager = data.managers[managerId];
 
   if (!manager) {
@@ -697,6 +704,12 @@ app.post('/api/squad/transfer', (req: Request, res: Response) => {
   // Deadline check
   if (data.deadline && new Date() >= new Date(data.deadline.deadlineTime)) {
     return res.status(403).json({ error: 'Transfers are locked. The deadline has passed.' });
+  }
+
+  // Account approval check
+  const user = data.users?.[managerId];
+  if (user && !isUserAdmin(user.username) && !user.isApproved) {
+    return res.status(403).json({ error: 'Your account is pending approval by administrators.' });
   }
 
   let manager = data.managers[managerId];
@@ -1774,6 +1787,12 @@ app.post('/api/admin/user/reset', (req: Request, res: Response) => {
 app.post('/api/league/create', (req: Request, res: Response) => {
   const { name, managerId } = req.body;
   const data = db.getData();
+
+  const user = data.users?.[managerId];
+  if (user && !isUserAdmin(user.username) && !user.isApproved) {
+    return res.status(403).json({ error: 'Your account is pending approval by administrators.' });
+  }
+
   const manager = data.managers[managerId];
 
   if (!manager) return res.status(404).json({ error: 'Manager not found' });
@@ -1815,6 +1834,12 @@ app.post('/api/league/create', (req: Request, res: Response) => {
 app.post('/api/league/join', (req: Request, res: Response) => {
   const { code, managerId } = req.body;
   const data = db.getData();
+
+  const user = data.users?.[managerId];
+  if (user && !isUserAdmin(user.username) && !user.isApproved) {
+    return res.status(403).json({ error: 'Your account is pending approval by administrators.' });
+  }
+
   const manager = data.managers[managerId];
 
   if (!manager) return res.status(404).json({ error: 'Manager not found' });

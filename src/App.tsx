@@ -18,21 +18,21 @@ const AppContent: React.FC = () => {
 
   const isAccountApproved = isDemoMode || authUser?.isAdmin || Boolean(authUser?.isApproved);
 
+  if (!isAccountApproved) {
+    return <PendingApprovalOverlay />;
+  }
+
   return (
     <div className="relative min-h-screen w-full">
-      <div className={!isAccountApproved ? 'filter blur-md pointer-events-none select-none opacity-30 transition-all' : ''}>
-        <MobileContainer>
-          {activeTab === 'team' && <PickTeamView />}
-          {activeTab === 'transfers' && <TransfersView />}
-          {(activeTab === 'standings' || (activeTab as any) === 'leagues' || (activeTab as any) === 'points') && (
-            <StandingsView />
-          )}
-          {activeTab === 'fixtures' && <FixturesView />}
-          {activeTab === 'dev' && <AdminPortal />}
-        </MobileContainer>
-      </div>
-
-      {!isAccountApproved && <PendingApprovalOverlay />}
+      <MobileContainer>
+        {activeTab === 'team' && <PickTeamView />}
+        {activeTab === 'transfers' && <TransfersView />}
+        {(activeTab === 'standings' || (activeTab as any) === 'leagues' || (activeTab as any) === 'points') && (
+          <StandingsView />
+        )}
+        {activeTab === 'fixtures' && <FixturesView />}
+        {activeTab === 'dev' && <AdminPortal />}
+      </MobileContainer>
     </div>
   );
 };
