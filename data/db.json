@@ -5202,7 +5202,8 @@
         "usedChips": {
           "triple_captain": false,
           "bench_boost": false,
-          "free_hit": false
+          "free_hit": false,
+          "wildcard": false
         }
       },
       "joinedAt": "2026-09-25T16:18:23.548Z"
