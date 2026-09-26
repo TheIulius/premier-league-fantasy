@@ -5528,6 +5528,17 @@
           "previousRank": 8,
           "activeChip": null,
           "lineup": []
+        },
+        {
+          "id": "user_1790448153758",
+          "managerName": "acc",
+          "teamName": "acc",
+          "totalPoints": 0,
+          "gwPoints": 0,
+          "rank": 9,
+          "previousRank": 9,
+          "activeChip": null,
+          "lineup": []
         }
       ]
     }
@@ -6005,6 +6016,26 @@
         }
       },
       "joinedAt": "2026-09-26T12:50:11.159Z"
+    },
+    "user_1790448153758": {
+      "id": "user_1790448153758",
+      "managerName": "acc",
+      "teamName": "acc",
+      "squad": {
+        "teamName": "acc",
+        "managerName": "acc",
+        "players": [],
+        "bank": 60,
+        "freeTransfers": 1,
+        "transfersMadeThisGW": 0,
+        "activeChip": null,
+        "usedChips": {
+          "triple_captain": false,
+          "bench_boost": false,
+          "wildcard": false
+        }
+      },
+      "joinedAt": "2026-09-26T18:42:33.760Z"
     }
   },
   "users": {
@@ -6054,6 +6085,20 @@
       "teamName": "Samada",
       "token": "a7ba25439f7320ca1c8514055dd2f3afedff207a2fb8d2451800a511ec05c68f",
       "createdAt": "2026-09-26T12:50:11.159Z"
+    },
+    "user_1790448153758": {
+      "id": "user_1790448153758",
+      "username": "acc",
+      "email": "acc@fantasy.pl",
+      "passwordHash": "1a6aa0f8545f10046ad8949a4d91942993e12bdc7a97c701a2f9185bb9aad0fb03288884797e6a6cb2aa735350d18714caf19c7795aa6a230f2a5a4a761b2d1b",
+      "salt": "9b1c2515b3bf2c6fceeb9bda8f7876c8",
+      "managerName": "acc",
+      "teamName": "acc",
+      "token": "739782a148593f6057502017eb1c0ddda2f554e86cc963c60e460a7220841f73",
+      "createdAt": "2026-09-26T18:42:33.759Z",
+      "role": "user",
+      "isAdmin": false,
+      "isApproved": false
     }
   },
   "deadline": {
