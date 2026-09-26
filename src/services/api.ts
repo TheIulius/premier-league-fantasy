@@ -308,6 +308,17 @@ export async function adminResetPasswordApi(username: string, newPassword: strin
   return data;
 }
 
+export async function adminApproveUserApi(target: { userId?: string; username?: string; isApproved: boolean }) {
+  const res = await fetch(`${API_BASE}/api/admin/user/approve`, {
+    method: 'POST',
+    headers: getAuthHeaders(),
+    body: JSON.stringify(target),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Failed to update user approval status');
+  return data;
+}
+
 export const adminExportDbUrl = `${API_BASE}/api/admin/db/export`;
 
 export async function adminImportDbApi(dbData: any) {

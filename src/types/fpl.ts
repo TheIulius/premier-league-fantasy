@@ -140,4 +140,5 @@ export interface AuthUser {
   teamName: string;
   role?: 'admin' | 'user';
   isAdmin?: boolean;
+  isApproved?: boolean;
 }

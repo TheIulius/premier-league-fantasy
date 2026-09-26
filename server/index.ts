@@ -78,6 +78,11 @@ app.get('/api/state', (req: Request, res: Response) => {
     leagues: data.leagues,
     managers: managersList,
     activeManager: manager,
+    currentUserApproved: (() => {
+      const u = data.users?.[managerId];
+      if (!u) return true;
+      return isUserAdmin(u.username) || Boolean(u.isApproved);
+    })(),
     deadline: data.deadline || null,
     paymentSettings: {
       bogLink: data.paymentSettings?.bogLink || 'https://egreve.bog.ge/KCL26_charity',
@@ -194,6 +199,8 @@ app.post('/api/auth/register', (req: Request, res: Response) => {
   const id = 'user_' + Date.now();
   const pwd = hashPassword(password);
   const token = generateToken();
+  const isAdmin = isUserAdmin(cleanUser);
+  const isApproved = isAdmin; // Admins are automatically approved; regular users wait for admin approval
 
   const newUser: UserAccount = {
     id,
@@ -205,6 +212,9 @@ app.post('/api/auth/register', (req: Request, res: Response) => {
     teamName: teamName.trim(),
     token,
     createdAt: new Date().toISOString(),
+    role: isAdmin ? 'admin' : 'user',
+    isAdmin,
+    isApproved,
   };
 
   const newManager: ManagerProfile = {
@@ -263,6 +273,9 @@ app.post('/api/auth/register', (req: Request, res: Response) => {
       email: newUser.email,
       managerName: newUser.managerName,
       teamName: newUser.teamName,
+      role: newUser.role,
+      isAdmin: newUser.isAdmin,
+      isApproved: newUser.isApproved,
     },
     squad: newManager.squad,
   });
@@ -299,6 +312,7 @@ app.post('/api/auth/login', (req: Request, res: Response) => {
   const manager = data.managers[user.id] || Object.values(data.managers)[0];
 
   const isAdmin = isUserAdmin(user.username) || user.role === 'admin' || Boolean(user.isAdmin);
+  const isApproved = isAdmin || Boolean(user.isApproved);
 
   res.json({
     success: true,
@@ -311,6 +325,7 @@ app.post('/api/auth/login', (req: Request, res: Response) => {
       teamName: user.teamName,
       role: isAdmin ? 'admin' : 'user',
       isAdmin,
+      isApproved,
     },
     squad: manager ? manager.squad : null,
   });
@@ -337,6 +352,7 @@ app.get('/api/auth/me', (req: Request, res: Response) => {
 
   const manager = data.managers[user.id];
   const isAdmin = isUserAdmin(user.username) || user.role === 'admin' || Boolean(user.isAdmin);
+  const isApproved = isAdmin || Boolean(user.isApproved);
 
   res.json({
     success: true,
@@ -348,6 +364,7 @@ app.get('/api/auth/me', (req: Request, res: Response) => {
       teamName: user.teamName,
       role: isAdmin ? 'admin' : 'user',
       isAdmin,
+      isApproved,
     },
     squad: manager ? manager.squad : null,
   });
@@ -473,6 +490,12 @@ app.post('/api/squad/save', (req: Request, res: Response) => {
   // Deadline check
   if (data.deadline && new Date() >= new Date(data.deadline.deadlineTime)) {
     return res.status(403).json({ error: 'Lineups are locked. The deadline has passed.' });
+  }
+
+  // Account approval check
+  const user = data.users?.[managerId];
+  if (user && !isUserAdmin(user.username) && !user.isApproved) {
+    return res.status(403).json({ error: 'Your account is pending approval by administrators.' });
   }
 
   let manager = data.managers[managerId];
@@ -1421,15 +1444,55 @@ app.post('/api/admin/club/add', (req: Request, res: Response) => {
 // 11d. Developer Admin: List Registered Users
 app.get('/api/admin/users', (req: Request, res: Response) => {
   const data = db.getData();
-  const usersList = Object.values(data.users || {}).map((u) => ({
-    id: u.id,
-    username: u.username,
-    email: u.email,
-    managerName: u.managerName,
-    teamName: u.teamName,
-    createdAt: u.createdAt,
-  }));
+  const usersList = Object.values(data.users || {}).map((u) => {
+    const isAdmin = isUserAdmin(u.username) || u.role === 'admin' || Boolean(u.isAdmin);
+    return {
+      id: u.id,
+      username: u.username,
+      email: u.email,
+      managerName: u.managerName,
+      teamName: u.teamName,
+      createdAt: u.createdAt,
+      role: isAdmin ? 'admin' : 'user',
+      isAdmin,
+      isApproved: isAdmin || Boolean(u.isApproved),
+    };
+  });
   res.json({ success: true, users: usersList });
+});
+
+// 11e. Developer Admin: Approve / Unapprove User Account
+app.post('/api/admin/user/approve', (req: Request, res: Response) => {
+  const { userId, username, isApproved } = req.body;
+  const data = db.getData();
+  if (!data.users) data.users = {};
+
+  const clean = (username || '').trim().toLowerCase();
+  const user = Object.values(data.users).find(
+    (u) => (userId && u.id === userId) || (clean && u.username.toLowerCase() === clean)
+  );
+
+  if (!user) {
+    return res.status(404).json({ error: 'User not found' });
+  }
+
+  const newStatus = typeof isApproved === 'boolean' ? isApproved : true;
+  user.isApproved = newStatus;
+  db.save();
+
+  scheduleAutoSyncToGitHub(`Admin ${newStatus ? 'approved' : 'unapproved'} user @${user.username}`);
+
+  res.json({
+    success: true,
+    message: `Account @${user.username} (${user.managerName}) is now ${newStatus ? 'Approved' : 'Pending Approval'}.`,
+    user: {
+      id: user.id,
+      username: user.username,
+      managerName: user.managerName,
+      teamName: user.teamName,
+      isApproved: user.isApproved,
+    },
+  });
 });
 
 // 11e. Developer Admin: Reset User Password

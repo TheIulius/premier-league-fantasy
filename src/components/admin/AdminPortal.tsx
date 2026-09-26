@@ -47,9 +47,12 @@ import {
   Ticket,
   CreditCard,
   Copy,
+  UserCheck,
+  UserX,
 } from 'lucide-react';
 import {
   adminFetchUsersApi,
+  adminApproveUserApi,
   adminResetPasswordApi,
   adminExportDbUrl,
   adminImportDbApi,
@@ -128,6 +131,7 @@ export const AdminPortal: React.FC = () => {
   const [resetTargetUser, setResetTargetUser] = useState('');
   const [newPasswordInput, setNewPasswordInput] = useState('');
   const [isResettingPass, setIsResettingPass] = useState(false);
+  const [approvingUserId, setApprovingUserId] = useState<string | null>(null);
 
   // Settings: Database Sync state
   const [githubToken, setGithubToken] = useState<string>(() => {
@@ -246,6 +250,26 @@ export const AdminPortal: React.FC = () => {
       showNotification('Failed to fetch registered users');
     } finally {
       setIsLoadingUsers(false);
+    }
+  };
+
+  const handleToggleApproval = async (userId: string, username: string, targetApproved: boolean) => {
+    setApprovingUserId(userId);
+    try {
+      const res = await adminApproveUserApi({ userId, username, isApproved: targetApproved });
+      if (res.success) {
+        if (targetApproved) {
+          confetti({ particleCount: 40, spread: 65, origin: { y: 0.6 } });
+        }
+        showNotification(res.message || `Manager @${username} status updated.`);
+        setUsersList((prev) =>
+          prev.map((u) => (u.id === userId ? { ...u, isApproved: targetApproved } : u))
+        );
+      }
+    } catch (err: any) {
+      alert(err.message || 'Failed to update approval status');
+    } finally {
+      setApprovingUserId(null);
     }
   };
 
@@ -1184,21 +1208,70 @@ export const AdminPortal: React.FC = () => {
             </div>
 
             {/* Registered Users & Squad Inspection */}
-            <div className="p-4 sm:p-5 rounded-2xl bg-zinc-900 border border-white/10 space-y-3">
+            <div className="p-4 sm:p-5 rounded-2xl bg-zinc-900 border border-white/10 space-y-4">
               <div className="flex items-center justify-between pb-2 border-b border-white/10">
                 <div className="flex items-center gap-2">
                   <UsersIcon className="w-4 h-4 text-emerald-400" />
                   <h3 className="font-black text-sm text-white">Registered Managers ({usersList.length})</h3>
+                  {usersList.filter((u) => !u.isAdmin && !u.isApproved).length > 0 && (
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-500/20 text-amber-400 border border-amber-500/30 animate-pulse">
+                      {usersList.filter((u) => !u.isAdmin && !u.isApproved).length} Pending
+                    </span>
+                  )}
                 </div>
                 <button
                   onClick={loadUsers}
                   disabled={isLoadingUsers}
-                  className="p-1 text-zinc-400 hover:text-white"
+                  className="p-1 text-zinc-400 hover:text-white cursor-pointer"
                   title="Refresh User List"
                 >
                   <RefreshCw className={`w-4 h-4 ${isLoadingUsers ? 'animate-spin' : ''}`} />
                 </button>
               </div>
+
+              {/* Pending Approvals Queue Banner */}
+              {(() => {
+                const pending = usersList.filter((u) => !u.isAdmin && !u.isApproved);
+                if (pending.length === 0) return null;
+                return (
+                  <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/30 space-y-3">
+                    <div className="flex items-center gap-2">
+                      <Clock className="w-4 h-4 text-amber-400 animate-pulse" />
+                      <span className="text-xs font-black text-amber-300 uppercase tracking-wide">
+                        Pending Approvals ({pending.length}) — Awaiting 3 ₾ Transfer Verification
+                      </span>
+                    </div>
+                    <div className="space-y-2">
+                      {pending.map((u) => (
+                        <div
+                          key={u.id}
+                          className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-2.5 rounded-xl bg-zinc-950/80 border border-amber-500/20"
+                        >
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <span className="font-extrabold text-xs text-white">{u.managerName}</span>
+                              <span className="text-[10px] font-mono text-amber-400 font-bold">@{u.username}</span>
+                            </div>
+                            <div className="flex items-center gap-2 text-[10px] text-zinc-400">
+                              <span>Team: <strong className="text-slate-200">{u.teamName}</strong></span>
+                              {u.email && <span>• {u.email}</span>}
+                            </div>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => handleToggleApproval(u.id, u.username, true)}
+                            disabled={approvingUserId === u.id}
+                            className="px-3 py-1.5 rounded-xl font-black text-[11px] uppercase tracking-wider bg-emerald-500 hover:bg-emerald-400 text-slate-950 shadow-md transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50 shrink-0"
+                          >
+                            <UserCheck className="w-3.5 h-3.5" />
+                            <span>{approvingUserId === u.id ? 'Approving...' : 'Approve Manager'}</span>
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })()}
 
               {/* Password reset sub-panel */}
               {resetTargetUser && (
@@ -1232,29 +1305,76 @@ export const AdminPortal: React.FC = () => {
               )}
 
               {/* User table */}
-              <div className="divide-y divide-white/[0.04] max-h-[360px] overflow-y-auto">
-                {usersList.map((u) => (
-                  <div key={u.id} className="py-2.5 px-2 flex items-center justify-between hover:bg-white/[0.02]">
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="font-extrabold text-xs text-white">{u.managerName}</span>
-                        <span className="text-[10px] font-mono text-emerald-400 font-bold">@{u.username}</span>
+              <div className="divide-y divide-white/[0.04] max-h-[380px] overflow-y-auto">
+                {usersList.map((u) => {
+                  const isUserAdm = u.isAdmin || u.username === 'theiulius' || u.username === 'chaga';
+                  const isAppr = isUserAdm || u.isApproved;
+
+                  return (
+                    <div key={u.id} className="py-2.5 px-2 flex items-center justify-between gap-3 hover:bg-white/[0.02]">
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="font-extrabold text-xs text-white truncate">{u.managerName}</span>
+                          <span className="text-[10px] font-mono text-emerald-400 font-bold">@{u.username}</span>
+
+                          {/* Role / Status Badge */}
+                          {isUserAdm ? (
+                            <span className="px-1.5 py-0.2 rounded-full text-[9px] font-black bg-purple-500/15 text-purple-300 border border-purple-500/30">
+                              Admin
+                            </span>
+                          ) : isAppr ? (
+                            <span className="px-1.5 py-0.2 rounded-full text-[9px] font-black bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                              ✓ Approved
+                            </span>
+                          ) : (
+                            <span className="px-1.5 py-0.2 rounded-full text-[9px] font-black bg-amber-500/15 text-amber-400 border border-amber-500/30">
+                              ⏳ Pending
+                            </span>
+                          )}
+                        </div>
+                        <span className="text-[11px] text-zinc-400 block truncate">{u.teamName}</span>
                       </div>
-                      <span className="text-[11px] text-zinc-400">{u.teamName}</span>
+
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        {/* Approval Toggle */}
+                        {!isUserAdm && (
+                          isAppr ? (
+                            <button
+                              type="button"
+                              onClick={() => handleToggleApproval(u.id, u.username, false)}
+                              disabled={approvingUserId === u.id}
+                              className="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] font-bold text-zinc-400 hover:text-rose-400 hover:border-rose-500/30 transition-colors cursor-pointer"
+                              title="Revoke access"
+                            >
+                              Revoke
+                            </button>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => handleToggleApproval(u.id, u.username, true)}
+                              disabled={approvingUserId === u.id}
+                              className="px-2.5 py-1 rounded-lg bg-emerald-500 text-slate-950 font-black text-[10px] hover:bg-emerald-400 transition-colors cursor-pointer flex items-center gap-1"
+                              title="Approve manager"
+                            >
+                              <UserCheck className="w-3 h-3" />
+                              <span>Approve</span>
+                            </button>
+                          )
+                        )}
+
+                        <button
+                          onClick={() => {
+                            setResetTargetUser(u.username);
+                            setNewPasswordInput('');
+                          }}
+                          className="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] font-bold text-zinc-300 hover:text-white cursor-pointer"
+                        >
+                          PW
+                        </button>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => {
-                          setResetTargetUser(u.username);
-                          setNewPasswordInput('');
-                        }}
-                        className="px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] font-bold text-zinc-300 hover:text-white"
-                      >
-                        Reset PW
-                      </button>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           </div>

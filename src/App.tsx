@@ -7,6 +7,7 @@ import { StandingsView } from './components/views/StandingsView';
 import { FixturesView } from './components/views/FixturesView';
 import { AdminPortal } from './components/admin/AdminPortal';
 import { AuthLandingView } from './components/auth/AuthLandingView';
+import { PendingApprovalOverlay } from './components/auth/PendingApprovalOverlay';
 
 const AppContent: React.FC = () => {
   const { activeTab, authUser, isDemoMode } = useFPL();
@@ -15,16 +16,24 @@ const AppContent: React.FC = () => {
     return <AuthLandingView />;
   }
 
+  const isAccountApproved = isDemoMode || authUser?.isAdmin || Boolean(authUser?.isApproved);
+
   return (
-    <MobileContainer>
-      {activeTab === 'team' && <PickTeamView />}
-      {activeTab === 'transfers' && <TransfersView />}
-      {(activeTab === 'standings' || (activeTab as any) === 'leagues' || (activeTab as any) === 'points') && (
-        <StandingsView />
-      )}
-      {activeTab === 'fixtures' && <FixturesView />}
-      {activeTab === 'dev' && <AdminPortal />}
-    </MobileContainer>
+    <div className="relative min-h-screen w-full">
+      <div className={!isAccountApproved ? 'filter blur-md pointer-events-none select-none opacity-30 transition-all' : ''}>
+        <MobileContainer>
+          {activeTab === 'team' && <PickTeamView />}
+          {activeTab === 'transfers' && <TransfersView />}
+          {(activeTab === 'standings' || (activeTab as any) === 'leagues' || (activeTab as any) === 'points') && (
+            <StandingsView />
+          )}
+          {activeTab === 'fixtures' && <FixturesView />}
+          {activeTab === 'dev' && <AdminPortal />}
+        </MobileContainer>
+      </div>
+
+      {!isAccountApproved && <PendingApprovalOverlay />}
+    </div>
   );
 };
 

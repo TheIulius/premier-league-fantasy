@@ -105,6 +105,7 @@ interface FPLContextType {
   loginUser: (login: string, pass: string) => Promise<void>;
   registerUser: (data: { username: string; email?: string; password: string; managerName: string; teamName: string; activationCode?: string }) => Promise<void>;
   logoutUser: () => void;
+  checkAuthSession: () => Promise<boolean>;
   paymentSettings: PaymentSettings;
   updatePaymentSettings: (settings: Partial<PaymentSettings>) => Promise<{ success: boolean; settings: PaymentSettings }>;
   theme: 'dark' | 'light';
@@ -444,6 +445,14 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             }
           }
         }
+
+        if (data.currentUserApproved !== undefined && authUser) {
+          if (Boolean(authUser.isApproved) !== Boolean(data.currentUserApproved)) {
+            const updatedUser = { ...authUser, isApproved: Boolean(data.currentUserApproved) };
+            setAuthUser(updatedUser);
+            localStorage.setItem(STORAGE_KEY_AUTH_USER, JSON.stringify(updatedUser));
+          }
+        }
       }
     } catch (err) {
       // Offline fallback: continue using local state
@@ -678,6 +687,22 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setIsDemoMode(false);
     localStorage.removeItem(STORAGE_KEY_AUTH_TOKEN);
     localStorage.removeItem(STORAGE_KEY_AUTH_USER);
+  };
+
+  // Re-verify current session & update user approval state
+  const checkAuthSession = async (): Promise<boolean> => {
+    if (!authToken) return false;
+    try {
+      const res = await api.authMe(authToken);
+      if (res && res.user) {
+        setAuthUser(res.user);
+        localStorage.setItem(STORAGE_KEY_AUTH_USER, JSON.stringify(res.user));
+        return Boolean(res.user.isAdmin || res.user.isApproved);
+      }
+    } catch {
+      // offline fallback
+    }
+    return false;
   };
 
   // Dev Login (Server-Verified or Instant Moderator Recognition)
@@ -1625,6 +1650,7 @@ export const FPLProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         loginUser,
         registerUser,
         logoutUser,
+        checkAuthSession,
         paymentSettings,
         updatePaymentSettings,
         theme,

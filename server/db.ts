@@ -22,6 +22,7 @@ export interface UserAccount {
   createdAt: string;
   role?: 'admin' | 'user';
   isAdmin?: boolean;
+  isApproved?: boolean;
 }
 
 export interface ManagerProfile {
