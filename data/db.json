@@ -4332,19 +4332,487 @@
   ],
   "leagues": [
     {
-      "id": "league_1790369699246",
-      "name": "11/5 volkebi",
-      "code": "KCL-4Q9VN",
-      "isGlobal": false,
+      "id": "league_global",
+      "name": "Komarovi Overall",
+      "code": "GLOBAL",
+      "isGlobal": true,
       "members": [
+        {
+          "id": "user_1",
+          "managerName": "Apex Manager",
+          "teamName": "Apex XI",
+          "totalPoints": 0,
+          "gwPoints": 0,
+          "rank": 1,
+          "previousRank": 1,
+          "activeChip": null,
+          "lineup": []
+        },
+        {
+          "id": "user_1789929998559",
+          "managerName": "Jack",
+          "teamName": "Jack FC",
+          "totalPoints": 0,
+          "gwPoints": 0,
+          "rank": 2,
+          "previousRank": 2,
+          "activeChip": null,
+          "lineup": []
+        },
+        {
+          "id": "user_1790177145368",
+          "managerName": "My Team Manager",
+          "teamName": "Apex XI",
+          "totalPoints": 0,
+          "gwPoints": 0,
+          "rank": 3,
+          "previousRank": 3,
+          "activeChip": null,
+          "lineup": [
+            {
+              "playerId": "p_giorguna",
+              "webName": "Giorguna",
+              "clubId": "SCH_11_1",
+              "position": "MID",
+              "isStarter": true,
+              "isCaptain": false,
+              "isViceCaptain": false,
+              "benchOrder": 0,
+              "points": 0
+            },
+            {
+              "playerId": "p_custom_1790166342439",
+              "webName": "Samada",
+              "clubId": "SCH_11_5",
+              "position": "MID",
+              "isStarter": true,
+              "isCaptain": false,
+              "isViceCaptain": false,
+              "benchOrder": 0,
+              "points": 0
+            },
+            {
+              "playerId": "p_custom_1790166361242",
+              "webName": "Bejana",
+              "clubId": "SCH_11_5",
+              "position": "FWD",
+              "isStarter": true,
+              "isCaptain": false,
+              "isViceCaptain": false,
+              "benchOrder": 0,
+              "points": 0
+            },
+            {
+              "playerId": "p_zarno",
+              "webName": "Zarno",
+              "clubId": "SCH_11_5",
+              "position": "DEF",
+              "isStarter": false,
+              "isCaptain": false,
+              "isViceCaptain": false,
+              "benchOrder": 2,
+              "points": 0
+            },
+            {
+              "playerId": "p_dito",
+              "webName": "Dito",
+              "clubId": "SCH_11_5",
+              "position": "DEF",
+              "isStarter": true,
+              "isCaptain": false,
+              "isViceCaptain": true,
+              "benchOrder": 0,
+              "points": 0
+            },
+            {
+              "playerId": "p_custom_1790166332280",
+              "webName": "Futkara",
+              "clubId": "SCH_11_5",
+              "position": "GKP",
+              "isStarter": true,
+              "isCaptain": false,
+              "isViceCaptain": false,
+              "benchOrder": 0,
+              "points": 0
+            },
+            {
+              "playerId": "p_qavtaradze",
+              "webName": "Qavtaradze",
+              "clubId": "SCH_11_1",
+              "position": "DEF",
+              "isStarter": true,
+              "isCaptain": true,
+              "isViceCaptain": false,
+              "benchOrder": 0,
+              "points": 0
+            },
+            {
+              "playerId": "p_alexa",
+              "webName": "Alexa",
+              "clubId": "SCH_11_1",
+              "position": "FWD",
+              "isStarter": false,
+              "isCaptain": false,
+              "isViceCaptain": false,
+              "benchOrder": 3,
+              "points": 0
+            }
+          ]
+        },
+        {
+          "id": "user_1790180899319",
+          "managerName": "My Team Manager",
+          "teamName": "Apex XI",
+          "totalPoints": 0,
+          "gwPoints": 0,
+          "rank": 4,
+          "previousRank": 4,
+          "activeChip": null,
+          "lineup": [
+            {
+              "playerId": "p_9_5_guruli",
+              "webName": "Guruli",
+              "clubId": "SCH_9_5",
+              "position": "GKP",
+              "isStarter": true,
+              "isCaptain": false,
+              "isViceCaptain": false,
+              "benchOrder": 0,
+              "points": 0
+            },
+            {
+              "playerId": "p_9_4_midelauri",
+              "webName": "Midelauri",
+              "clubId": "SCH_9_4",
+              "position": "DEF",
+              "isStarter": true,
+              "isCaptain": false,
+              "isViceCaptain": false,
+              "benchOrder": 0,
+              "points": 0
+            },
+            {
+              "playerId": "p_9_6_mzhavanadze",
+              "webName": "Mzhavanadze",
+              "clubId": "SCH_9_6",
+              "position": "DEF",
+              "isStarter": true,
+              "isCaptain": false,
+              "isViceCaptain": false,
+              "benchOrder": 0,
+              "points": 0
+            },
+            {
+              "playerId": "p_9_6_gugoadze",
+              "webName": "Gugoadze",
+              "clubId": "SCH_9_6",
+              "position": "MID",
+              "isStarter": true,
+              "isCaptain": false,
+              "isViceCaptain": false,
+              "benchOrder": 0,
+              "points": 0
+            },
+            {
+              "playerId": "p_tarkashvili",
+              "webName": "Tarkashvili",
+              "clubId": "SCH_11_1",
+              "position": "FWD",
+              "isStarter": true,
+              "isCaptain": true,
+              "isViceCaptain": false,
+              "benchOrder": 0,
+              "points": 0
+            },
+            {
+              "playerId": "p_zurashvili",
+              "webName": "Zurashvili",
+              "clubId": "SCH_11_1",
+              "position": "DEF",
+              "isStarter": false,
+              "isCaptain": false,
+              "isViceCaptain": false,
+              "benchOrder": 1,
+              "points": 0
+            },
+            {
+              "playerId": "p_giorguna",
+              "webName": "Giorguna",
+              "clubId": "SCH_11_1",
+              "position": "MID",
+              "isStarter": true,
+              "isCaptain": false,
+              "isViceCaptain": false,
+              "benchOrder": 0,
+              "points": 0
+            },
+            {
+              "playerId": "p_9_2_ukleba",
+              "webName": "Ukleba",
+              "clubId": "SCH_9_2",
+              "position": "FWD",
+              "isStarter": false,
+              "isCaptain": false,
+              "isViceCaptain": false,
+              "benchOrder": 2,
+              "points": 0
+            },
+            {
+              "playerId": "p_9_1_robakidze",
+              "webName": "Robakidze",
+              "clubId": "SCH_9_1",
+              "position": "MID",
+              "isStarter": false,
+              "isCaptain": false,
+              "isViceCaptain": false,
+              "benchOrder": 3,
+              "points": 0
+            }
+          ]
+        },
+        {
+          "id": "user_1789931275292",
+          "managerName": "My Team Manager",
+          "teamName": "Apex XI",
+          "totalPoints": 0,
+          "gwPoints": 0,
+          "rank": 5,
+          "previousRank": 5,
+          "activeChip": null,
+          "lineup": []
+        },
+        {
+          "id": "user_1790177803568",
+          "managerName": "My Team Manager",
+          "teamName": "Apex XI",
+          "totalPoints": 0,
+          "gwPoints": 0,
+          "rank": 6,
+          "previousRank": 6,
+          "activeChip": null,
+          "lineup": [
+            {
+              "playerId": "p_rati",
+              "webName": "Rati",
+              "clubId": "SCH_11_5",
+              "position": "FWD",
+              "isStarter": true,
+              "isCaptain": true,
+              "isViceCaptain": false,
+              "benchOrder": 0,
+              "points": 0
+            },
+            {
+              "playerId": "p_custom_1790194618189",
+              "webName": "Tsiskara",
+              "clubId": "SCH_11_5",
+              "position": "MID",
+              "isStarter": true,
+              "isCaptain": false,
+              "isViceCaptain": true,
+              "benchOrder": 0,
+              "points": 0
+            },
+            {
+              "playerId": "p_custom_1790194825803",
+              "webName": "Tsiskara Jr.",
+              "clubId": "SCH_9_5",
+              "position": "MID",
+              "isStarter": true,
+              "isCaptain": false,
+              "isViceCaptain": false,
+              "benchOrder": 0,
+              "points": 0
+            },
+            {
+              "playerId": "p_11_2_chiqvinidze",
+              "webName": "Chiqvinidze",
+              "clubId": "SCH_11_2",
+              "position": "GKP",
+              "isStarter": true,
+              "isCaptain": false,
+              "isViceCaptain": false,
+              "benchOrder": 0,
+              "points": 0
+            },
+            {
+              "playerId": "p_10_1_chikovani",
+              "webName": "Chikovani",
+              "clubId": "SCH_10_1",
+              "position": "DEF",
+              "isStarter": true,
+              "isCaptain": false,
+              "isViceCaptain": false,
+              "benchOrder": 0,
+              "points": 0
+            },
+            {
+              "playerId": "p_9_6_kodua",
+              "webName": "Kodua",
+              "clubId": "SCH_9_6",
+              "position": "FWD",
+              "isStarter": false,
+              "isCaptain": false,
+              "isViceCaptain": false,
+              "benchOrder": 1,
+              "points": 0
+            },
+            {
+              "playerId": "p_custom_1790244156863",
+              "webName": "Atunashvili",
+              "clubId": "SCH_11_3",
+              "position": "MID",
+              "isStarter": true,
+              "isCaptain": false,
+              "isViceCaptain": false,
+              "benchOrder": 0,
+              "points": 0
+            },
+            {
+              "playerId": "p_9_4_midelauri",
+              "webName": "Midelauri",
+              "clubId": "SCH_9_4",
+              "position": "DEF",
+              "isStarter": false,
+              "isCaptain": false,
+              "isViceCaptain": false,
+              "benchOrder": 2,
+              "points": 0
+            },
+            {
+              "playerId": "p_9_6_mzhavanadze",
+              "webName": "Mzhavanadze",
+              "clubId": "SCH_9_6",
+              "position": "DEF",
+              "isStarter": false,
+              "isCaptain": false,
+              "isViceCaptain": false,
+              "benchOrder": 3,
+              "points": 0
+            }
+          ]
+        },
         {
           "id": "user_1790353103544",
           "managerName": "Ilia",
           "teamName": "giorgievski's tractati",
           "totalPoints": 0,
           "gwPoints": 0,
-          "rank": 1,
-          "previousRank": 1
+          "rank": 7,
+          "previousRank": 7,
+          "activeChip": null,
+          "lineup": [
+            {
+              "playerId": "p_9_4_jafarashvili",
+              "webName": "Jafarashvili",
+              "clubId": "SCH_9_4",
+              "position": "GKP",
+              "isStarter": true,
+              "isCaptain": false,
+              "isViceCaptain": false,
+              "benchOrder": 0,
+              "points": 0
+            },
+            {
+              "playerId": "p_9_6_chelidze",
+              "webName": "Chelidze",
+              "clubId": "SCH_9_6",
+              "position": "DEF",
+              "isStarter": true,
+              "isCaptain": false,
+              "isViceCaptain": false,
+              "benchOrder": 0,
+              "points": 0
+            },
+            {
+              "playerId": "p_10_5_gelashvili",
+              "webName": "Z. Gelashvili",
+              "clubId": "SCH_10_5",
+              "position": "DEF",
+              "isStarter": true,
+              "isCaptain": false,
+              "isViceCaptain": false,
+              "benchOrder": 0,
+              "points": 0
+            },
+            {
+              "playerId": "p_11_6_gardafxadze",
+              "webName": "Gardafxadze",
+              "clubId": "SCH_11_6",
+              "position": "MID",
+              "isStarter": true,
+              "isCaptain": true,
+              "isViceCaptain": false,
+              "benchOrder": 0,
+              "points": 0
+            },
+            {
+              "playerId": "p_9_2_gogichashvili",
+              "webName": "Gogichashvili",
+              "clubId": "SCH_9_2",
+              "position": "MID",
+              "isStarter": true,
+              "isCaptain": false,
+              "isViceCaptain": false,
+              "benchOrder": 0,
+              "points": 0
+            },
+            {
+              "playerId": "p_11_4_xucishvili",
+              "webName": "Xucishvili",
+              "clubId": "SCH_11_4",
+              "position": "FWD",
+              "isStarter": true,
+              "isCaptain": true,
+              "isViceCaptain": false,
+              "benchOrder": 0,
+              "points": 0
+            },
+            {
+              "playerId": "p_11_6_amiko",
+              "webName": "Amiko",
+              "clubId": "SCH_11_6",
+              "position": "DEF",
+              "isStarter": false,
+              "isCaptain": false,
+              "isViceCaptain": false,
+              "benchOrder": 1,
+              "points": 0
+            },
+            {
+              "playerId": "p_custom_1790166342439",
+              "webName": "Samada",
+              "clubId": "SCH_11_5",
+              "position": "MID",
+              "isStarter": false,
+              "isCaptain": false,
+              "isViceCaptain": false,
+              "benchOrder": 2,
+              "points": 0
+            },
+            {
+              "playerId": "p_10_1_shengelia",
+              "webName": "N. Shengelia",
+              "clubId": "SCH_10_1",
+              "position": "FWD",
+              "isStarter": false,
+              "isCaptain": false,
+              "isViceCaptain": false,
+              "benchOrder": 3,
+              "points": 0
+            }
+          ]
+        },
+        {
+          "id": "user_1790357898196",
+          "managerName": "Nika",
+          "teamName": "Chaga XI",
+          "totalPoints": 0,
+          "gwPoints": 0,
+          "rank": 8,
+          "previousRank": 8,
+          "activeChip": null,
+          "lineup": []
         }
       ]
     }
