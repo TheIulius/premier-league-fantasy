@@ -2,7 +2,7 @@ import express, { Request, Response } from 'express';
 import cors from 'cors';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { db, ManagerProfile, hashPassword, verifyPassword, generateToken, UserAccount, PaymentSettings, ActivationCode } from './db';
+import { db, ManagerProfile, hashPassword, verifyPassword, generateToken, UserAccount, PaymentSettings, ActivationCode, DatabaseSchema } from './db';
 import { calculateGameweekSquadPoints, calculatePlayerPoints } from '../src/engine/scoring';
 import { DEFAULT_SQUAD_PLAYER_IDS } from '../src/data/seedPlayers';
 import { CLUBS } from '../src/data/clubs';
@@ -1300,6 +1300,216 @@ app.delete('/api/admin/activation-codes/:code', (req: Request, res: Response) =>
 let runtimeGithubToken = process.env.GITHUB_TOKEN || '';
 let autoSyncTimer: NodeJS.Timeout | null = null;
 
+export function mergeDatabases(local: DatabaseSchema, remote: any): boolean {
+  if (!remote || typeof remote !== 'object') return false;
+  let changed = false;
+
+  // 1. Merge users
+  if (remote.users && typeof remote.users === 'object') {
+    if (!local.users) {
+      local.users = {};
+      changed = true;
+    }
+    for (const [uid, rUser] of Object.entries(remote.users as Record<string, any>)) {
+      if (!local.users[uid]) {
+        local.users[uid] = rUser;
+        changed = true;
+      } else {
+        const lUser = local.users[uid];
+        // Preserve admin status if set on either
+        if ((rUser.isAdmin || rUser.role === 'admin') && !lUser.isAdmin) {
+          lUser.isAdmin = true;
+          lUser.role = 'admin';
+          changed = true;
+        }
+        // Preserve approval if approved on either
+        if (rUser.isApproved && !lUser.isApproved) {
+          lUser.isApproved = true;
+          changed = true;
+        }
+        // Preserve password hash if updated
+        if (rUser.passwordHash && rUser.salt && rUser.passwordHash !== lUser.passwordHash && !lUser.passwordHash) {
+          lUser.passwordHash = rUser.passwordHash;
+          lUser.salt = rUser.salt;
+          changed = true;
+        }
+        // Fill missing manager or team name
+        if (rUser.managerName && !lUser.managerName) {
+          lUser.managerName = rUser.managerName;
+          changed = true;
+        }
+        if (rUser.teamName && !lUser.teamName) {
+          lUser.teamName = rUser.teamName;
+          changed = true;
+        }
+      }
+    }
+  }
+
+  // 2. Merge managers
+  if (remote.managers && typeof remote.managers === 'object') {
+    if (!local.managers) {
+      local.managers = {};
+      changed = true;
+    }
+    for (const [mid, rMgr] of Object.entries(remote.managers as Record<string, any>)) {
+      if (!local.managers[mid]) {
+        local.managers[mid] = rMgr;
+        changed = true;
+      } else {
+        const lMgr = local.managers[mid];
+        const lSquadCount = lMgr.squad?.players?.length || 0;
+        const rSquadCount = rMgr.squad?.players?.length || 0;
+        if (lSquadCount === 0 && rSquadCount > 0) {
+          lMgr.squad = rMgr.squad;
+          changed = true;
+        }
+      }
+    }
+  }
+
+  // 3. Clean up orphaned demo managers with no user account
+  if (local.users && Object.keys(local.users).length > 0 && local.managers) {
+    const validUserIds = new Set(Object.keys(local.users));
+    for (const mid of Object.keys(local.managers)) {
+      if (!validUserIds.has(mid)) {
+        delete local.managers[mid];
+        changed = true;
+      }
+    }
+  }
+
+  // 4. Merge Global League members
+  const localGlobal = local.leagues?.find((l) => l.isGlobal);
+  const remoteGlobal = (remote.leagues || []).find((l: any) => l.isGlobal);
+  if (localGlobal && remoteGlobal && Array.isArray(remoteGlobal.members)) {
+    const validUserIds = local.users ? new Set(Object.keys(local.users)) : null;
+    const existingIds = new Set(localGlobal.members.map((m) => m.id));
+    for (const rm of remoteGlobal.members) {
+      if (!existingIds.has(rm.id)) {
+        if (!validUserIds || validUserIds.has(rm.id)) {
+          localGlobal.members.push(rm);
+          existingIds.add(rm.id);
+          changed = true;
+        }
+      }
+    }
+    if (validUserIds) {
+      const beforeLen = localGlobal.members.length;
+      localGlobal.members = localGlobal.members.filter((m) => validUserIds.has(m.id));
+      if (localGlobal.members.length !== beforeLen) {
+        changed = true;
+      }
+    }
+  }
+
+  // 5. Merge Activation Codes
+  if (Array.isArray(remote.activationCodes)) {
+    if (!Array.isArray(local.activationCodes)) {
+      local.activationCodes = [];
+      changed = true;
+    }
+    const localMap = new Map(local.activationCodes.map((c) => [c.code.toUpperCase(), c]));
+    for (const rc of remote.activationCodes) {
+      const k = rc.code.toUpperCase();
+      if (!localMap.has(k)) {
+        local.activationCodes.push(rc);
+        localMap.set(k, rc);
+        changed = true;
+      } else {
+        const lc = localMap.get(k)!;
+        if (rc.isUsed && !lc.isUsed) {
+          lc.isUsed = true;
+          lc.usedBy = lc.usedBy || rc.usedBy;
+          lc.usedAt = lc.usedAt || rc.usedAt;
+          changed = true;
+        }
+      }
+    }
+  }
+
+  // 6. Merge Fixtures if remote has completed matches
+  if (Array.isArray(remote.fixtures) && Array.isArray(local.fixtures)) {
+    for (const rf of remote.fixtures) {
+      const lf = local.fixtures.find((f) => f.id === rf.id);
+      if (lf) {
+        if (rf.isFinished && !lf.isFinished) {
+          Object.assign(lf, rf);
+          changed = true;
+        }
+      } else {
+        local.fixtures.push(rf);
+        changed = true;
+      }
+    }
+  }
+
+  // 7. Merge custom added players
+  if (remote.players && typeof remote.players === 'object' && local.players) {
+    for (const [pid, rp] of Object.entries(remote.players as Record<string, any>)) {
+      if (!local.players[pid]) {
+        local.players[pid] = rp;
+        changed = true;
+      }
+    }
+  }
+
+  // 8. Merge Payment Settings
+  if (remote.paymentSettings && typeof remote.paymentSettings === 'object') {
+    if (!local.paymentSettings) {
+      local.paymentSettings = remote.paymentSettings;
+      changed = true;
+    }
+  }
+
+  return changed;
+}
+
+export async function syncDatabaseFromGitHub(explicitToken?: string): Promise<{ success: boolean; changed: boolean; error?: string }> {
+  const token = explicitToken || runtimeGithubToken || process.env.GITHUB_TOKEN;
+  const owner = process.env.GITHUB_OWNER || 'TheIulius';
+  const repo = process.env.GITHUB_REPO || 'premier-league-fantasy';
+  const branch = process.env.GITHUB_BRANCH || 'main';
+  const filePath = 'data/db.json';
+
+  if (!token) {
+    return { success: false, changed: false, error: 'No GitHub token configured' };
+  }
+
+  try {
+    const getRes = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${filePath}?ref=${branch}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: 'application/vnd.github.v3+json',
+        'User-Agent': 'Premier-League-Fantasy-App',
+      },
+    });
+
+    if (!getRes.ok) {
+      return { success: false, changed: false, error: `GitHub fetch returned ${getRes.status}` };
+    }
+
+    const getJson: any = await getRes.json();
+    if (!getJson.content) {
+      return { success: false, changed: false, error: 'No content in response' };
+    }
+
+    const remoteRaw = Buffer.from(getJson.content, 'base64').toString('utf-8');
+    const remoteData = JSON.parse(remoteRaw);
+    const localData = db.getData();
+
+    const changed = mergeDatabases(localData, remoteData);
+    if (changed) {
+      db.saveSilent();
+      console.log('[GitHub Sync] Remote changes merged into local database.');
+    }
+    return { success: true, changed };
+  } catch (err: any) {
+    console.warn('[GitHub Sync] Error syncing from GitHub:', err?.message || err);
+    return { success: false, changed: false, error: err?.message };
+  }
+}
+
 export async function commitDbToGitHub(message: string, explicitToken?: string) {
   const token = explicitToken || runtimeGithubToken || process.env.GITHUB_TOKEN;
   const owner = process.env.GITHUB_OWNER || 'TheIulius';
@@ -1313,10 +1523,8 @@ export async function commitDbToGitHub(message: string, explicitToken?: string) 
 
   try {
     const data = db.getData();
-    const contentStr = JSON.stringify(data, null, 2);
-    const base64Content = Buffer.from(contentStr, 'utf-8').toString('base64');
 
-    // 1. Fetch current file SHA
+    // 1. Fetch current file SHA & remote content to perform 2-way merge before committing
     const getRes = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${filePath}?ref=${branch}`, {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -1329,7 +1537,23 @@ export async function commitDbToGitHub(message: string, explicitToken?: string) 
     if (getRes.ok) {
       const getJson: any = await getRes.json();
       sha = getJson.sha;
+      if (getJson.content) {
+        try {
+          const remoteRaw = Buffer.from(getJson.content, 'base64').toString('utf-8');
+          const remoteData = JSON.parse(remoteRaw);
+          const changed = mergeDatabases(data, remoteData);
+          if (changed) {
+            db.saveSilent();
+          }
+        } catch (parseErr) {
+          console.warn('Failed to parse remote db.json during commit merge:', parseErr);
+        }
+      }
     }
+
+    // Re-serialize the merged local database
+    const contentStr = JSON.stringify(data, null, 2);
+    const base64Content = Buffer.from(contentStr, 'utf-8').toString('base64');
 
     // 2. Commit file directly to GitHub repo with [skip ci] to avoid build loops
     const commitMsg = message.includes('[skip ci]') ? message : `${message} [skip ci]`;
@@ -1509,7 +1733,12 @@ app.post('/api/admin/club/add', (req: Request, res: Response) => {
 
 
 // 11d. Developer Admin: List Registered Users
-app.get('/api/admin/users', (req: Request, res: Response) => {
+app.get('/api/admin/users', async (req: Request, res: Response) => {
+  try {
+    await syncDatabaseFromGitHub();
+  } catch (e) {
+    // Non-blocking fallback
+  }
   const data = db.getData();
   const usersList = Object.values(data.users || {}).map((u) => {
     const isAdmin = isUserAdmin(u.username) || u.role === 'admin' || Boolean(u.isAdmin);
@@ -2072,6 +2301,19 @@ app.use((req: Request, res: Response) => {
   res.sendFile(path.join(clientDist, 'index.html'));
 });
 
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`Premier League Fantasy server running on port ${PORT}`);
+  try {
+    const syncRes = await syncDatabaseFromGitHub();
+    if (syncRes.success) {
+      console.log(`[Startup] GitHub database sync successful (changed: ${syncRes.changed})`);
+    }
+  } catch (e) {
+    console.warn('[Startup] Initial GitHub database sync skipped or failed:', e);
+  }
 });
+
+// Periodic background sync from GitHub every 30 seconds to keep multi-container Render instances aligned
+setInterval(() => {
+  syncDatabaseFromGitHub().catch(() => {});
+}, 30000);

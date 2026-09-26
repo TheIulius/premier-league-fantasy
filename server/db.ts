@@ -241,7 +241,32 @@ class Database {
             }
           });
           if (squadsChanged) {
-            this.save();
+            this.saveSilent();
+          }
+        }
+
+        // Clean up orphaned demo managers that have no user account
+        if (this.data.users && Object.keys(this.data.users).length > 0) {
+          const validUserIds = new Set(Object.keys(this.data.users));
+          if (this.data.managers) {
+            let removedOrphans = false;
+            for (const mid of Object.keys(this.data.managers)) {
+              if (!validUserIds.has(mid)) {
+                delete this.data.managers[mid];
+                removedOrphans = true;
+              }
+            }
+            const globalLeague = this.data.leagues?.find((l) => l.isGlobal);
+            if (globalLeague && Array.isArray(globalLeague.members)) {
+              const beforeLen = globalLeague.members.length;
+              globalLeague.members = globalLeague.members.filter((m) => validUserIds.has(m.id));
+              if (globalLeague.members.length !== beforeLen) {
+                removedOrphans = true;
+              }
+            }
+            if (removedOrphans) {
+              this.saveSilent();
+            }
           }
         }
       } catch (err) {
@@ -270,17 +295,21 @@ class Database {
     this.onSaveCallback = cb;
   }
 
-  public save(reason?: string): void {
+  public save(reason?: string, triggerCallback: boolean = true): void {
     try {
       const tempFile = DB_FILE + '.tmp';
       fs.writeFileSync(tempFile, JSON.stringify(this.data, null, 2), 'utf-8');
       fs.renameSync(tempFile, DB_FILE);
-      if (this.onSaveCallback) {
+      if (triggerCallback && this.onSaveCallback) {
         this.onSaveCallback(reason);
       }
     } catch (err) {
       console.error('Failed to save db.json', err);
     }
+  }
+
+  public saveSilent(): void {
+    this.save(undefined, false);
   }
 
   public reset(): void {
