@@ -4819,19 +4819,7 @@
           "rank": 3,
           "previousRank": 3,
           "activeChip": null,
-          "lineup": [
-            {
-              "playerId": "p_9_6_chigladze",
-              "webName": "Chigladze",
-              "clubId": "SCH_9_6",
-              "position": "FWD",
-              "isStarter": true,
-              "isCaptain": true,
-              "isViceCaptain": false,
-              "benchOrder": 0,
-              "points": 0
-            }
-          ]
+          "lineup": []
         }
       ]
     }
